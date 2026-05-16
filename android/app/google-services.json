@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "917999733048",
+    "project_id": "vital-match-362c8",
+    "storage_bucket": "vital-match-362c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917999733048:android:01c27d3169c4905fd299cd",
+        "android_client_info": {
+          "package_name": "com.example.vital_match"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtceGo14wXpw6X5Q8b5fNkzsTj8_k2RvA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
