@@ -1,22 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
 
-class HospitalModel {
-  final String hospitalId;
-  final String name;
-  final String address;
-  final String contactNumber;
-  final double latitude;
-  final double longitude;
-  final int geofenceRadiusKm;
+class HospitalModel extends Hospital{
 
-  HospitalModel({
-    required this.hospitalId,
-    required this.name,
-    required this.address,
-    required this.contactNumber,
-    required this.latitude,
-    required this.longitude,
-    required this.geofenceRadiusKm,
+  const HospitalModel({
+    required super.hospitalId,
+    required super.name,
+    required super.address,
+    required super.contactNumber,
+    required super.latitude,
+    required super.longitude,
+    required super.geofenceRadiusKm,
   });
 
   Map<String, dynamic> toMap() {
