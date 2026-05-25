@@ -21,7 +21,6 @@ const router = express.Router();
 router.post(
   '/',
   verifyToken,
-  validateCreateDonor,
   createDonorProfile,
 );
 

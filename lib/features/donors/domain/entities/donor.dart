@@ -28,6 +28,6 @@ class Donor {
     required this.isVerified,
     required this.dateOfBirth,
     required this.createdAt,
-    required this.lastDonationDate,
+    this.lastDonationDate,
   });
 }

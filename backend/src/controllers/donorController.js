@@ -1,5 +1,12 @@
 const donorService = require('../services/donorService');
 
+const {
+    validateCreateDonor,
+    validateUpdateDonor,
+    validateAvailabilityUpdate,
+} = require(
+    '../validators/donorValidator',
+);
 
 // CREATE DONOR PROFILE
 
@@ -8,6 +15,10 @@ const createDonorProfile = async (req, res, next) => {
   try {
 
     const donorData = req.body;
+
+    validateCreateDonor(
+        donorData,
+    );
 
     const donor = await donorService
       .createDonorProfile(donorData);
@@ -56,6 +67,10 @@ const updateDonorProfile = async (req, res, next) => {
 
     const updateData = req.body;
 
+    validateUpdateDonor(
+        updateData,
+    );  
+
     const updatedDonor = await donorService
       .updateDonorProfile(
         donorId,
@@ -87,6 +102,10 @@ const updateDonorAvailability = async (
     const { donorId } = req.params;
 
     const { isAvailable } = req.body;
+
+    validateAvailabilityUpdate(
+        req.body,
+    );
 
     const updatedDonor = await donorService
       .updateDonorAvailability(

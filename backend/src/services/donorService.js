@@ -14,7 +14,7 @@ const createDonorProfile = async (donorData) => {
     .doc(donorId)
     .set({
       ...donorData,
-      createdAt: doc.data().createdAt?.toDate().toISOString(),
+      createdAt: new Date().toISOString(),
     });
 
   return {
