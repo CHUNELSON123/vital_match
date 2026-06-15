@@ -25,7 +25,7 @@ router.post(
     '/',
     verifyToken,
     allowRoles(
-        'hospitalAdministrator',
+        'hospital_admin',
     ),
     labTechnicianController
         .createLabTechnician,
@@ -64,7 +64,7 @@ router.put(
     '/:technicianId',
     verifyToken,
     allowRoles(
-        'hospitalAdministrator',
+        'hospital_admin',
     ),
     labTechnicianController
         .updateLabTechnician,
@@ -79,7 +79,7 @@ router.delete(
     '/:technicianId',
     verifyToken,
     allowRoles(
-        'hospitalAdministrator',
+        'hospital_admin',
     ),
     labTechnicianController
         .deleteLabTechnician,

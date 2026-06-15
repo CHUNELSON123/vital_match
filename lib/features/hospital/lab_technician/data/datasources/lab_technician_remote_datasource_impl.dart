@@ -122,4 +122,32 @@ class LabTechnicianRemoteDatasourceImpl
         )
         .delete();
   }
+
+  @override
+Future<List<LabTechnicianModel>>
+    getLabTechniciansByHospital(
+  String hospitalId,
+) async {
+
+  final snapshot =
+      await firestore
+          .collection(
+            'lab_technicians',
+          )
+          .where(
+            'hospitalId',
+            isEqualTo: hospitalId,
+          )
+          .get();
+
+  return snapshot.docs
+      .map(
+        (doc) =>
+            LabTechnicianModel
+                .fromFirestore(
+          doc,
+        ),
+      )
+      .toList();
+}
 }

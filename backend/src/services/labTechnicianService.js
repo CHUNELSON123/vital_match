@@ -8,7 +8,7 @@ const AppError =
 
 const labTechnicianCollection =
     db.collection(
-        'lab_technicians',
+        'lab_technician',
     );
 
 const userCollection =
@@ -52,7 +52,7 @@ const createLabTechnician =
 
         if (
             userData.role !==
-            'labTechnician'
+            'lab_technician'
         ) {
             throw new AppError(
                 'User is not a lab technician',

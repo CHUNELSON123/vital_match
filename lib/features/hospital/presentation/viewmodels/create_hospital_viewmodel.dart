@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vital_match/core/di/service_locator.dart';
+import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
+import 'package:geolocator/geolocator.dart';
+
+class CreateHospitalViewModel {
+
+    final createHospitalUsecase =
+      ServiceLocator.createHospitalUsecase;
+
+    
+    Future<void> createHospital() async {
+
+    final uid =
+        FirebaseAuth
+            .instance
+            .currentUser!
+            .uid;
+
+      LocationPermission permission =
+    await Geolocator.checkPermission();
+
+if (permission ==
+    LocationPermission.denied) {
+
+  permission =
+      await Geolocator.requestPermission();
+}
+
+if (permission ==
+        LocationPermission.denied ||
+    permission ==
+        LocationPermission.deniedForever) {
+
+  throw Exception(
+    'Location permission denied',
+  );
+}
+
+Position position =
+    await Geolocator.getCurrentPosition(
+  desiredAccuracy:
+      LocationAccuracy.high,
+);
+
+  final hospital = Hospital(
+    hospitalId: FirebaseFirestore.instance
+    .collection('hospitals')
+    .doc()
+    .id,
+
+    ownerId: uid,
+
+    name: nameController.text.trim(),
+
+    address: addressController.text.trim(),
+
+    contactNumber:
+        contactController.text.trim(),
+
+    latitude: position.latitude,
+
+    longitude: position.longitude,
+
+    geofenceRadiusKm: 10,
+  );
+
+  await createHospitalUsecase(
+    hospital,
+  );
+}
+
+  final formKey =
+      GlobalKey<FormState>();
+
+  final nameController =
+      TextEditingController();
+
+  final addressController =
+      TextEditingController();
+
+  final contactController =
+      TextEditingController();
+
+  void dispose() {
+
+    nameController.dispose();
+    addressController.dispose();
+    contactController.dispose();
+  }
+}

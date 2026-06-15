@@ -31,7 +31,7 @@ router.post(
     '/',
     verifyToken,
     allowRoles(
-        'bloodBankManager',
+        'blood_bank_manager',
     ),
     bloodBankManagerController
         .createBloodBankManager,
@@ -70,7 +70,7 @@ router.put(
     '/:managerId',
     verifyToken,
     allowRoles(
-        'bloodBankManager',
+        'blood_bank_manager',
     ),
     bloodBankManagerController
         .updateBloodBankManager,
@@ -85,7 +85,7 @@ router.delete(
     '/:managerId',
     verifyToken,
     allowRoles(
-        'bloodBankManager',
+        'blood_bank_manager',
     ),
     bloodBankManagerController
         .deleteBloodBankManager,

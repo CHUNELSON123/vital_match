@@ -23,4 +23,6 @@ abstract class
   Future<void> deleteHospitalAdmin(
     String adminId,
   );
+
+  
 }

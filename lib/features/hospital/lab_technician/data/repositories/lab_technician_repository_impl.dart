@@ -41,6 +41,8 @@ class LabTechnicianRepositoryImpl
 
       department:
           technician.department,
+
+      status: technician.status,
     );
 
     await remoteDatasource
@@ -96,6 +98,8 @@ class LabTechnicianRepositoryImpl
 
       department:
           technician.department,
+      
+      status: technician.status,
     );
 
     await remoteDatasource
@@ -116,4 +120,18 @@ class LabTechnicianRepositoryImpl
       technicianId,
     );
   }
+
+
+  @override
+Future<List<LabTechnician>>
+    getLabTechniciansByHospital(
+  String hospitalId,
+) async {
+
+  return await remoteDatasource
+      .getLabTechniciansByHospital(
+    hospitalId,
+  );
+}
+
 }

@@ -1,5 +1,4 @@
 import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
-
 abstract class HospitalRepository {
 
   Future<void> createHospital(
@@ -8,6 +7,10 @@ abstract class HospitalRepository {
 
   Future<Hospital> getHospital(
     String hospitalId,
+  );
+
+  Future<Hospital?> getHospitalByOwnerId(
+    String ownerId,
   );
 
   Future<void> updateHospital(

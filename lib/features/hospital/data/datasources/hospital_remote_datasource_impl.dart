@@ -23,21 +23,48 @@ class HospitalRemoteDatasourceImpl
   }
 
   @override
-  Future<HospitalModel> getHospital(
-    String hospitalId,
+  Future<HospitalModel?> getHospitalByOwnerId(
+    String ownerId,
   ) async {
 
-    final doc = await firestore
+    final snapshot = await firestore
         .collection(hospitalCollection)
-        .doc(hospitalId)
+        .where(
+          'ownerId',
+          isEqualTo: ownerId,
+        )
+        .limit(1)
         .get();
 
-    if (!doc.exists) {
-      throw Exception('Hospital not found');
+    if (snapshot.docs.isEmpty) {
+      return null;
     }
 
-    return HospitalModel.fromFirestore(doc);
+    return HospitalModel.fromFirestore(
+      snapshot.docs.first,
+    );
   }
+
+  @override
+Future<HospitalModel> getHospital(
+  String hospitalId,
+) async {
+
+  final doc = await firestore
+      .collection(hospitalCollection)
+      .doc(hospitalId)
+      .get();
+
+  if (!doc.exists) {
+    throw Exception(
+      'Hospital not found',
+    );
+  }
+
+  return HospitalModel.fromFirestore(
+    doc,
+  );
+}
 
   @override
   Future<void> updateHospital(

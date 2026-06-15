@@ -5,6 +5,7 @@ class HospitalModel extends Hospital{
 
   const HospitalModel({
     required super.hospitalId,
+    required super.ownerId,
     required super.name,
     required super.address,
     required super.contactNumber,
@@ -15,6 +16,7 @@ class HospitalModel extends Hospital{
 
   Map<String, dynamic> toMap() {
     return {
+      'ownerId': ownerId,
       'name': name,
       'address': address,
       'contactNumber': contactNumber,
@@ -31,6 +33,7 @@ class HospitalModel extends Hospital{
 
     return HospitalModel(
       hospitalId: doc.id,
+      ownerId: data['ownerId'] ?? '',
       name: data['name'] ?? '',
       address: data['address'] ?? '',
       contactNumber: data['contactNumber'] ?? '',

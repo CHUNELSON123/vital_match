@@ -13,7 +13,7 @@ const hospitalCollection = 'hospitals';
 
 // CREATE HOSPITAL
 
-const createHospital = async (data) => {
+const createHospital = async (data, ownerId,) => {
 
     validateCreateHospital(data);
 
@@ -23,6 +23,7 @@ const createHospital = async (data) => {
 
     const hospital = {
         hospitalId: hospitalRef.id,
+        ownerId: ownerId,
         name: data.name,
         address: data.address,
         contactNumber: data.contactNumber,
@@ -34,6 +35,25 @@ const createHospital = async (data) => {
 
     await hospitalRef.set(hospital);
 
+    const adminDoc = await db
+    .collection("hospital_admins")
+    .doc(ownerId)
+    .get();
+
+    if (!adminDoc.exists) {
+        throw new AppError(
+            "Hospital admin profile not found",
+            404,
+        );
+    }
+
+    await db
+    .collection("hospital_admins")
+    .doc(ownerId)
+    .update({
+        hospitalId: hospitalRef.id,
+    });
+    
     return hospital;
 };
 

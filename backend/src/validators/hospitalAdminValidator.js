@@ -17,9 +17,13 @@ const validateCreateHospitalAdmin =
 
 
 
-        if (!userId) {
+        if (
+            hospitalId !== undefined &&
+            hospitalId !== null &&
+            typeof hospitalId !== 'string'
+        ) {
             throw new AppError(
-                'userId is required',
+                'hospitalId must be a string',
                 400,
             );
         }

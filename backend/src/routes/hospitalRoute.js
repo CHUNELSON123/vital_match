@@ -20,7 +20,7 @@ const router = express.Router();
 router.post(
     '/',
     verifyToken,
-    allowRoles('hospitalAdministrator'),
+    allowRoles('hospital_admin'),
     hospitalController.createHospital,
 );
 
@@ -39,7 +39,7 @@ router.get(
 router.put(
     '/:hospitalId',
     verifyToken,
-    allowRoles('hospitalAdministrator'),
+    allowRoles('hospital_admin'),
     hospitalController.updateHospital,
 );
 
@@ -49,7 +49,7 @@ router.put(
 router.delete(
     '/:hospitalId',
     verifyToken,
-    allowRoles('hospitalAdministrator'),
+    allowRoles('hospital_aadmin'),
     hospitalController.deleteHospital,
 );
 

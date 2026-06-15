@@ -14,6 +14,7 @@ const createHospital = async (
         const hospital =
             await hospitalService.createHospital(
                 req.body,
+                req.user.uid,
             );
 
         res.status(201).json({

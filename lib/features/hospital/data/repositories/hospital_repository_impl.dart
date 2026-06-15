@@ -17,6 +17,7 @@ class HospitalRepositoryImpl
 
     final hospitalModel = HospitalModel(
       hospitalId: hospital.hospitalId,
+      ownerId: hospital.ownerId,
       name: hospital.name,
       address: hospital.address,
       contactNumber: hospital.contactNumber,
@@ -29,6 +30,17 @@ class HospitalRepositoryImpl
       hospitalModel,
     );
   }
+
+  @override
+Future<Hospital?> getHospitalByOwnerId(
+  String ownerId,
+) async {
+
+  return await remoteDatasource
+      .getHospitalByOwnerId(
+    ownerId,
+  );
+}
 
   @override
   Future<Hospital> getHospital(
@@ -47,6 +59,7 @@ class HospitalRepositoryImpl
 
     final hospitalModel = HospitalModel(
       hospitalId: hospital.hospitalId,
+      ownerId: hospital.ownerId,
       name: hospital.name,
       address: hospital.address,
       contactNumber: hospital.contactNumber,

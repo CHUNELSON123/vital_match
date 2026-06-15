@@ -1,33 +1,51 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vital_match/features/donors/data/datasources/donor_remote_datasource.dart';
 import 'package:vital_match/features/donors/data/models/donor_model.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:vital_match/core/constants/api_constants.dart';
 
 class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
-  final FirebaseFirestore firestore;
-
-  DonorRemoteDatasourceImpl({required this.firestore});
+  DonorRemoteDatasourceImpl();
 
   @override
   Future<void> createDonorProfile(DonorModel donor) async {
-    await firestore.collection('donor').doc(donor.donorId).set(donor.toMap());
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/donors'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(donor.toMap()),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create donor profile');
+    }
   }
 
   @override
   Future<DonorModel> getDonorProfile(String donorId) async {
-    final doc = await firestore.collection('donor').doc(donorId).get();
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/donors/$donorId'),
+    );
 
-    if (!doc.exists) {
+    if (response.statusCode != 200) {
       throw Exception('Donor profile not found');
     }
-    return DonorModel.fromFirestore(doc);
+
+    final data = jsonDecode(response.body);
+
+    return DonorModel.fromMap(data['data']);
   }
 
   @override
   Future<void> updateDonorProfile(DonorModel donor) async {
-    await firestore
-        .collection('donor')
-        .doc(donor.donorId)
-        .update(donor.toMap());
+    final response = await http.put(
+      Uri.parse('${ApiConstants.baseUrl}/donors/${donor.donorId}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(donor.toMap()),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update donor profile');
+    }
   }
 
   @override
@@ -35,8 +53,14 @@ class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
     required String donorId,
     required bool isAvailable,
   }) async {
-    await firestore.collection('donors').doc(donorId).update({
-      'isAvailable': isAvailable,
-    });
+    final response = await http.patch(
+      Uri.parse('${ApiConstants.baseUrl}/donors/$donorId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'isAvailable': isAvailable}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update donor availability');
+    }
   }
 }

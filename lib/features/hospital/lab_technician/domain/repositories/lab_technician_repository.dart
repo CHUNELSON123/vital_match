@@ -22,4 +22,9 @@ abstract class LabTechnicianRepository {
   Future<void> deleteLabTechnician(
     String technicianId,
   );
+
+  Future<List<LabTechnician>>
+    getLabTechniciansByHospital(
+  String hospitalId,
+);
 }

@@ -21,4 +21,9 @@ abstract class LabTechnicianRemoteDatasource {
   Future<void> deleteLabTechnician(
     String technicianId,
   );
+
+  Future<List<LabTechnicianModel>>
+    getLabTechniciansByHospital(
+  String hospitalId,
+);
 }

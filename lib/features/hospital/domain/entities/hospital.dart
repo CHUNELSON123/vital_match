@@ -1,5 +1,6 @@
 class Hospital {
   final String hospitalId;
+  final String ownerId;
   final String name;
   final String address;
   final String contactNumber;
@@ -9,6 +10,7 @@ class Hospital {
 
   const Hospital({
     required this.hospitalId,
+    required this.ownerId,
     required this.name,
     required this.address,
     required this.contactNumber,

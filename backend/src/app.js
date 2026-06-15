@@ -13,6 +13,12 @@ const hospitalAdminRoutes = require("./routes/hospitalAdminRoutes");
 const bloodBankManagerRoutes = require("./routes/bloodBankManagerRoutes");
 const emergencyAlertRoutes= require("./routes/emergencyAlertRoutes");
 const alertResponseRoutes = require("./routes/alertResponseRoutes",);
+const transferOrderRoutes = require("./routes/transferOrderRoutes",);
+const donationCampaignRoutes = require("./routes/donationCampaignRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const rewardRoutes = require("./routes/rewardRoutes");
+const healthTipRoutes = require('./routes/healthTipRoutes',);
+const auditTrailRoutes = require('./routes/auditTrailRoutes',);
 
 const app = express();
 
@@ -34,6 +40,12 @@ app.use('/api/hospital-admins', hospitalAdminRoutes);
 app.use('/api/blood-bank-managers', bloodBankManagerRoutes);
 app.use('/api/emergency-alerts', emergencyAlertRoutes);
 app.use('/api/alert-responses', alertResponseRoutes,);
+app.use('/api/transfer-orders', transferOrderRoutes,);
+app.use('/api/donation-campaigns', donationCampaignRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/health-tips', healthTipRoutes,);
+app.use('/api/audit-trails', auditTrailRoutes,);
 
 app.use(errorHandler);
 

@@ -4,6 +4,7 @@ class LabTechnician {
   final String hospitalId;
   final String employeeId;
   final String department;
+  final String status;
 
   const LabTechnician({
     required this.technicianId,
@@ -11,5 +12,6 @@ class LabTechnician {
     required this.hospitalId,
     required this.employeeId,
     required this.department,
+    required this.status,
   });
 }

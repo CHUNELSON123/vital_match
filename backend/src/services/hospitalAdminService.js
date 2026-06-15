@@ -52,7 +52,7 @@ const createHospitalAdmin =
 
         if (
             userData.role !==
-            'hospitalAdministrator'
+            'hospital_admin'
         ) {
             throw new AppError(
                 'User is not a hospital administrator',

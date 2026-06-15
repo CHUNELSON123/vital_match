@@ -1,51 +1,62 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class NotificationModel {
-  final String notificationId;
-  final String userId;
-  final String alertId;
-  final String type;
-  final String title;
-  final String message;
-  final bool isRead;
-  final Timestamp sentAt;
+import '../../../../core/enums/notification_type.dart';
 
-  NotificationModel({
-    required this.notificationId,
-    required this.userId,
-    required this.alertId,
-    required this.type,
-    required this.title,
-    required this.message,
-    required this.isRead,
-    required this.sentAt,
+import '../../domain/entities/notification.dart';
+
+
+class NotificationModel
+    extends Notification {
+
+  const NotificationModel({
+    required super.notificationId,
+    required super.userId,
+    required super.alertId,
+    required super.type,
+    required super.title,
+    required super.message,
+    required super.isRead,
+    required super.sentAt,
   });
+
 
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
-      'alertId': alertId, 
-      'title': title, 
+      'alertId': alertId,
+      'type': type.name,
+      'title': title,
       'message': message,
       'isRead': isRead,
       'sentAt': sentAt,
     };
   }
 
-  factory NotificationModel.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
+
+  factory NotificationModel
+      .fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>>
+        doc,
   ) {
+
     final data = doc.data()!;
 
     return NotificationModel(
       notificationId: doc.id,
       userId: data['userId'] ?? '',
       alertId: data['alertId'] ?? '',
-      type: data['type'] ?? '',
+      type:
+          NotificationType.values
+              .firstWhere(
+        (notificationType) =>
+            notificationType.name ==
+            data['type'],
+      ),
       title: data['title'] ?? '',
       message: data['message'] ?? '',
-      isRead: data['isRead'] ?? false,
-      sentAt: data['sentAt'] ?? '',
+      isRead:
+          data['isRead'] ?? false,
+      sentAt: data['sentAt'],
     );
   }
 }

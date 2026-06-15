@@ -1,6 +1,6 @@
 enum UserRole {
   donor,
   hospitalAdministrator,
-  labTechinician,
+  labTechnician,
   bloodBankManager,
 }

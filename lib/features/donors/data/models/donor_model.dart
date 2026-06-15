@@ -40,7 +40,7 @@ class DonorModel extends Donor {
     };
   }
 
-  factory DonorModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory DonorModel.fromMap(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
 
     return DonorModel(

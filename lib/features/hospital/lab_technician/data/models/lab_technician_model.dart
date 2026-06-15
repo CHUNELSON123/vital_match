@@ -8,6 +8,7 @@ class LabTechnicianModel extends LabTechnician {
     required super.hospitalId,
     required super.employeeId,
     required super.department,
+    required super.status,
   });
 
   Map<String, dynamic> toMap() {
@@ -16,6 +17,7 @@ class LabTechnicianModel extends LabTechnician {
       'hospitalId': hospitalId,
       'employeeId': employeeId,
       'department': department,
+      'status': status,
     };
   }
 
@@ -30,6 +32,7 @@ class LabTechnicianModel extends LabTechnician {
       hospitalId: data['hospitalId'] ?? '',
       employeeId: data['employeeId'] ?? '',
       department: data['department'] ?? '',
+      status: data['status'] ?? 'Active',
     );
   }
 }

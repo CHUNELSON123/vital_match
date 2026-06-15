@@ -2,9 +2,17 @@ import '../entities/auth_user.dart';
 
 abstract class AuthRepository {
 
-  Future<AuthUser> register({
+  Future<void> register({
+    required String fullName,
     required String email,
     required String password,
+    required String phoneNumber,
+    required String role,
+    String? bloodGroup,
+    String? weight,
+    String? dateOfBirth,
+    double? latitude,
+    double? longitude,
   });
 
   Future<AuthUser> login({

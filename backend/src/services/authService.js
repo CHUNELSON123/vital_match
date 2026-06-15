@@ -1,5 +1,7 @@
 const { admin, db } = require("../config/firebase");
 const AppError = require("../utils/appError");
+const donorService = require("./donorService");
+ 
 
 const registerUser = async (userData) => {
 
@@ -9,6 +11,11 @@ const registerUser = async (userData) => {
         password,
         phoneNumber,
         role,
+        bloodGroup,
+        weight,
+        dateOfBirth,
+        latitude,
+        longitude,
     } = userData;
 
     //Create firebase auth user
@@ -34,13 +41,82 @@ const registerUser = async (userData) => {
 
     //save user profile to firestore
     await db
-        .collection("users")
-        .doc(uid)
-        .set(newUser);
+    .collection("users")
+    .doc(uid)
+    .set(newUser);
 
-    return newUser;
+if (role === "donor") {
+
+    const birthDate = new Date(
+        dateOfBirth,
+    );
+
+    const age =
+        new Date().getFullYear() -
+        birthDate.getFullYear();
+
+    await donorService.createDonorProfile({
+        userId: uid,
+        bloodGroup,
+        weight: Number(weight),
+        gpsLatitude: latitude,
+        gpsLongitude: longitude,
+        age,
+        pointsBalance: 0,
+        isAvailable: true,
+        isVerified: false,
+        dateOfBirth,
+        lastDonationDate: null,
+    });
+}
+
+if (role === "hospital_admin") {
+
+    await db
+        .collection("hospital_admins")
+        .doc(uid)
+        .set({
+            adminId: uid,
+            userId: uid,
+            hospitalId: null,
+            adminLevel: "owner",
+            createdAt,
+        });
+}
+
+if (role === "lab_technician") {
+    await db
+        .collection("lab_technicians")
+        .doc(uid)
+        .set({
+            technicianId: uid,
+            userId: uid,
+            fullName,
+            email,
+            phoneNumber,
+            hospitalId: null,
+            employeeId: null,
+            department: null,
+            createdAt,
+        });
+}
+
+if (role === "blood_bank_manager") {
+    await db
+        .collection("blood_bank_managers")
+        .doc(uid)
+        .set({
+            userId: uid,
+            fullName,
+            email,
+            phoneNumber,
+            createdAt,
+        });
+}
+return newUser;
 };
 
+ 
 //Reset Password
 const resetPassword = async (email) => {
 

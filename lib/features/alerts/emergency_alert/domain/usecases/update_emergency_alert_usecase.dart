@@ -1,5 +1,4 @@
 import '../entities/emergency_alert.dart';
-
 import '../repositories/emergency_alert_repository.dart';
 
 class UpdateEmergencyAlertUsecase {
