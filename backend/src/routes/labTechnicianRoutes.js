@@ -16,11 +16,7 @@ const {
 const router =
     express.Router();
 
-
-
-
 // CREATE LAB TECHNICIAN
-
 router.post(
     '/',
     verifyToken,
@@ -31,11 +27,7 @@ router.post(
         .createLabTechnician,
 );
 
-
-
-
 // GET ALL LAB TECHNICIANS
-
 router.get(
     '/',
     verifyToken,
@@ -43,11 +35,17 @@ router.get(
         .getAllLabTechnicians,
 );
 
-
-
+router.get(
+    '/hospital/:hospitalId',
+    verifyToken,
+    allowRoles(
+        'hospital_admin',
+    ),
+    labTechnicianController
+        .getTechniciansByHospital,
+);
 
 // GET LAB TECHNICIAN
-
 router.get(
     '/:technicianId',
     verifyToken,
@@ -55,11 +53,7 @@ router.get(
         .getLabTechnician,
 );
 
-
-
-
 // UPDATE LAB TECHNICIAN
-
 router.put(
     '/:technicianId',
     verifyToken,
@@ -70,11 +64,7 @@ router.put(
         .updateLabTechnician,
 );
 
-
-
-
 // DELETE LAB TECHNICIAN
-
 router.delete(
     '/:technicianId',
     verifyToken,
@@ -84,6 +74,8 @@ router.delete(
     labTechnicianController
         .deleteLabTechnician,
 );
+
+ 
 
 
 module.exports = router;

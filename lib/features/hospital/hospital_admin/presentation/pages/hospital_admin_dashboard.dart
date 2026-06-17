@@ -1,5 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vital_match/core/di/service_locator.dart';
 import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
 import 'package:flutter/material.dart';
 import '../../../presentation/pages/create_hospital_page.dart';
@@ -11,6 +9,7 @@ import '../widgets/dashboard_stats_grid.dart';
 import '../widgets/recent_activity_table.dart';
 import '../widgets/quick_actions_section.dart';
 import '../viewmodels/dashboard_statistics_viewmodel.dart';
+import 'package:vital_match/features/audit_trail/domain/entities/audit_trail.dart';
 
 class HospitalAdminDashboard extends StatefulWidget {
   const HospitalAdminDashboard({super.key});
@@ -26,12 +25,13 @@ class _HospitalAdminDashboardState extends State<HospitalAdminDashboard> {
   bool _isLoading = true;
   int auditCount = 0;
   int technicianCount = 0;
+  List<AuditTrail> recentActivities = [];
+  Map<String, String> activityUserNames = {};
   Hospital? hospital;
 
   @override
   void initState() {
     super.initState();
-
     _checkHospital();
   }
 
@@ -44,11 +44,8 @@ class _HospitalAdminDashboardState extends State<HospitalAdminDashboard> {
       });
 
       await _loadDashboardStats();
-
-      setState(() {
-        _isLoading = false;
-      });
     } catch (e) {
+      print('DASHBOARD ERROR: $e');
       setState(() {
         _isLoading = false;
       });
@@ -56,24 +53,33 @@ class _HospitalAdminDashboardState extends State<HospitalAdminDashboard> {
   }
 
   Future<void> _loadDashboardStats() async {
+    if (hospital == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
-  if (hospital == null) return;
+    final activities = await statisticsVm.getRecentActivities(
+      hospital!.hospitalId,
+    );
 
-  final audits =
-      await statisticsVm.getAuditCount(
-    hospital!.hospitalId,
-  );
+    final userNames = await statisticsVm.getUserNamesForActivities(activities);
 
-  final technicians =
-      await statisticsVm.getTechnicianCount(
-    hospital!.hospitalId,
-  );
+    final technicians = await statisticsVm.getTechnicianCount(
+      hospital!.hospitalId,
+    );
 
-  setState(() {
-    auditCount = audits;
-    technicianCount = technicians;
-  });
-}
+    setState(() {
+      auditCount = activities.length;
+      technicianCount = technicians;
+
+      recentActivities = activities;
+
+      activityUserNames = userNames;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +111,7 @@ class _HospitalAdminDashboardState extends State<HospitalAdminDashboard> {
               )
             : Row(
                 children: [
-                   HospitalAdminSidebar(
-                    selectedIndex: 0,
-                    hospital: hospital!,
-                  ),
+                  HospitalAdminSidebar(selectedIndex: 0, hospital: hospital!),
 
                   Expanded(
                     child: Column(
@@ -133,16 +136,21 @@ class _HospitalAdminDashboardState extends State<HospitalAdminDashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
 
                                   children: [
-                                    const Expanded(
+                                    Expanded(
                                       flex: 3,
-                                      child: RecentActivityTable(),
+                                      child: RecentActivityTable(
+                                        activities: recentActivities,
+                                        activityUserNames: activityUserNames,
+                                      ),
                                     ),
 
                                     const SizedBox(width: 24),
 
-                                    const Expanded(
+                                    Expanded(
                                       flex: 1,
-                                      child: QuickActionsSection(),
+                                      child: QuickActionsSection(
+                                        hospital: hospital!,
+                                      ),
                                     ),
                                   ],
                                 ),

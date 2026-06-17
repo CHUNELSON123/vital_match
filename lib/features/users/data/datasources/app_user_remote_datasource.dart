@@ -11,4 +11,8 @@ abstract class AppUserRemoteDatasource {
   Future<void> updateUser(AppUserModel user);
 
   Future<void> deleteUser(String uid);
+
+  Future<AppUserModel?> getUserByEmail(
+  String email,
+);
 }

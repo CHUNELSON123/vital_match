@@ -19,6 +19,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const rewardRoutes = require("./routes/rewardRoutes");
 const healthTipRoutes = require('./routes/healthTipRoutes',);
 const auditTrailRoutes = require('./routes/auditTrailRoutes',);
+const reportsRoutes = require('./routes/reportsRoutes',);
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/health-tips', healthTipRoutes,);
 app.use('/api/audit-trails', auditTrailRoutes,);
+app.use('/api/reports', reportsRoutes,);
 
 app.use(errorHandler);
 

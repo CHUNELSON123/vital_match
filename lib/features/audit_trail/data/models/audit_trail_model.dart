@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../domain/entities/audit_trail.dart';
 
 class AuditTrailModel
@@ -12,6 +10,9 @@ class AuditTrailModel
     required super.action,
     required super.targetEntity,
     required super.timestamp,
+
+    required super.userName,
+    required super.targetName,
   });
 
 
@@ -24,28 +25,35 @@ class AuditTrailModel
           targetEntity,
       'timestamp':
           timestamp.toIso8601String(),
+      'userName': userName,
+      'targetName': targetName,
     };
   }
 
 
-  factory AuditTrailModel
-      .fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>>
-        doc,
-  ) {
+ factory AuditTrailModel.fromMap(
+  Map<String, dynamic> data,
+) {
+  return AuditTrailModel(
+    auditId:
+        data['auditId'] ?? '',
+    userId:
+        data['userId'] ?? '',
+    hospitalId:
+        data['hospitalId'] ?? '',
+    action:
+        data['action'] ?? '',
+    targetEntity:
+        data['targetEntity'] ?? '',
+    timestamp: DateTime.parse(
+      data['timestamp'],
+    ),
 
-    final data = doc.data()!;
+    userName:
+        data['userName'] ?? '',
 
-    return AuditTrailModel(
-      auditId: doc.id,
-      userId: data['userId'] ?? '',
-      hospitalId: data['hospitalId'] ?? '',
-      action: data['action'] ?? '',
-      targetEntity:
-          data['targetEntity'] ?? '',
-      timestamp: DateTime.parse(
-        data['timestamp'],
-      ),
-    );
-  }
+    targetName:
+        data['targetName'] ?? '',
+  );
+}
 }

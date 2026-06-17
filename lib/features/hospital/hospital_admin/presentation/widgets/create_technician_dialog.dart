@@ -20,6 +20,12 @@ class _CreateTechnicianDialogState
   final userEmailController =
       TextEditingController();
 
+  final fullNameController =
+    TextEditingController();
+
+final phoneNumberController =
+    TextEditingController();
+
   String department =
       'Hematology';
 
@@ -56,9 +62,18 @@ class _CreateTechnicianDialogState
               height: 16,
             ),
 
+            TextField(
+              controller: fullNameController,
+              decoration: const InputDecoration(
+                labelText: 'Full Name',
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             DropdownButtonFormField<
                 String>(
-              value: department,
+                value: department,
 
               items: const [
 
@@ -117,6 +132,15 @@ class _CreateTechnicianDialogState
                     'User Email',
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: phoneNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Phone Number',
+              ),
+            ),
           ],
         ),
       ),
@@ -139,16 +163,22 @@ class _CreateTechnicianDialogState
 
             Navigator.pop(
               context,
-              {
+               {
+                'fullName':
+                    fullNameController.text,
+
+                'email':
+                    userEmailController.text,
+
+                'phoneNumber':
+                    phoneNumberController.text,
+
                 'employeeId':
-                    employeeIdController
-                        .text,
+                    employeeIdController.text,
+
                 'department':
                     department,
-                'email':
-                    userEmailController
-                        .text,
-              },
+              }
             );
           },
           child: const Text(

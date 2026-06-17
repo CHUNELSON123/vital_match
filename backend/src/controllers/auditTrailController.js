@@ -221,6 +221,32 @@ const deleteAuditTrail =
         }
     };
 
+const getAuditTrailsByHospital =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const auditTrails =
+                await auditTrailService
+                    .getAuditTrailsByHospital(
+                        req.params
+                            .hospitalId,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: auditTrails,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
 
 module.exports = {
     createAuditTrail,
@@ -229,4 +255,5 @@ module.exports = {
     getAuditTrailsByUser,
     updateAuditTrail,
     deleteAuditTrail,
+    getAuditTrailsByHospital,
 };

@@ -15,9 +15,6 @@ const {
 const router =
     express.Router();
 
-
-
-
 // CREATE AUDIT TRAIL
 
 router.post(
@@ -27,9 +24,6 @@ router.post(
         .createAuditTrail,
 );
 
-
-
-
 // GET ALL AUDIT TRAILS
 
 router.get(
@@ -38,9 +32,6 @@ router.get(
     auditTrailController
         .getAllAuditTrails,
 );
-
-
-
 
 // GET AUDIT TRAILS BY USER
 
@@ -52,10 +43,14 @@ router.get(
 );
 
 
-
+router.get(
+    '/hospital/:hospitalId',
+    verifyToken,
+    auditTrailController
+        .getAuditTrailsByHospital,
+);
 
 // GET AUDIT TRAIL
-
 router.get(
     '/:auditId',
     verifyToken,
@@ -63,20 +58,13 @@ router.get(
         .getAuditTrail,
 );
 
-
-
-
 // UPDATE AUDIT TRAIL
-
 router.put(
     '/:auditId',
     verifyToken,
     auditTrailController
         .updateAuditTrail,
 );
-
-
-
 
 // DELETE AUDIT TRAIL
 

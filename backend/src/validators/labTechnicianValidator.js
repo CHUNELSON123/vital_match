@@ -5,14 +5,27 @@ const AppError =
 
 
 // CREATE LAB TECHNICIAN VALIDATOR
-
 const validateCreateLabTechnician = (
     data,
 ) => {
 
-    if (!data.userId) {
+    if (!data.fullName) {
         throw new AppError(
-            'User ID is required',
+            'Full name is required',
+            400,
+        );
+    }
+
+    if (!data.email) {
+        throw new AppError(
+            'Email is required',
+            400,
+        );
+    }
+
+    if (!data.phoneNumber) {
+        throw new AppError(
+            'Phone number is required',
             400,
         );
     }
@@ -43,35 +56,59 @@ const validateCreateLabTechnician = (
 
 
 // UPDATE LAB TECHNICIAN VALIDATOR
+const validateUpdateLabTechnician =
+    (data) => {
 
-const validateUpdateLabTechnician = (
-    data,
-) => {
+        if (
+            data.employeeId != null &&
+            data.employeeId.trim() === ''
+        ) {
+            throw new AppError(
+                'Employee ID cannot be empty',
+                400,
+            );
+        }
 
-    if (
-        data.employeeId !==
-            undefined &&
-        data.employeeId.trim() === ''
-    ) {
-        throw new AppError(
-            'Employee ID cannot be empty',
-            400,
-        );
-    }
+        if (
+            data.department != null &&
+            data.department.trim() === ''
+        ) {
+            throw new AppError(
+                'Department cannot be empty',
+                400,
+            );
+        }
 
-    if (
-        data.department !==
-            undefined &&
-        data.department.trim() === ''
-    ) {
-        throw new AppError(
-            'Department cannot be empty',
-            400,
-        );
-    }
-};
+        if (
+            data.fullName != null &&
+            data.fullName.trim() === ''
+        ) {
+            throw new AppError(
+                'Full Name cannot be empty',
+                400,
+            );
+        }
 
+        if (
+            data.email != null &&
+            data.email.trim() === ''
+        ) {
+            throw new AppError(
+                'Email cannot be empty',
+                400,
+            );
+        }
 
+        if (
+            data.phoneNumber != null &&
+            data.phoneNumber.trim() === ''
+        ) {
+            throw new AppError(
+                'Phone Number cannot be empty',
+                400,
+            );
+        }
+    };
 module.exports = {
     validateCreateLabTechnician,
     validateUpdateLabTechnician,

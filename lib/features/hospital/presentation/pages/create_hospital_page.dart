@@ -247,8 +247,7 @@ Widget build(BuildContext context) {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const HospitalAdminDashboard(),
+                                  builder: (_) => HospitalAdminDashboard(),
                                 ),
                                 (route) => false,
                               );

@@ -28,17 +28,32 @@ class AppUserModel extends AppUser {
 //Create Model From Firestore
 
   factory AppUserModel.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data()!;
+  DocumentSnapshot<Map<String, dynamic>> doc,
+) {
+  final data = doc.data()!;
 
-    return AppUserModel(
-      userId: doc.id,
-      fullName: data['fullName'] ?? '',
-      email: data['email'] ?? '',
-      phoneNumber: data['phoneNumber'] ?? '',
-      role: UserRole.values.firstWhere((role) => role.name == data['role'],),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-    );
+  DateTime createdAt;
+
+  if (data['createdAt'] is Timestamp) {
+    createdAt =
+        (data['createdAt'] as Timestamp)
+            .toDate();
+  } else {
+    createdAt =
+        DateTime.parse(
+          data['createdAt'],
+        );
   }
+
+  return AppUserModel(
+    userId: doc.id,
+    fullName: data['fullName'] ?? '',
+    email: data['email'] ?? '',
+    phoneNumber: data['phoneNumber'] ?? '',
+    role: UserRole.values.firstWhere(
+      (role) => role.name == data['role'],
+    ),
+    createdAt: createdAt,
+  );
+}
 }

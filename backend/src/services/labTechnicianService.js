@@ -8,7 +8,7 @@ const AppError =
 
 const labTechnicianCollection =
     db.collection(
-        'lab_technician',
+        'lab_technicians',
     );
 
 const userCollection =
@@ -17,58 +17,22 @@ const userCollection =
 const hospitalCollection =
     db.collection('hospitals');
 
+const auditTrailService =
+    require(
+        './auditTrailService',
+    );
 
 
-
-// CREATE LAB TECHNICIAN
 
 const createLabTechnician =
     async (
         technicianData,
     ) => {
 
-        // VALIDATE USER
-
-        const userDoc =
-            await userCollection
-                .doc(
-                    technicianData
-                        .userId,
-                )
-                .get();
-
-        if (!userDoc.exists) {
-            throw new AppError(
-                'User not found',
-                404,
-            );
-        }
-
-        const userData =
-            userDoc.data();
-
-
-        // VALIDATE ROLE
-
-        if (
-            userData.role !==
-            'lab_technician'
-        ) {
-            throw new AppError(
-                'User is not a lab technician',
-                400,
-            );
-        }
-
-
-
-        // VALIDATE HOSPITAL
-
         const hospitalDoc =
             await hospitalCollection
                 .doc(
-                    technicianData
-                        .hospitalId,
+                    technicianData.hospitalId,
                 )
                 .get();
 
@@ -79,32 +43,46 @@ const createLabTechnician =
             );
         }
 
-
-
-        // CHECK IF PROFILE EXISTS
-
-        const existingSnapshot =
-            await labTechnicianCollection
+        const existingUser =
+            await userCollection
                 .where(
-                    'userId',
+                    'email',
                     '==',
-                    technicianData
-                        .userId,
+                    technicianData.email,
                 )
+                .limit(1)
                 .get();
 
-        if (
-            !existingSnapshot.empty
-        ) {
+        if (!existingUser.empty) {
             throw new AppError(
-                'Lab technician profile already exists',
+                'Email already exists',
                 400,
             );
         }
 
+        // CREATE USER
 
+        const userRef =
+            userCollection.doc();
 
-        // CREATE PROFILE
+        const user = {
+            userId: userRef.id,
+            fullName:
+                technicianData.fullName,
+            email:
+                technicianData.email,
+            phoneNumber:
+                technicianData.phoneNumber,
+            role:
+                'labTechnician',
+            createdAt:
+                new Date()
+                    .toISOString(),
+        };
+
+        await userRef.set(user);
+
+        // CREATE TECHNICIAN
 
         const technicianRef =
             labTechnicianCollection
@@ -113,16 +91,43 @@ const createLabTechnician =
         const technician = {
             technicianId:
                 technicianRef.id,
-
-            ...technicianData,
-
+            userId:
+                userRef.id,
+            hospitalId:
+                technicianData.hospitalId,
+            employeeId:
+                technicianData.employeeId,
+            department:
+                technicianData.department,
+            status:
+                'Active',
             createdAt:
-                new Date().toISOString(),
+                new Date()
+                    .toISOString(),
         };
 
         await technicianRef.set(
-            technician,
-        );
+    technician,
+);
+
+        await auditTrailService
+            .createAuditTrail({
+                userId:
+                    userRef.id,
+
+                hospitalId:
+                    technicianData.hospitalId,
+
+                action:
+                    'Lab Technician Created',
+
+                targetEntity:
+                    technicianRef.id,
+
+                timestamp:
+                    new Date()
+                        .toISOString(),
+            });
 
         return technician;
     };
@@ -130,18 +135,156 @@ const createLabTechnician =
 
 
 
-// GET LAB TECHNICIAN
-
-const getLabTechnician =
+// UPDATE LAB TECHNICIAN
+const updateLabTechnician =
     async (
         technicianId,
+        updateData,
     ) => {
+
+        console.log(
+    'SERVICE UPDATE ID:',
+    technicianId,
+);
+
+console.log(
+    'SERVICE UPDATE DATA:',
+    updateData,
+);
+
+        const docRef =
+            labTechnicianCollection
+                .doc(
+                    technicianId,
+                );
+
+        const doc =
+            await docRef.get();
+
+        if (!doc.exists) {
+            throw new AppError(
+                'Lab technician not found',
+                404,
+            );
+        }
+
+        const technician =
+            doc.data();
+
+        // UPDATE USER
+
+        const userUpdates = {};
+
+        if (
+            updateData.fullName !==
+            undefined
+        ) {
+            userUpdates.fullName =
+                updateData.fullName;
+        }
+
+        if (
+            updateData.email !==
+            undefined
+        ) {
+            userUpdates.email =
+                updateData.email;
+        }
+
+        if (
+            updateData.phoneNumber !==
+            undefined
+        ) {
+            userUpdates.phoneNumber =
+                updateData.phoneNumber;
+        }
+
+        if (
+            Object.keys(
+                userUpdates,
+            ).length > 0
+        ) {
+
+            await userCollection
+                .doc(
+                    technician.userId,
+                )
+                .update(
+                    userUpdates,
+                );
+        }
+
+        // UPDATE TECHNICIAN
+        const technicianUpdates =
+            {};
+
+        if (
+            updateData.employeeId !==
+            undefined
+        ) {
+            technicianUpdates.employeeId =
+                updateData.employeeId;
+        }
+
+        if (
+            updateData.department !==
+            undefined
+        ) {
+            technicianUpdates.department =
+                updateData.department;
+        }
+
+        if (
+            updateData.status !==
+            undefined
+        ) {
+            technicianUpdates.status =
+                updateData.status;
+        }
+
+        if (
+            Object.keys(
+                technicianUpdates,
+            ).length > 0
+        ) {
+
+            await docRef.update(
+                technicianUpdates,
+            );
+        }
+
+        await auditTrailService
+            .createAuditTrail({
+                userId:
+                    technician.userId,
+
+                hospitalId:
+                    technician.hospitalId,
+
+                action:
+                    'Lab Technician Updated',
+
+                targetEntity:
+                    technicianId,
+
+                timestamp:
+                    new Date()
+                        .toISOString(),
+            });
+
+        const updatedDoc =
+            await docRef.get();
+
+        return updatedDoc.data();
+    };
+
+
+const getLabTechnician =
+    async (technicianId) => {
 
         const doc =
             await labTechnicianCollection
-                .doc(
-                    technicianId,
-                )
+                .doc(technicianId)
                 .get();
 
         if (!doc.exists) {
@@ -155,9 +298,6 @@ const getLabTechnician =
     };
 
 
-
-
-// GET ALL LAB TECHNICIANS
 
 const getAllLabTechnicians =
     async () => {
@@ -174,67 +314,76 @@ const getAllLabTechnicians =
 
 
 
-// UPDATE LAB TECHNICIAN
-
-const updateLabTechnician =
-    async (
-        technicianId,
-        updateData,
-    ) => {
-
-        const docRef =
-            labTechnicianCollection
-                .doc(
-                    technicianId,
-                );
-
-        const doc =
-            await docRef.get();
-
-        if (!doc.exists) {
-            throw new AppError(
-                'Lab technician not found',
-                404,
-            );
-        }
-
-        await docRef.update(
-            updateData,
-        );
-
-        const updatedDoc =
-            await docRef.get();
-
-        return updatedDoc.data();
-    };
-
-
-
-
 // DELETE LAB TECHNICIAN
-
 const deleteLabTechnician =
     async (
         technicianId,
     ) => {
 
-        const docRef =
-            labTechnicianCollection
-                .doc(
-                    technicianId,
-                );
+        const technicianRef =
+            labTechnicianCollection.doc(
+                technicianId,
+            );
 
-        const doc =
-            await docRef.get();
+        const technicianDoc =
+            await technicianRef.get();
 
-        if (!doc.exists) {
+        if (!technicianDoc.exists) {
             throw new AppError(
                 'Lab technician not found',
                 404,
             );
         }
 
-        await docRef.delete();
+        const technician =
+            technicianDoc.data();
+
+        await userCollection
+            .doc(
+                technician.userId,
+            )
+            .delete();
+
+        await technicianRef.delete();
+
+        await auditTrailService
+            .createAuditTrail({
+                userId:
+                    technician.userId,
+
+                hospitalId:
+                    technician.hospitalId,
+
+                action:
+                    'Lab Technician Deleted',
+
+                targetEntity:
+                    technicianId,
+
+                timestamp:
+                    new Date()
+                        .toISOString(),
+            });
+    };
+
+
+const getTechniciansByHospital =
+    async (
+        hospitalId,
+    ) => {
+
+        const snapshot =
+            await labTechnicianCollection
+                .where(
+                    'hospitalId',
+                    '==',
+                    hospitalId,
+                )
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
     };
 
 
@@ -244,4 +393,5 @@ module.exports = {
     getAllLabTechnicians,
     updateLabTechnician,
     deleteLabTechnician,
+    getTechniciansByHospital,
 };

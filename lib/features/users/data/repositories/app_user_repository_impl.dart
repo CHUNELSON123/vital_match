@@ -57,4 +57,16 @@ class AppUserRepositoryImpl
   Future<void> deleteUser(String userId) async {
     await remoteDatasource.deleteUser(userId);
   }
+
+  //GET USER BY EMAIL
+  @override
+Future<AppUser?> getUserByEmail(
+  String email,
+) async {
+
+  return await remoteDatasource
+      .getUserByEmail(
+    email,
+  );
+}
 }

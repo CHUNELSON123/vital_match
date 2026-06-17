@@ -105,7 +105,6 @@ const getAllLabTechnicians =
 
 
 // UPDATE LAB TECHNICIAN
-
 const updateLabTechnician =
     async (
         req,
@@ -114,6 +113,16 @@ const updateLabTechnician =
     ) => {
 
         try {
+
+            console.log(
+                'TECHNICIAN ID:',
+                req.params.technicianId,
+            );
+
+            console.log(
+                'BODY:',
+                req.body,
+            );
 
             validateUpdateLabTechnician(
                 req.body,
@@ -171,6 +180,31 @@ const deleteLabTechnician =
         }
     };
 
+const getTechniciansByHospital =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const technicians =
+                await labTechnicianService
+                    .getTechniciansByHospital(
+                        req.params.hospitalId,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: technicians,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
 
 module.exports = {
     createLabTechnician,
@@ -178,4 +212,5 @@ module.exports = {
     getAllLabTechnicians,
     updateLabTechnician,
     deleteLabTechnician,
+    getTechniciansByHospital,
 };

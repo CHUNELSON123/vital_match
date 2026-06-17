@@ -33,6 +33,8 @@ class AuditTrailRepositoryImpl
           auditTrail.targetEntity,
       timestamp:
           auditTrail.timestamp,
+      userName: auditTrail.userName,
+      targetName: auditTrail.targetName,
     );
 
     await remoteDatasource
@@ -96,6 +98,8 @@ class AuditTrailRepositoryImpl
           auditTrail.targetEntity,
       timestamp:
           auditTrail.timestamp,
+      userName: auditTrail.userName,
+      targetName: auditTrail.targetName,
     );
 
     await remoteDatasource

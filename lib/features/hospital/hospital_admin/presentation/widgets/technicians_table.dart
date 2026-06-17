@@ -1,108 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:vital_match/features/hospital/lab_technician/domain/entities/lab_technician.dart';
+import '../../data/models/technician_table_row.dart';
 
 class TechniciansTable extends StatelessWidget {
+  final List<TechnicianTableRow> technicians;
 
-  final List<LabTechnician>
-      technicians;
+  final Function(
+    TechnicianTableRow technician,
+  ) onEdit;
+
+  final Function(
+    TechnicianTableRow technician,
+  ) onDelete;
 
   const TechniciansTable({
     super.key,
     required this.technicians,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-      padding:
-          const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
+      width: double.infinity,
 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
-
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color:
-              const Color(0xFFE5E5E5),
+          color: const Color(0xFFE5E5E5),
         ),
       ),
 
       child: DataTable(
-
         columns: const [
-
-          DataColumn(
-            label: Text(
-              'Technician ID',
-            ),
-          ),
-
-          DataColumn(
-            label: Text(
-              'Employee ID',
-            ),
-          ),
-
-          DataColumn(
-            label: Text(
-              'Department',
-            ),
-          ),
-
-          DataColumn(
-            label: Text(
-              'Actions',
-            ),
-          ),
+          DataColumn(label: Text('Name')),
+          DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Employee ID')),
+          DataColumn(label: Text('Department')),
+          DataColumn(label: Text('Status')),
+          DataColumn(label: Text('Actions')),
         ],
 
-        rows:
-            technicians.map((tech) {
-
+        rows: technicians.map((tech) {
           return DataRow(
-
             cells: [
 
               DataCell(
+                Text(tech.user.fullName),
+              ),
+
+              DataCell(
+                Text(tech.user.email),
+              ),
+
+              DataCell(
                 Text(
-                  tech.technicianId,
+                  tech.technician.employeeId,
                 ),
               ),
 
               DataCell(
                 Text(
-                  tech.employeeId,
+                  tech.technician.department,
                 ),
               ),
 
               DataCell(
                 Text(
-                  tech.department,
+                  tech.technician.status,
                 ),
               ),
 
               DataCell(
-
                 Row(
-
                   children: [
 
                     IconButton(
-                      icon:
-                          const Icon(
+                      icon: const Icon(
                         Icons.edit,
                       ),
-                      onPressed: () {},
+                      onPressed: () =>
+                          onEdit(tech),
                     ),
 
                     IconButton(
-                      icon:
-                          const Icon(
+                      icon: const Icon(
                         Icons.delete,
                       ),
-                      onPressed: () {},
+                      onPressed: () =>
+                          onDelete(tech),
                     ),
                   ],
                 ),

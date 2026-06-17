@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'create_technician_dialog.dart';
+import '../../../../audit_trail/presentation/pages/audit_trail_page.dart';
+
+import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
+
 class QuickActionsSection extends StatelessWidget {
+
+  final Hospital hospital;
+
   const QuickActionsSection({
     super.key,
+    required this.hospital,
   });
 
   @override
@@ -45,7 +54,15 @@ class QuickActionsSection extends StatelessWidget {
               _actionCard(
                 icon: Icons.groups,
                 title: 'Add Technician',
-                onTap: () {},
+
+                onTap: () async {
+
+                  await showDialog(
+                    context: context,
+                    builder: (_) =>
+                        const CreateTechnicianDialog(),
+                  );
+                },
               ),
 
               const SizedBox(height: 12),
@@ -53,7 +70,19 @@ class QuickActionsSection extends StatelessWidget {
               _actionCard(
                 icon: Icons.receipt_long,
                 title: 'View Audit Trail',
-                onTap: () {},
+
+                onTap: () {
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          AuditTrailPage(
+                        hospital: hospital,
+                      ),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 12),
@@ -61,7 +90,19 @@ class QuickActionsSection extends StatelessWidget {
               _actionCard(
                 icon: Icons.settings,
                 title: 'Hospital Settings',
-                onTap: () {},
+
+                onTap: () {
+
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Hospital Settings coming soon',
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           )

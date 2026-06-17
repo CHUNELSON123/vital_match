@@ -6,6 +6,9 @@ class AuditTrail {
   final String targetEntity;
   final DateTime timestamp;
 
+  final String userName;
+  final String targetName;
+
   const AuditTrail({
     required this.auditId,
     required this.userId,
@@ -13,5 +16,8 @@ class AuditTrail {
     required this.action,
     required this.targetEntity,
     required this.timestamp,
+
+    required this.userName,
+    required this.targetName,
   });
 }

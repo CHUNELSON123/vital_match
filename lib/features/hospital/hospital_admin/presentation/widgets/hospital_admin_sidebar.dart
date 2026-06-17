@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
+import 'package:vital_match/features/hospital/hospital_admin/presentation/pages/hospital_admin_dashboard.dart';
 import '../pages/technicians_page.dart';
+import 'package:vital_match/features/audit_trail/presentation/pages/audit_trail_page.dart';
+import '../../../../reports/presentation/pages/reports_page.dart';
 
 class HospitalAdminSidebar extends StatelessWidget {
   final int selectedIndex;
@@ -54,9 +57,12 @@ class HospitalAdminSidebar extends StatelessWidget {
             title: 'Dashboard',
             selected: selectedIndex == 0,
             onTap: () {
-              Navigator.popUntil(
+              Navigator.pushReplacement(
                 context,
-                (route) => route.isFirst,
+                MaterialPageRoute(
+                  builder: (_) => HospitalAdminDashboard(
+                  ),
+                ),
               );
             },
           ),
@@ -66,7 +72,7 @@ class HospitalAdminSidebar extends StatelessWidget {
             title: 'Technicians',
             selected: selectedIndex == 1,
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (_) => TechniciansPage(
@@ -81,12 +87,32 @@ class HospitalAdminSidebar extends StatelessWidget {
             icon: Icons.receipt_long,
             title: 'Audit Trail',
             selected: selectedIndex == 2,
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AuditTrailPage(
+                    hospital: hospital,
+                  ),
+                ),
+              );
+            },
           ),
 
           _navItem(
             icon: Icons.bar_chart,
             title: 'Reports',
             selected: selectedIndex == 3,
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ReportsPage(
+                    hospital: hospital,
+                  ),
+                ),
+              );
+            },
           ),
 
           _navItem(

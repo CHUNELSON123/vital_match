@@ -7,6 +7,14 @@ const auditTrailCollection =
         'audit_trails',
     );
 
+const userCollection =
+    db.collection('users');
+
+const labTechnicianCollection =
+    db.collection(
+        'lab_technicians',
+    );
+
 
 
 
@@ -154,7 +162,97 @@ const deleteAuditTrail =
         await docRef.delete();
     };
 
+const getAuditTrailsByHospital =
+    async (hospitalId) => {
 
+        const snapshot =
+            await auditTrailCollection
+                .where(
+                    'hospitalId',
+                    '==',
+                    hospitalId,
+                )
+                .get();
+
+        const auditTrails =
+            await Promise.all(
+
+                snapshot.docs.map(
+                    async (doc) => {
+
+                        const audit =
+                            doc.data();
+
+                        let userName =
+                            audit.userId;
+
+                        let targetName =
+                            audit.targetEntity;
+
+                        // USER NAME
+
+                        const userDoc =
+                            await userCollection
+                                .doc(
+                                    audit.userId,
+                                )
+                                .get();
+
+                        if (
+                            userDoc.exists
+                        ) {
+
+                            userName =
+                                userDoc.data()
+                                    .fullName;
+                        }
+
+                        // TARGET NAME
+
+                        const technicianDoc =
+                            await labTechnicianCollection
+                                .doc(
+                                    audit.targetEntity,
+                                )
+                                .get();
+
+                        if (
+                            technicianDoc.exists
+                        ) {
+
+                            const technician =
+                                technicianDoc.data();
+
+                            const targetUserDoc =
+                                await userCollection
+                                    .doc(
+                                        technician.userId,
+                                    )
+                                    .get();
+
+                            if (
+                                targetUserDoc.exists
+                            ) {
+
+                                targetName =
+                                    targetUserDoc
+                                        .data()
+                                        .fullName;
+                            }
+                        }
+
+                        return {
+                            ...audit,
+                            userName,
+                            targetName,
+                        };
+                    },
+                ),
+            );
+
+        return auditTrails;
+    };
+    
 module.exports = {
     createAuditTrail,
     getAuditTrail,
@@ -162,4 +260,5 @@ module.exports = {
     getAuditTrailsByUser,
     updateAuditTrail,
     deleteAuditTrail,
+    getAuditTrailsByHospital,
 };

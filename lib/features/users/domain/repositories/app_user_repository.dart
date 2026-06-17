@@ -15,4 +15,8 @@ abstract class AppUserRepository {
 
   //DELETE  User
   Future<void> deleteUser(String userId);
+
+  Future<AppUser?> getUserByEmail(
+  String email,
+);
 }

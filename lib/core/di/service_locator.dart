@@ -23,6 +23,14 @@ import 'package:vital_match/features/hospital/lab_technician/data/repositories/l
 import 'package:vital_match/features/hospital/lab_technician/domain/repositories/lab_technician_repository.dart';
 import 'package:vital_match/features/hospital/lab_technician/domain/usecases/get_lab_technicians_by_hospital_usecase.dart';
 import 'package:vital_match/features/hospital/lab_technician/domain/usecases/create_lab_technician_usecase.dart';
+import 'package:vital_match/features/users/data/datasources/app_user_remote_datasource.dart';
+import 'package:vital_match/features/users/data/datasources/app_user_remote_datasource_impl.dart';
+import 'package:vital_match/features/users/data/repositories/app_user_repository_impl.dart';
+import 'package:vital_match/features/users/domain/repositories/app_user_repository.dart';
+import 'package:vital_match/features/users/domain/usecase/get_user_by_id_usecase.dart';
+import 'package:vital_match/features/users/domain/usecase/create_user_usecase.dart';
+import 'package:vital_match/features/hospital/lab_technician/domain/usecases/delete_lab_technician_usecase.dart';
+import 'package:vital_match/features/hospital/lab_technician/domain/usecases/update_lab_technician_usecase.dart';
 
 class ServiceLocator {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -58,7 +66,7 @@ class ServiceLocator {
       CreateHospitalUsecase(hospitalRepository);
 
   static final AuditTrailRemoteDatasource auditTrailRemoteDatasource =
-      AuditTrailRemoteDatasourceImpl(firestore);
+      AuditTrailRemoteDatasourceImpl();
 
   static final AuditTrailRepository auditTrailRepository =
       AuditTrailRepositoryImpl(auditTrailRemoteDatasource);
@@ -66,8 +74,9 @@ class ServiceLocator {
   static final GetAuditTrailsByHospitalUsecase getAuditTrailsByHospitalUsecase =
       GetAuditTrailsByHospitalUsecase(auditTrailRepository);
 
-  static final LabTechnicianRemoteDatasource labTechnicianRemoteDatasource =
-      LabTechnicianRemoteDatasourceImpl(firestore);
+  static final LabTechnicianRemoteDatasource
+    labTechnicianRemoteDatasource =
+        LabTechnicianRemoteDatasourceImpl();
 
   static final LabTechnicianRepository labTechnicianRepository =
       LabTechnicianRepositoryImpl(labTechnicianRemoteDatasource);
@@ -79,4 +88,41 @@ class ServiceLocator {
 
   static final CreateLabTechnicianUsecase createLabTechnicianUsecase =
       CreateLabTechnicianUsecase(labTechnicianRepository);
+
+  static final DeleteLabTechnicianUsecase
+    deleteLabTechnicianUsecase =
+        DeleteLabTechnicianUsecase(
+          labTechnicianRepository,
+        );
+
+  static final AppUserRemoteDatasource
+    appUserRemoteDatasource =
+        AppUserRemoteDatasourceImpl(
+          firestore: firestore,
+        );
+
+  static final AppUserRepository
+    appUserRepository =
+        AppUserRepositoryImpl(
+          appUserRemoteDatasource,
+        );
+
+   static final CreateUserUsecase
+    createUserUsecase =
+        CreateUserUsecase(
+          appUserRepository,
+        );
+
+  static final GetUserByIdUsecase
+    getUserByIdUsecase =
+        GetUserByIdUsecase(
+          appUserRepository,
+        );
+
+static final UpdateLabTechnicianUsecase
+    updateLabTechnicianUsecase =
+        UpdateLabTechnicianUsecase(
+          labTechnicianRepository,
+        );
+  
 }

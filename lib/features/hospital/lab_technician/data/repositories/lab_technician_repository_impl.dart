@@ -26,24 +26,34 @@ class LabTechnicianRepositoryImpl
   ) async {
 
     final technicianModel =
-        LabTechnicianModel(
-      technicianId:
-          technician.technicianId,
+    LabTechnicianModel(
+  technicianId:
+      technician.technicianId,
 
-      userId:
-          technician.userId,
+  userId:
+      technician.userId,
 
-      hospitalId:
-          technician.hospitalId,
+  hospitalId:
+      technician.hospitalId,
 
-      employeeId:
-          technician.employeeId,
+  employeeId:
+      technician.employeeId,
 
-      department:
-          technician.department,
+  department:
+      technician.department,
 
-      status: technician.status,
-    );
+  status:
+      technician.status,
+
+  fullName:
+      technician.fullName,
+
+  email:
+      technician.email,
+
+  phoneNumber:
+      technician.phoneNumber,
+);
 
     await remoteDatasource
         .createLabTechnician(
@@ -78,36 +88,45 @@ class LabTechnicianRepositoryImpl
 
 
   @override
-  Future<void> updateLabTechnician(
-    LabTechnician technician,
-  ) async {
+Future<void> updateLabTechnician(
+  LabTechnician technician,
+) async {
 
-    final technicianModel =
-        LabTechnicianModel(
-      technicianId:
-          technician.technicianId,
+  final technicianModel =
+      LabTechnicianModel(
+    technicianId:
+        technician.technicianId,
 
-      userId:
-          technician.userId,
+    userId:
+        technician.userId,
 
-      hospitalId:
-          technician.hospitalId,
+    hospitalId:
+        technician.hospitalId,
 
-      employeeId:
-          technician.employeeId,
+    employeeId:
+        technician.employeeId,
 
-      department:
-          technician.department,
-      
-      status: technician.status,
-    );
+    department:
+        technician.department,
 
-    await remoteDatasource
-        .updateLabTechnician(
-      technicianModel,
-    );
-  }
+    status:
+        technician.status,
 
+    fullName:
+        technician.fullName,
+
+    email:
+        technician.email,
+
+    phoneNumber:
+        technician.phoneNumber,
+  );
+
+  await remoteDatasource
+      .updateLabTechnician(
+    technicianModel,
+  );
+}
 
 
   @override

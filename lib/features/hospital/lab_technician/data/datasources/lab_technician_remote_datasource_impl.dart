@@ -1,19 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:vital_match/core/constants/api_constants.dart';
 import '../models/lab_technician_model.dart';
-
 import 'lab_technician_remote_datasource.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer';
 
 
 class LabTechnicianRemoteDatasourceImpl
     implements
         LabTechnicianRemoteDatasource {
 
-  final FirebaseFirestore firestore;
-
-  LabTechnicianRemoteDatasourceImpl(
-    this.firestore,
-  );
+  LabTechnicianRemoteDatasourceImpl();
 
 
   final String
@@ -23,21 +21,47 @@ class LabTechnicianRemoteDatasourceImpl
 
 
   @override
-  Future<void> createLabTechnician(
-    LabTechnicianModel technician,
-  ) async {
+Future<void> createLabTechnician(
+  LabTechnicianModel technician,
+) async {
 
-    await firestore
-        .collection(
-          labTechnicianCollection,
-        )
-        .doc(
-          technician.technicianId,
-        )
-        .set(
-          technician.toMap(),
-        );
-  }
+  final token =
+    await FirebaseAuth
+        .instance
+        .currentUser!
+        .getIdToken();
+
+  final response =
+      await http.post(
+    Uri.parse(
+      '${ApiConstants.baseUrl}/lab-technicians',
+    ),
+    headers: {
+      'Content-Type':
+          'application/json',
+
+      'Authorization':
+          'Bearer $token',
+    },
+    body: jsonEncode(
+      technician.toMap(),
+    ),
+  );
+
+  log(
+  'CREATE TECH STATUS: ${response.statusCode}',
+);
+
+ log(
+  'CREATE TECH BODY: ${response.body}',
+);
+
+if (response.statusCode != 201) {
+  throw Exception(
+    response.body,
+  );
+}
+}
 
 
 
@@ -47,19 +71,26 @@ class LabTechnicianRemoteDatasourceImpl
     String technicianId,
   ) async {
 
-    final doc =
-        await firestore
-            .collection(
-              labTechnicianCollection,
-            )
-            .doc(
-              technicianId,
-            )
-            .get();
+     final response =
+        await http.get(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/lab-technicians/$technicianId',
+      ),
+    );
 
-    return LabTechnicianModel
-        .fromFirestore(
-      doc,
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Technician not found',
+      );
+    }
+
+    final data =
+        jsonDecode(
+          response.body,
+        );
+
+    return LabTechnicianModel.fromMap(
+      data['data'],
     );
   }
 
@@ -69,22 +100,32 @@ class LabTechnicianRemoteDatasourceImpl
   Future<List<LabTechnicianModel>>
       getAllLabTechnicians() async {
 
-    final snapshot =
-        await firestore
-            .collection(
-              labTechnicianCollection,
-            )
-            .get();
+    final response =
+    await http.get(
+  Uri.parse(
+    '${ApiConstants.baseUrl}/lab-technicians',
+  ),
+);
 
-    return snapshot.docs
-        .map(
-          (doc) =>
-              LabTechnicianModel
-                  .fromFirestore(
-            doc,
-          ),
-        )
-        .toList();
+if (response.statusCode != 200) {
+  throw Exception(
+    'Failed to load technicians',
+  );
+}
+
+final data =
+    jsonDecode(
+      response.body,
+    );
+
+return (data['data'] as List)
+    .map(
+      (item) =>
+          LabTechnicianModel.fromMap(
+        item,
+      ),
+    )
+    .toList();
   }
 
 
@@ -94,16 +135,46 @@ class LabTechnicianRemoteDatasourceImpl
     LabTechnicianModel technician,
   ) async {
 
-    await firestore
-        .collection(
-          labTechnicianCollection,
-        )
-        .doc(
-          technician.technicianId,
-        )
-        .update(
-          technician.toMap(),
-        );
+    final token =
+    await FirebaseAuth
+        .instance
+        .currentUser!
+        .getIdToken();
+
+print(
+  'UPDATING TECHNICIAN ID: ${technician.technicianId}',
+);
+
+print(
+  'UPDATE DATA: ${jsonEncode(technician.toMap())}',
+);
+
+final response =
+    await http.put(
+  Uri.parse(
+    '${ApiConstants.baseUrl}/lab-technicians/${technician.technicianId}',
+  ),
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  },
+  body: jsonEncode(
+    technician.toMap(),
+  ),
+);
+
+print(
+  'UPDATE STATUS: ${response.statusCode}',
+);
+
+print(
+  'UPDATE BODY: ${response.body}',
+);
+if (response.statusCode != 200) {
+  throw Exception(
+    'Failed to update technician',
+  );
+}
   }
 
 
@@ -112,42 +183,71 @@ class LabTechnicianRemoteDatasourceImpl
   Future<void> deleteLabTechnician(
     String technicianId,
   ) async {
+    final token =
+    await FirebaseAuth
+        .instance
+        .currentUser!
+        .getIdToken();
 
-    await firestore
-        .collection(
-          labTechnicianCollection,
-        )
-        .doc(
-          technicianId,
-        )
-        .delete();
+final response =
+    await http.delete(
+  Uri.parse(
+    '${ApiConstants.baseUrl}/lab-technicians/$technicianId',
+  ),
+  headers: {
+    'Authorization': 'Bearer $token',
+  },
+);
+ 
+if (response.statusCode != 200) {
+  throw Exception(
+    'Failed to delete technician',
+  );
+}
   }
 
-  @override
+ @override
 Future<List<LabTechnicianModel>>
     getLabTechniciansByHospital(
   String hospitalId,
 ) async {
+  final token =
+    await FirebaseAuth
+        .instance
+        .currentUser!
+        .getIdToken();
 
-  final snapshot =
-      await firestore
-          .collection(
-            'lab_technicians',
-          )
-          .where(
-            'hospitalId',
-            isEqualTo: hospitalId,
-          )
-          .get();
+final response =
+    await http.get(
+  Uri.parse(
+    '${ApiConstants.baseUrl}/lab-technicians/hospital/$hospitalId',
+  ),
+  headers: {
+    'Authorization':
+        'Bearer $token',
+  },
+);
 
-  return snapshot.docs
-      .map(
-        (doc) =>
-            LabTechnicianModel
-                .fromFirestore(
-          doc,
-        ),
-      )
-      .toList();
+print(response.body);
+
+if (response.statusCode != 200) {
+  throw Exception(
+    'Failed to load technicians',
+  );
+}
+
+final data =
+    jsonDecode(
+      response.body,
+    );
+
+return (data['data'] as List)
+    .map(
+      (item) =>
+          LabTechnicianModel.fromMap(
+        item,
+      ),
+    )
+    .toList();
 }
 }

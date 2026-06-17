@@ -67,4 +67,28 @@ class AppUserRemoteDatasourceImpl
         .doc(uid)
         .delete();
   }
+
+  @override
+Future<AppUserModel?> getUserByEmail(
+  String email,
+) async {
+
+  final snapshot =
+      await firestore
+          .collection('users')
+          .where(
+            'email',
+            isEqualTo: email,
+          )
+          .limit(1)
+          .get();
+
+  if (snapshot.docs.isEmpty) {
+    return null;
+  }
+
+  return AppUserModel.fromFirestore(
+    snapshot.docs.first,
+  );
+}
 }
