@@ -11,4 +11,6 @@ abstract class DonorRepository {
     required String donorId,
     required bool isAvailable,
   });
+
+  Future<List<Donor>> getAllDonors();
 }

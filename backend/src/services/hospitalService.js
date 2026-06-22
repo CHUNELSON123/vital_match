@@ -14,7 +14,7 @@ const hospitalCollection = 'hospitals';
 // CREATE HOSPITAL
 
 const createHospital = async (data, ownerId,) => {
-
+console.log('CREATE HOSPITAL SERVICE HIT');
     validateCreateHospital(data);
 
     const hospitalRef = db
@@ -35,10 +35,38 @@ const createHospital = async (data, ownerId,) => {
 
     await hospitalRef.set(hospital);
 
-    const adminDoc = await db
-    .collection("hospital_admins")
+     console.log(
+    'OWNER ID:',
+    ownerId,
+);
+
+const adminDoc = await db
+    .collection('hospital_admins')
     .doc(ownerId)
     .get();
+
+const allAdmins = await db
+    .collection('hospital_admins')
+    .get();
+
+console.log(
+    'ALL ADMIN DOC IDS:',
+    allAdmins.docs.map(
+        doc => doc.id,
+    ),
+);
+
+console.log(
+    'ADMIN EXISTS:',
+    adminDoc.exists,
+);
+
+if (adminDoc.exists) {
+    console.log(
+        'ADMIN DATA:',
+        adminDoc.data(),
+    );
+}
 
     if (!adminDoc.exists) {
         throw new AppError(
@@ -53,6 +81,16 @@ const createHospital = async (data, ownerId,) => {
     .update({
         hospitalId: hospitalRef.id,
     });
+
+    const updatedAdmin = await db
+    .collection('hospital_admins')
+    .doc(ownerId)
+    .get();
+
+console.log(
+    'UPDATED ADMIN:',
+    updatedAdmin.data(),
+);
     
     return hospital;
 };
@@ -131,10 +169,48 @@ const deleteHospital = async (
     await hospitalRef.delete();
 };
 
+const getHospitalByOwnerId =
+    async (
+        ownerId,
+    ) => {
+
+        const snapshot =
+            await db
+                .collection(
+                    hospitalCollection,
+                )
+                .where(
+                    'ownerId',
+                    '==',
+                    ownerId,
+                )
+                .limit(1)
+                .get();
+
+        if (
+            snapshot.empty
+        ) {
+            throw new AppError(
+                'Hospital not found',
+                404,
+            );
+        }
+
+        const hospitalDoc =
+            snapshot.docs[0];
+
+        return {
+            hospitalId:
+                hospitalDoc.id,
+            ...hospitalDoc.data(),
+        };
+    };
+
 
 module.exports = {
     createHospital,
     getHospital,
     updateHospital,
     deleteHospital,
+    getHospitalByOwnerId,
 };

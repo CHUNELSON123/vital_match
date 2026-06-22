@@ -1,25 +1,58 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vital_match/features/hospital/data/datasources/hospital_remote_datasource.dart';
-import 'package:vital_match/features/hospital/data/models/hospital_model.dart';
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:vital_match/core/constants/api_constants.dart';
+
+import '../models/hospital_model.dart';
+import 'hospital_remote_datasource.dart';
 
 class HospitalRemoteDatasourceImpl
     implements HospitalRemoteDatasource {
 
-  final FirebaseFirestore firestore;
-
-  HospitalRemoteDatasourceImpl(this.firestore);
-
-  final String hospitalCollection = 'hospitals';
+  HospitalRemoteDatasourceImpl();
 
   @override
   Future<void> createHospital(
     HospitalModel hospital,
   ) async {
 
-    await firestore
-        .collection(hospitalCollection)
-        .doc(hospital.hospitalId)
-        .set(hospital.toMap());
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
+
+    final response =
+        await http.post(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/hospitals',
+      ),
+      headers: {
+        'Content-Type':
+            'application/json',
+        'Authorization':
+            'Bearer $token',
+      },
+      body: jsonEncode(
+        hospital.toMap(),
+      ),
+    );
+
+    print(
+      'CREATE HOSPITAL STATUS: ${response.statusCode}',
+    );
+
+    print(
+      'CREATE HOSPITAL BODY: ${response.body}',
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception(
+        'Failed to create hospital',
+      );
+    }
   }
 
   @override
@@ -27,54 +60,113 @@ class HospitalRemoteDatasourceImpl
     String ownerId,
   ) async {
 
-    final snapshot = await firestore
-        .collection(hospitalCollection)
-        .where(
-          'ownerId',
-          isEqualTo: ownerId,
-        )
-        .limit(1)
-        .get();
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
 
-    if (snapshot.docs.isEmpty) {
+    final response =
+        await http.get(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/hospitals/owner/$ownerId',
+      ),
+      headers: {
+        'Authorization':
+            'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 404) {
       return null;
     }
 
-    return HospitalModel.fromFirestore(
-      snapshot.docs.first,
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load hospital',
+      );
+    }
+
+    final data =
+        jsonDecode(
+          response.body,
+        );
+
+    return HospitalModel.fromMap(
+      data['data'],
     );
   }
 
   @override
-Future<HospitalModel> getHospital(
-  String hospitalId,
-) async {
+  Future<HospitalModel> getHospital(
+    String hospitalId,
+  ) async {
 
-  final doc = await firestore
-      .collection(hospitalCollection)
-      .doc(hospitalId)
-      .get();
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
 
-  if (!doc.exists) {
-    throw Exception(
-      'Hospital not found',
+    final response =
+        await http.get(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/hospitals/$hospitalId',
+      ),
+      headers: {
+        'Authorization':
+            'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Hospital not found',
+      );
+    }
+
+    final data =
+        jsonDecode(
+          response.body,
+        );
+
+    return HospitalModel.fromMap(
+      data['data'],
     );
   }
-
-  return HospitalModel.fromFirestore(
-    doc,
-  );
-}
 
   @override
   Future<void> updateHospital(
     HospitalModel hospital,
   ) async {
 
-    await firestore
-        .collection(hospitalCollection)
-        .doc(hospital.hospitalId)
-        .update(hospital.toMap());
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
+
+    final response =
+        await http.put(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/hospitals/${hospital.hospitalId}',
+      ),
+      headers: {
+        'Content-Type':
+            'application/json',
+        'Authorization':
+            'Bearer $token',
+      },
+      body: jsonEncode(
+        hospital.toMap(),
+      ),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to update hospital',
+      );
+    }
   }
 
   @override
@@ -82,9 +174,27 @@ Future<HospitalModel> getHospital(
     String hospitalId,
   ) async {
 
-    await firestore
-        .collection(hospitalCollection)
-        .doc(hospitalId)
-        .delete();
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
+
+    final response =
+        await http.delete(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/hospitals/$hospitalId',
+      ),
+      headers: {
+        'Authorization':
+            'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to delete hospital',
+      );
+    }
   }
 }

@@ -45,6 +45,13 @@ router.get(
         .getTechniciansByHospital,
 );
 
+router.get(
+    '/user/:userId',
+    verifyToken,
+    labTechnicianController
+        .getLabTechnicianByUserId,
+);
+
 // GET LAB TECHNICIAN
 router.get(
     '/:technicianId',

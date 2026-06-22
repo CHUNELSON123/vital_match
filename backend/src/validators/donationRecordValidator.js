@@ -13,6 +13,12 @@ const validBloodGroups = [
     'oNegative',
 ];
 
+const donationStatuses = [
+    'pending',
+    'verified',
+    'rejected',
+];
+
 
 
 // CREATE DONATION RECORD VALIDATOR
@@ -207,6 +213,18 @@ const validateUpdateDonationRecord = (
             400,
         );
     }
+
+    if (
+    data.status &&
+    !donationStatuses.includes(
+        data.status,
+    )
+) {
+    throw new AppError(
+        'Invalid donation status',
+        400,
+    );
+}
 };
 
 

@@ -51,6 +51,8 @@ class DonationRecordRepositoryImpl
 
       bloodGroup:
           donationRecord.bloodGroup,
+      
+      status: donationRecord.status,
     );
 
     await remoteDatasource
@@ -117,6 +119,8 @@ class DonationRecordRepositoryImpl
 
       bloodGroup:
           donationRecord.bloodGroup,
+
+      status: donationRecord.status,
     );
 
     await remoteDatasource
@@ -137,4 +141,16 @@ class DonationRecordRepositoryImpl
       recordId,
     );
   }
+
+  @override
+Future<List<DonationRecord>>
+    getDonationRecordsByHospital(
+  String hospitalId,
+) async {
+
+  return await remoteDatasource
+      .getDonationRecordsByHospital(
+    hospitalId,
+  );
+}
 }

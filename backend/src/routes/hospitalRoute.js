@@ -25,6 +25,12 @@ router.post(
 );
 
 
+router.get(
+    '/owner/:ownerId',
+    verifyToken,
+    hospitalController.getHospitalByOwnerId,
+);
+
 // GET HOSPITAL
 
 router.get(
@@ -49,7 +55,7 @@ router.put(
 router.delete(
     '/:hospitalId',
     verifyToken,
-    allowRoles('hospital_aadmin'),
+    allowRoles('hospital_admin'),
     hospitalController.deleteHospital,
 );
 

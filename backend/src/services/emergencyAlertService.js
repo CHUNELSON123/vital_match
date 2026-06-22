@@ -212,6 +212,27 @@ const deleteEmergencyAlert =
         await docRef.delete();
     };
 
+// GET EMERGENCY ALERTS BY HOSPITAL
+
+const getEmergencyAlertsByHospital =
+    async (
+        hospitalId,
+    ) => {
+
+        const snapshot =
+            await emergencyAlertCollection
+                .where(
+                    'hospitalId',
+                    '==',
+                    hospitalId,
+                )
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
+    };
+
 
 module.exports = {
     createEmergencyAlert,
@@ -219,4 +240,5 @@ module.exports = {
     getAllEmergencyAlerts,
     updateEmergencyAlert,
     deleteEmergencyAlert,
+    getEmergencyAlertsByHospital,
 };

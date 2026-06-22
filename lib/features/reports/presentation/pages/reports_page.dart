@@ -50,6 +50,18 @@ Future<void> _loadReports() async {
   'REPORT DATA => ${result.donationTrend}',
 );
 
+print(
+  'BLOOD TYPES => ${result.bloodDistribution}',
+);
+
+print(
+  'BLOOD DISTRIBUTION => ${result.bloodDistribution}',
+);
+
+print(
+  'RECENT ACTIVITY => ${result.recentActivity}',
+);
+
     setState(() {
       reportsSummary = result;
       isLoading = false;
@@ -152,7 +164,11 @@ Future<void> _loadReports() async {
                                 height: 24,
                               ),
 
-                              BloodDistributionChart(),
+                             BloodDistributionChart(
+                              bloodDistribution:
+                                  reportsSummary!
+                                      .bloodDistribution,
+                            ),
                             ],
                           );
                         }
@@ -180,7 +196,11 @@ Future<void> _loadReports() async {
                             Expanded(
                               flex: 1,
                               child:
-                                  BloodDistributionChart(),
+                                 BloodDistributionChart(
+                                  bloodDistribution:
+                                      reportsSummary!
+                                          .bloodDistribution,
+                                ),
                             ),
                           ],
                         );

@@ -21,7 +21,7 @@ class LabTechnicianRemoteDatasourceImpl
 
 
   @override
-Future<void> createLabTechnician(
+Future<String> createLabTechnician(
   LabTechnicianModel technician,
 ) async {
 
@@ -61,6 +61,13 @@ if (response.statusCode != 201) {
     response.body,
   );
 }
+final data =
+    jsonDecode(
+      response.body,
+    );
+
+return data['data']
+    ['generatedPassword'];
 }
 
 
@@ -249,5 +256,48 @@ return (data['data'] as List)
       ),
     )
     .toList();
+}
+
+@override
+Future<LabTechnicianModel?>
+    getLabTechnicianByUserId(
+  String userId,
+) async {
+
+  final token =
+    await FirebaseAuth
+        .instance
+        .currentUser!
+        .getIdToken();
+
+  final response =
+      await http.get(
+    Uri.parse(
+      '${ApiConstants.baseUrl}/lab-technicians/user/$userId',
+    ),
+    headers: {
+      'Authorization':
+          'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 404) {
+    return null;
+  }
+
+  if (response.statusCode != 200) {
+    throw Exception(
+      'Technician not found',
+    );
+  }
+
+  final data =
+      jsonDecode(
+        response.body,
+      );
+
+  return LabTechnicianModel.fromMap(
+    data['data'],
+  );
 }
 }

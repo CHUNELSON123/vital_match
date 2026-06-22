@@ -18,4 +18,9 @@ abstract class EmergencyAlertRemoteDatasource {
   Future<void> deleteEmergencyAlert(
     String alertId,
   );
+
+  Future<List<EmergencyAlertModel>>
+    getEmergencyAlertsByHospital(
+  String hospitalId,
+);
 }

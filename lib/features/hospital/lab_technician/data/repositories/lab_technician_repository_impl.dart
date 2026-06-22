@@ -21,7 +21,7 @@ class LabTechnicianRepositoryImpl
 
 
   @override
-  Future<void> createLabTechnician(
+  Future<String> createLabTechnician(
     LabTechnician technician,
   ) async {
 
@@ -55,7 +55,7 @@ class LabTechnicianRepositoryImpl
       technician.phoneNumber,
 );
 
-    await remoteDatasource
+    return remoteDatasource
         .createLabTechnician(
       technicianModel,
     );
@@ -150,6 +150,16 @@ Future<List<LabTechnician>>
   return await remoteDatasource
       .getLabTechniciansByHospital(
     hospitalId,
+  );
+}
+
+@override
+Future<LabTechnician?> getLabTechnicianByUserId(
+  String userId,
+) async {
+  return await remoteDatasource
+      .getLabTechnicianByUserId(
+    userId,
   );
 }
 

@@ -2,7 +2,7 @@ import 'package:vital_match/features/hospital/lab_technician/data/models/lab_tec
 
 abstract class LabTechnicianRemoteDatasource {
 
-  Future<void> createLabTechnician(
+  Future<String> createLabTechnician(
     LabTechnicianModel technician,
   );
 
@@ -25,5 +25,9 @@ abstract class LabTechnicianRemoteDatasource {
   Future<List<LabTechnicianModel>>
     getLabTechniciansByHospital(
   String hospitalId,
+);
+
+Future<LabTechnicianModel?> getLabTechnicianByUserId(
+  String userId,
 );
 }

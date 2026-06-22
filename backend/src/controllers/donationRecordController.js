@@ -170,6 +170,32 @@ const deleteDonationRecord =
         }
     };
 
+    // GET DONATION RECORDS BY HOSPITAL
+
+const getDonationRecordsByHospital =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const records =
+                await donationRecordService
+                    .getDonationRecordsByHospital(
+                        req.params.hospitalId,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: records,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
 
 module.exports = {
     createDonationRecord,
@@ -177,4 +203,5 @@ module.exports = {
     getAllDonationRecords,
     updateDonationRecord,
     deleteDonationRecord,
+    getDonationRecordsByHospital,
 };

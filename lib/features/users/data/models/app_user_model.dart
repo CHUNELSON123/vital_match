@@ -45,13 +45,25 @@ class AppUserModel extends AppUser {
         );
   }
 
+  print(
+  'USER ROLE FROM FIRESTORE: ${data['role']}',
+);
+
   return AppUserModel(
     userId: doc.id,
     fullName: data['fullName'] ?? '',
     email: data['email'] ?? '',
     phoneNumber: data['phoneNumber'] ?? '',
+    
     role: UserRole.values.firstWhere(
       (role) => role.name == data['role'],
+       orElse: () {
+    print(
+      'UNKNOWN ROLE: ${data['role']}',
+    );
+
+    return UserRole.values.first;
+  },
     ),
     createdAt: createdAt,
   );

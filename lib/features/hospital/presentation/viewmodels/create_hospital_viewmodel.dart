@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vital_match/core/di/service_locator.dart';
 import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
@@ -46,26 +45,16 @@ Position position =
 );
 
   final hospital = Hospital(
-    hospitalId: FirebaseFirestore.instance
-    .collection('hospitals')
-    .doc()
-    .id,
-
-    ownerId: uid,
-
-    name: nameController.text.trim(),
-
-    address: addressController.text.trim(),
-
-    contactNumber:
-        contactController.text.trim(),
-
-    latitude: position.latitude,
-
-    longitude: position.longitude,
-
-    geofenceRadiusKm: 10,
-  );
+  hospitalId: '',
+  ownerId: uid,
+  name: nameController.text.trim(),
+  address: addressController.text.trim(),
+  contactNumber:
+      contactController.text.trim(),
+  latitude: position.latitude,
+  longitude: position.longitude,
+  geofenceRadiusKm: 10,
+);
 
   await createHospitalUsecase(
     hospital,

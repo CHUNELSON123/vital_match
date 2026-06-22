@@ -120,4 +120,16 @@ class TransferOrderRepositoryImpl
       orderId,
     );
   }
+
+  @override
+Future<List<TransferOrder>>
+    getTransferOrdersByHospital(
+  String hospitalId,
+) async {
+
+  return await remoteDatasource
+      .getTransferOrdersByHospital(
+    hospitalId,
+  );
+}
 }

@@ -21,4 +21,9 @@ abstract class DonationRecordRepository {
   Future<void> deleteDonationRecord(
     String recordId,
   );
+
+  Future<List<DonationRecord>>
+    getDonationRecordsByHospital(
+  String hospitalId,
+);
 }

@@ -17,4 +17,12 @@ abstract class BloodUnitRepository {
   Future<void> deleteBloodUnit(
     String bloodUnitId,
   );
+
+  Future<List<BloodUnit>>
+    getAllBloodUnits();
+
+Future<List<BloodUnit>>
+    getBloodUnitsByHospital(
+  String hospitalId,
+);
 }

@@ -3,6 +3,7 @@ import 'package:vital_match/features/donors/data/models/donor_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:vital_match/core/constants/api_constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
   DonorRemoteDatasourceImpl();
@@ -52,10 +53,22 @@ class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
   Future<void> updateAvailability({
     required String donorId,
     required bool isAvailable,
+
+    
   }) async {
+
+    final token =
+      await FirebaseAuth
+          .instance
+          .currentUser!
+          .getIdToken();
+
     final response = await http.patch(
       Uri.parse('${ApiConstants.baseUrl}/donors/$donorId'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+      'Authorization':
+          'Bearer $token',
+    },
       body: jsonEncode({'isAvailable': isAvailable}),
     );
 
@@ -63,4 +76,55 @@ class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
       throw Exception('Failed to update donor availability');
     }
   }
+
+@override
+Future<List<DonorModel>> getAllDonors() async {
+
+  final token =
+      await FirebaseAuth
+          .instance
+          .currentUser!
+          .getIdToken();
+
+  print(
+    'TOKEN EXISTS: ${token != null}',
+  );
+
+  final response =
+      await http.get(
+    Uri.parse(
+      '${ApiConstants.baseUrl}/donors',
+    ),
+    headers: {
+      'Authorization':
+          'Bearer $token',
+    },
+  );
+
+  print(
+    'STATUS CODE: ${response.statusCode}',
+  );
+
+  print(
+    'BODY: ${response.body}',
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(
+      'Failed to load donors',
+    );
+  }
+
+  final data =
+      jsonDecode(response.body);
+
+  return (data['data'] as List)
+      .map(
+        (item) =>
+            DonorModel.fromJson(
+          item,
+        ),
+      )
+      .toList();
+}
 }

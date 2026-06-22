@@ -43,11 +43,15 @@ router.get(
         .getAllDonationRecords,
 );
 
-
+router.get(
+    '/hospital/:hospitalId',
+    verifyToken,
+    donationRecordController
+        .getDonationRecordsByHospital,
+);
 
 
 // GET DONATION RECORD
-
 router.get(
     '/:recordId',
     verifyToken,

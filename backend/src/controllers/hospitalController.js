@@ -9,6 +9,9 @@ const createHospital = async (
     next,
 ) => {
 
+    console.log('CREATE HOSPITAL CONTROLLER HIT');
+    console.log('USER UID:', req.user.uid);
+
     try {
 
         const hospital =
@@ -107,10 +110,36 @@ const deleteHospital = async (
     }
 };
 
+const getHospitalByOwnerId =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const hospital =
+                await hospitalService
+                    .getHospitalByOwnerId(
+                        req.params.ownerId,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: hospital,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
 
 module.exports = {
     createHospital,
     getHospital,
     updateHospital,
     deleteHospital,
+    getHospitalByOwnerId,
 };

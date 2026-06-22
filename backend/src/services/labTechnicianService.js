@@ -1,4 +1,4 @@
-const { db } =
+const { db, admin, } =
     require('../config/firebase');
 
 const AppError =
@@ -60,13 +60,30 @@ const createLabTechnician =
             );
         }
 
-        // CREATE USER
+    const generatedPassword =
+    Math.floor(
+        100000 +
+        Math.random() * 900000,
+    ).toString();
 
+const firebaseUser =
+    await admin.auth()
+        .createUser({
+            email:
+                technicianData.email,
+
+            password:
+                generatedPassword,
+        });
+
+        // CREATE USER
         const userRef =
-            userCollection.doc();
+            userCollection.doc(
+                firebaseUser.uid,
+            );
 
         const user = {
-            userId: userRef.id,
+            userId: firebaseUser.uid,
             fullName:
                 technicianData.fullName,
             email:
@@ -86,13 +103,15 @@ const createLabTechnician =
 
         const technicianRef =
             labTechnicianCollection
-                .doc();
+                .doc(
+                    firebaseUser.uid,
+                );
 
         const technician = {
             technicianId:
-                technicianRef.id,
+                firebaseUser.uid,
             userId:
-                userRef.id,
+                firebaseUser.uid,
             hospitalId:
                 technicianData.hospitalId,
             employeeId:
@@ -129,7 +148,10 @@ const createLabTechnician =
                         .toISOString(),
             });
 
-        return technician;
+        return {
+            technician,
+            generatedPassword,
+        };
     };
 
 
@@ -386,6 +408,26 @@ const getTechniciansByHospital =
         );
     };
 
+    const getLabTechnicianByUserId =
+    async (userId) => {
+
+    const snapshot =
+        await labTechnicianCollection
+            .where(
+                'userId',
+                '==',
+                userId,
+            )
+            .limit(1)
+            .get();
+
+    if (snapshot.empty) {
+        return null;
+    }
+
+    return snapshot.docs[0].data();
+};
+
 
 module.exports = {
     createLabTechnician,
@@ -394,4 +436,5 @@ module.exports = {
     updateLabTechnician,
     deleteLabTechnician,
     getTechniciansByHospital,
+    getLabTechnicianByUserId,
 };

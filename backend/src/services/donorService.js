@@ -88,10 +88,25 @@ const updateDonorAvailability = async (
   };
 };
 
+// GET ALL DONORS
+
+const getAllDonors = async () => {
+
+  const snapshot =
+    await donorsCollection.get();
+
+  return snapshot.docs.map(
+    (doc) => ({
+      donorId: doc.id,
+      ...doc.data(),
+    }),
+  );
+};
 
 module.exports = {
   createDonorProfile,
   getDonorProfile,
   updateDonorProfile,
   updateDonorAvailability,
+  getAllDonors,
 };

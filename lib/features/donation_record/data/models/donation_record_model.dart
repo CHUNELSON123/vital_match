@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:vital_match/core/enums/blood_type.dart';
-
 import '../../domain/entities/donation_record.dart';
-
+import 'package:vital_match/core/enums/donation_record_status.dart';
 
 class DonationRecordModel
     extends DonationRecord {
@@ -17,6 +14,7 @@ class DonationRecordModel
     required super.bloodUnitsCollected,
     required super.pointsAwarded,
     required super.bloodGroup,
+    required super.status,
   });
 
 
@@ -31,22 +29,24 @@ class DonationRecordModel
           bloodUnitsCollected,
       'pointsAwarded':
           pointsAwarded,
-      'bloodType':
+      'bloodGroup':
           bloodGroup.name,
+      'status': status.name,
     };
   }
 
 
   factory DonationRecordModel
-      .fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>>
-        doc,
+      .fromMap(
+    Map<String, dynamic>
+        data,
   ) {
 
-    final data = doc.data()!;
+    print('DONATION RECORD FROM API');
+    print(data);
 
     return DonationRecordModel(
-      recordId: doc.id,
+      recordId: data['recordId'] ?? '',
       donorId: data['donorId'] ?? '',
       hospitalId:
           data['hospitalId'] ?? '',
@@ -60,11 +60,20 @@ class DonationRecordModel
       pointsAwarded:
           data['pointsAwarded'] ?? 0,
       bloodGroup:
-          BloodType.values.firstWhere(
-        (bloodType) =>
-            bloodType.name ==
-            data['bloodType'],
-      ),
+    BloodType.values.firstWhere(
+  (bloodType) =>
+      bloodType.name ==
+      data['bloodGroup'],
+  orElse: () => BloodType.oPositive,
+),
+
+     status:
+    DonationRecordStatus.values.firstWhere(
+  (status) =>
+      status.name ==
+      data['status'],
+  orElse: () => DonationRecordStatus.verified,
+),  
     );
   }
 }

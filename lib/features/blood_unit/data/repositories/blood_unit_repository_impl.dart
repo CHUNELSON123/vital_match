@@ -129,4 +129,24 @@ class BloodUnitRepositoryImpl
       bloodUnitId,
     );
   }
+
+  @override
+Future<List<BloodUnit>>
+    getAllBloodUnits() async {
+
+  return await remoteDatasource
+      .getAllBloodUnits();
+}
+
+@override
+Future<List<BloodUnit>>
+    getBloodUnitsByHospital(
+  String hospitalId,
+) async {
+
+  return await remoteDatasource
+      .getBloodUnitsByHospital(
+    hospitalId,
+  );
+}
 }

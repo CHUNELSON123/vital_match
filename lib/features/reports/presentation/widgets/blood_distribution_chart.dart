@@ -2,12 +2,41 @@ import 'package:flutter/material.dart';
 
 class BloodDistributionChart
     extends StatelessWidget {
+
+  final List<dynamic>
+      bloodDistribution;
+
   const BloodDistributionChart({
     super.key,
+    required this.bloodDistribution,
   });
 
   @override
   Widget build(BuildContext context) {
+
+    if (bloodDistribution.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 300,
+
+        alignment: Alignment.center,
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+              BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(
+              0xFFE5E5E5,
+            ),
+          ),
+        ),
+
+        child: const Text(
+          'No blood distribution data',
+        ),
+      );
+    }
     return Container(
       width: double.infinity,
 
@@ -28,41 +57,39 @@ class BloodDistributionChart
         crossAxisAlignment:
             CrossAxisAlignment.start,
 
-        children: const [
-          Text(
-            'Blood Type Distribution',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+      children: [
 
-          SizedBox(height: 24),
-
-          _BloodTypeRow(
-            type: 'O+',
-            percentage: '40%',
-            color: Color(0xFF005DAC),
+        const Text(
+          'Blood Type Distribution',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
+        ),
 
-          _BloodTypeRow(
-            type: 'A+',
-            percentage: '25%',
-            color: Colors.red,
-          ),
+        const SizedBox(height: 24),
 
-          _BloodTypeRow(
-            type: 'B+',
-            percentage: '20%',
-            color: Colors.orange,
-          ),
+        ...bloodDistribution.map(
+          (blood) {
 
-          _BloodTypeRow(
-            type: 'Others',
-            percentage: '15%',
-            color: Colors.grey,
-          ),
-        ],
+            return _BloodTypeRow(
+              type:
+                  blood['bloodType']
+                      .toString(),
+
+              percentage:
+                  blood['total']
+                      .toString(),
+
+              color:
+                  const Color(
+                0xFF005DAC,
+              ),
+            );
+          },
+        ),
+      ], 
+
       ),
     );
   }

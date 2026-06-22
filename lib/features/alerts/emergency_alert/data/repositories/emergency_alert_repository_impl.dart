@@ -119,4 +119,16 @@ class EmergencyAlertRepositoryImpl
       alertId,
     );
   }
+
+  @override
+Future<List<EmergencyAlert>>
+    getEmergencyAlertsByHospital(
+  String hospitalId,
+) async {
+
+  return await remoteDatasource
+      .getEmergencyAlertsByHospital(
+    hospitalId,
+  );
+}
 }

@@ -146,8 +146,9 @@ class _TechniciansPageState
 
                                 try {
 
-                                  await CreateTechnicianViewModel()
-                                    .createTechnician(
+                                 final generatedPassword =
+                                    await CreateTechnicianViewModel()
+                                        .createTechnician(
                                   fullName:
                                       result['fullName'],
 
@@ -171,14 +172,61 @@ class _TechniciansPageState
 
                                   if (mounted) {
 
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Technician created successfully',
+                                   showDialog(
+                                    context: context,
+                                    builder: (_) {
+                                      return AlertDialog(
+                                        title: const Text(
+                                          'Technician Created',
                                         ),
-                                      ),
-                                    );
+                                        content: Column(
+                                          mainAxisSize:
+                                              MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+
+                                            Text(
+                                              'Email: ${result['email']}',
+                                            ),
+
+                                            const SizedBox(
+                                              height: 12,
+                                            ),
+
+                                            Text(
+                                              'Password: $generatedPassword',
+                                              style:
+                                                  const TextStyle(
+                                                fontWeight:
+                                                    FontWeight.bold,
+                                              ),
+                                            ),
+
+                                            const SizedBox(
+                                              height: 12,
+                                            ),
+
+                                            const Text(
+                                              'Give these credentials to the technician.',
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(
+                                                context,
+                                              );
+                                            },
+                                            child: const Text(
+                                              'OK',
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                   }
 
                                 } catch (e) {

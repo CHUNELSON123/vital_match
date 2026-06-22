@@ -10,7 +10,6 @@ class UpdateDonorProfileUsecase {
   });
 
   Future<void> call(Donor donor) async {
-
     await repository.updateDonorProfile(
       donor,
     );

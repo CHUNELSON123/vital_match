@@ -22,4 +22,9 @@ abstract class DonationRecordRemoteDatasource {
   Future<void> deleteDonationRecord(
     String recordId,
   );
+
+  Future<List<DonationRecordModel>>
+    getDonationRecordsByHospital(
+  String hospitalId,
+);
 }

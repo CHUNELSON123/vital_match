@@ -21,4 +21,9 @@ abstract class TransferOrderRepository {
   Future<void> deleteTransferOrder(
     String orderId,
   );
+
+  Future<List<TransferOrder>>
+    getTransferOrdersByHospital(
+  String hospitalId,
+);
 }

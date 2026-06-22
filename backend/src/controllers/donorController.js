@@ -124,10 +124,35 @@ const updateDonorAvailability = async (
   }
 };
 
+// GET ALL DONORS
+
+const getAllDonors = async (
+  req,
+  res,
+  next,
+) => {
+
+  try {
+
+    const donors =
+      await donorService
+        .getAllDonors();
+
+    res.status(200).json({
+      success: true,
+      data: donors,
+    });
+
+  } catch (error) {
+
+    next(error);
+  }
+};
 
 module.exports = {
   createDonorProfile,
   getDonorProfile,
   updateDonorProfile,
   updateDonorAvailability,
+  getAllDonors,
 };

@@ -37,6 +37,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!mounted) return;
 
+    print(
+  'LOGIN ROLE => ${user.role}',
+);
+
     switch (user.role) {
       case 'donor':
         Navigator.pushReplacement(
@@ -56,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
         );
         break;
 
-      case 'lab_technician':
+      case 'labTechnician':
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

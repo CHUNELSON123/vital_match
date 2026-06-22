@@ -106,11 +106,15 @@ const createHospitalAdmin =
 
         const adminRef =
             hospitalAdminCollection
-                .doc();
+                .doc(
+                    adminData.userId,
+                );
 
         const hospitalAdmin = {
             adminId:
-                adminRef.id,
+                adminData.userId,
+            userId:
+                adminData.userId,
 
             ...adminData,
 

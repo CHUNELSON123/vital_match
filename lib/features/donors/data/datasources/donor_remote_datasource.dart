@@ -11,4 +11,7 @@ abstract class DonorRemoteDatasource {
     required String donorId,
     required bool isAvailable,
   });
+
+  Future<List<DonorModel>>
+    getAllDonors();
 }

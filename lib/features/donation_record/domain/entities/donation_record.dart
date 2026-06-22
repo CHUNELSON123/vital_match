@@ -1,4 +1,5 @@
 import 'package:vital_match/core/enums/blood_type.dart';
+import 'package:vital_match/core/enums/donation_record_status.dart';
 
 class DonationRecord {
 
@@ -18,6 +19,7 @@ class DonationRecord {
 
   final BloodType bloodGroup;
 
+  final DonationRecordStatus status;
 
   const DonationRecord({
     required this.recordId,
@@ -28,5 +30,6 @@ class DonationRecord {
     required this.bloodUnitsCollected,
     required this.pointsAwarded,
     required this.bloodGroup,
+    required this.status,
   });
 }

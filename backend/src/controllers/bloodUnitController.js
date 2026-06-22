@@ -134,10 +134,62 @@ const deleteBloodUnit = async (
     }
 };
 
+// GET BLOOD UNITS BY HOSPITAL
+
+const getBloodUnitsByHospital =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const bloodUnits =
+                await bloodUnitService
+                    .getBloodUnitsByHospital(
+                        req.params.hospitalId,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: bloodUnits,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
+const getAllBloodUnits =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const bloodUnits =
+                await bloodUnitService
+                    .getAllBloodUnits();
+
+            res.status(200).json({
+                success: true,
+                data: bloodUnits,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
 
 module.exports = {
     createBloodUnit,
     getBloodUnit,
     updateBloodUnit,
     deleteBloodUnit,
+    getBloodUnitsByHospital,
+    getAllBloodUnits,
 };

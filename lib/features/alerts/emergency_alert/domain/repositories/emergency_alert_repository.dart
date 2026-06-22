@@ -29,4 +29,9 @@ abstract class EmergencyAlertRepository {
   Future<void> deleteEmergencyAlert(
     String alertId,
   );
+
+  Future<List<EmergencyAlert>>
+    getEmergencyAlertsByHospital(
+  String hospitalId,
+);
 }

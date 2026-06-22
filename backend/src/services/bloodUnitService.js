@@ -164,10 +164,45 @@ const deleteBloodUnit = async (
     await docRef.delete();
 };
 
+// GET BLOOD UNITS BY HOSPITAL
+
+const getBloodUnitsByHospital =
+    async (
+        hospitalId,
+    ) => {
+
+        const snapshot =
+            await bloodUnitCollection
+                .where(
+                    'hospitalId',
+                    '==',
+                    hospitalId,
+                )
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
+    };
+
+const getAllBloodUnits =
+    async () => {
+
+        const snapshot =
+            await bloodUnitCollection
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
+    };
+
 
 module.exports = {
     createBloodUnit,
     getBloodUnit,
     updateBloodUnit,
     deleteBloodUnit,
+    getBloodUnitsByHospital,
+    getAllBloodUnits,
 };

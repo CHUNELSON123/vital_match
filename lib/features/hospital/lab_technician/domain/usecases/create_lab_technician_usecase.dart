@@ -12,11 +12,11 @@ class CreateLabTechnicianUsecase {
     this.repository,
   );
 
-  Future<void> call(
+  Future<String> call(
     LabTechnician technician,
   ) async {
 
-    await repository
+    return repository
         .createLabTechnician(
       technician,
     );

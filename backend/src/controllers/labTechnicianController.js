@@ -10,7 +10,6 @@ const {
 
 
 // CREATE LAB TECHNICIAN
-
 const createLabTechnician =
     async (
         req,
@@ -46,7 +45,6 @@ const createLabTechnician =
 
 
 // GET LAB TECHNICIAN
-
 const getLabTechnician =
     async (
         req,
@@ -206,6 +204,35 @@ const getTechniciansByHospital =
     };
 
 
+    const getLabTechnicianByUserId =
+    async (req, res, next) => {
+    try {
+
+        const technician =
+            await labTechnicianService
+                .getLabTechnicianByUserId(
+                    req.params.userId,
+                );
+
+        if (!technician) {
+            return res.status(404).json({
+                success: false,
+                message:
+                    'Lab technician not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: technician,
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 module.exports = {
     createLabTechnician,
     getLabTechnician,
@@ -213,4 +240,5 @@ module.exports = {
     updateLabTechnician,
     deleteLabTechnician,
     getTechniciansByHospital,
+    getLabTechnicianByUserId,
 };

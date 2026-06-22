@@ -29,10 +29,15 @@ router.post(
         .createBloodUnit,
 );
 
-
+//GET Blood unit by hospital
+router.get(
+    '/hospital/:hospitalId',
+    verifyToken,
+    bloodUnitController
+        .getBloodUnitsByHospital,
+);
 
 // GET BLOOD UNIT
-
 router.get(
     '/:bloodUnitId',
     verifyToken,
@@ -55,7 +60,12 @@ router.put(
         .updateBloodUnit,
 );
 
-
+router.get(
+    '/',
+    verifyToken,
+    bloodUnitController
+        .getAllBloodUnits,
+);
 
 // DELETE BLOOD UNIT
 

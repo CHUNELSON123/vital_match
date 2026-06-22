@@ -1,70 +1,211 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vital_match/core/constants/api_constants.dart';
 
 import '../models/blood_unit_model.dart';
-
 import 'blood_unit_remote_datasource.dart';
 
 class BloodUnitRemoteDatasourceImpl
     implements BloodUnitRemoteDatasource {
 
-  final FirebaseFirestore firestore;
-
-  BloodUnitRemoteDatasourceImpl(
-    this.firestore,
-  );
-
-  final String bloodUnitCollection =
-      'blood_units';
-
+  BloodUnitRemoteDatasourceImpl();
 
   @override
   Future<void> createBloodUnit(
     BloodUnitModel bloodUnit,
   ) async {
 
-    await firestore
-        .collection(bloodUnitCollection)
-        .doc(bloodUnit.bloodUnitId)
-        .set(bloodUnit.toMap());
-  }
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
 
+    final response =
+        await http.post(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/blood-units',
+      ),
+      headers: {
+        'Content-Type':
+            'application/json',
+        'Authorization':
+            'Bearer $token',
+      },
+      body: jsonEncode(
+        bloodUnit.toMap(),
+      ),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception(
+        'Failed to create blood unit',
+      );
+    }
+  }
 
   @override
   Future<BloodUnitModel> getBloodUnit(
     String bloodUnitId,
   ) async {
 
-    final doc = await firestore
-        .collection(bloodUnitCollection)
-        .doc(bloodUnitId)
-        .get();
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
 
-    return BloodUnitModel.fromFirestore(
-      doc,
+    final response =
+        await http.get(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/blood-units/$bloodUnitId',
+      ),
+      headers: {
+        'Authorization':
+            'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Blood unit not found',
+      );
+    }
+
+    final data =
+        jsonDecode(
+          response.body,
+        );
+
+    return BloodUnitModel.fromMap(
+      data['data'],
     );
   }
 
+  @override
+  Future<List<BloodUnitModel>>
+      getAllBloodUnits() async {
+
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
+
+    final response =
+        await http.get(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/blood-units',
+      ),
+      headers: {
+        'Authorization':
+            'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load blood units',
+      );
+    }
+
+    final data =
+        jsonDecode(
+          response.body,
+        );
+
+    return (data['data'] as List)
+    .where(
+      (item) =>
+          item is Map<String, dynamic> &&
+          item.containsKey('bloodType'),
+    )
+    .map(
+      (item) =>
+          BloodUnitModel.fromMap(item),
+    )
+    .toList();
+  }
 
   @override
   Future<void> updateBloodUnit(
     BloodUnitModel bloodUnit,
   ) async {
 
-    await firestore
-        .collection(bloodUnitCollection)
-        .doc(bloodUnit.bloodUnitId)
-        .update(bloodUnit.toMap());
-  }
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
 
+    final response =
+        await http.put(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/blood-units/${bloodUnit.bloodUnitId}',
+      ),
+      headers: {
+        'Content-Type':
+            'application/json',
+        'Authorization':
+            'Bearer $token',
+      },
+      body: jsonEncode(
+        bloodUnit.toMap(),
+      ),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to update blood unit',
+      );
+    }
+  }
 
   @override
   Future<void> deleteBloodUnit(
     String bloodUnitId,
   ) async {
 
-    await firestore
-        .collection(bloodUnitCollection)
-        .doc(bloodUnitId)
-        .delete();
+    final token =
+        await FirebaseAuth
+            .instance
+            .currentUser!
+            .getIdToken();
+
+    final response =
+        await http.delete(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/blood-units/$bloodUnitId',
+      ),
+      headers: {
+        'Authorization':
+            'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to delete blood unit',
+      );
+    }
+  }
+
+  @override
+  Future<List<BloodUnitModel>>
+      getBloodUnitsByHospital(
+    String hospitalId,
+  ) async {
+
+    final units =
+        await getAllBloodUnits();
+
+    return units
+        .where(
+          (unit) =>
+              unit.hospitalId ==
+              hospitalId,
+        )
+        .toList();
   }
 }

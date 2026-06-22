@@ -17,4 +17,12 @@ abstract class BloodUnitRemoteDatasource {
   Future<void> deleteBloodUnit(
     String bloodUnitId,
   );
+
+  Future<List<BloodUnitModel>>
+    getAllBloodUnits();
+
+Future<List<BloodUnitModel>>
+    getBloodUnitsByHospital(
+  String hospitalId,
+);
 }

@@ -3,7 +3,7 @@ import '../entities/lab_technician.dart';
 
 abstract class LabTechnicianRepository {
 
-  Future<void> createLabTechnician(
+  Future<String> createLabTechnician(
     LabTechnician technician,
   );
 
@@ -26,5 +26,9 @@ abstract class LabTechnicianRepository {
   Future<List<LabTechnician>>
     getLabTechniciansByHospital(
   String hospitalId,
+);
+
+Future<LabTechnician?> getLabTechnicianByUserId(
+  String userId,
 );
 }

@@ -121,4 +121,32 @@ class TransferOrderRemoteDatasourceImpl
         )
         .delete();
   }
+
+  @override
+Future<List<TransferOrderModel>>
+    getTransferOrdersByHospital(
+  String hospitalId,
+) async {
+
+  final snapshot =
+      await firestore
+          .collection(
+            transferOrderCollection,
+          )
+          .where(
+            'hospitalId',
+            isEqualTo: hospitalId,
+          )
+          .get();
+
+  return snapshot.docs
+      .map(
+        (doc) =>
+            TransferOrderModel
+                .fromFirestore(
+          doc,
+        ),
+      )
+      .toList();
+}
 }

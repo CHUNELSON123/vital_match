@@ -65,4 +65,12 @@ class DonorRepositoryImpl implements DonorRepository {
       isAvailable: isAvailable,
     );
   }
+
+  @override
+Future<List<Donor>>
+    getAllDonors() async {
+
+  return await remoteDatasource
+      .getAllDonors();
+}
 }

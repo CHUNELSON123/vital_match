@@ -3,7 +3,7 @@ import 'package:vital_match/features/hospital/lab_technician/domain/entities/lab
 
 class CreateTechnicianViewModel {
 
-  Future<void> createTechnician({
+  Future<String> createTechnician({
   required String fullName,
   required String email,
   required String phoneNumber,
@@ -27,9 +27,9 @@ class CreateTechnicianViewModel {
   email: email,
   phoneNumber: phoneNumber,
 );
-  await ServiceLocator
-      .createLabTechnicianUsecase(
-    technician,
-  );
+   return await ServiceLocator
+    .createLabTechnicianUsecase(
+        technician,
+    );
 }
 }

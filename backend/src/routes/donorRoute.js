@@ -5,6 +5,7 @@ const {
   getDonorProfile,
   updateDonorProfile,
   updateDonorAvailability,
+  getAllDonors,
 } = require('../controllers/donorController');
 
 const {
@@ -25,14 +26,21 @@ router.post(
 );
 
 
-// GET DONOR PROFILE
 
+// GET DONOR PROFILE
 router.get(
   '/:donorId',
   verifyToken,
   getDonorProfile,
 );
 
+
+//GET ALL DONORS
+router.get(
+  '/',
+  verifyToken,
+  getAllDonors,
+);
 
 // UPDATE DONOR PROFILE
 

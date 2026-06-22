@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
 
-class HospitalModel extends Hospital{
-
+class HospitalModel extends Hospital {
   const HospitalModel({
     required super.hospitalId,
     required super.ownerId,
@@ -16,6 +14,7 @@ class HospitalModel extends Hospital{
 
   Map<String, dynamic> toMap() {
     return {
+      'hospitalId': hospitalId,
       'ownerId': ownerId,
       'name': name,
       'address': address,
@@ -26,20 +25,28 @@ class HospitalModel extends Hospital{
     };
   }
 
-  factory HospitalModel.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
+  factory HospitalModel.fromMap(
+    Map<String, dynamic> data,
   ) {
-    final data = doc.data()!;
-
     return HospitalModel(
-      hospitalId: doc.id,
-      ownerId: data['ownerId'] ?? '',
-      name: data['name'] ?? '',
-      address: data['address'] ?? '',
-      contactNumber: data['contactNumber'] ?? '',
-      latitude: (data['latitude'] ?? 0).toDouble(),
-      longitude: (data['longitude'] ?? 0).toDouble(),
-      geofenceRadiusKm: data['geofenceRadiusKm'] ?? 0,
+      hospitalId:
+          data['hospitalId'] ?? '',
+      ownerId:
+          data['ownerId'] ?? '',
+      name:
+          data['name'] ?? '',
+      address:
+          data['address'] ?? '',
+      contactNumber:
+          data['contactNumber'] ?? '',
+      latitude:
+          (data['latitude'] ?? 0)
+              .toDouble(),
+      longitude:
+          (data['longitude'] ?? 0)
+              .toDouble(),
+      geofenceRadiusKm:
+          data['geofenceRadiusKm'] ?? 0,
     );
   }
 }

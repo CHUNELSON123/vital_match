@@ -43,6 +43,8 @@ dependencies:
   geocoding: ^3.0.0
   flutter_map: ^8.1.1
   latlong2: ^0.9.1
+  provider: ^6.1.5
+  dropdown_search: ^7.0.0
 
 dev_dependencies:
   flutter_test:

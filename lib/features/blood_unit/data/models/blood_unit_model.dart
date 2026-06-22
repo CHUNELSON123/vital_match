@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vital_match/core/enums/blood_type.dart';
 import 'package:vital_match/core/enums/storage_status.dart';
 import 'package:vital_match/features/blood_unit/domain/entities/blood_unit.dart';
@@ -32,30 +31,73 @@ class BloodUnitModel extends BloodUnit {
     };
   }
 
-  factory BloodUnitModel.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data()!;
+ factory BloodUnitModel.fromMap(
+  Map<String, dynamic> data,
+) {
 
-    return BloodUnitModel(
-      bloodUnitId: doc.id,
-      recordId: data['recordId'] ?? '',
-      hospitalId: data['hospitalId'],
-      bloodBankId: data['bloodBankId'],
-      bloodType: BloodType.values.firstWhere((bloodType) =>
-        bloodType.name ==
-        data['bloodType'], 
-        ),
-      componentType: data['componentType'] ?? '',
-      storageStatus: StorageStatus.values.firstWhere((storageStatus) =>
-        storageStatus.name ==
-        data['storageStatus'], 
-        ),
-      quantity: data['quantity'] ?? 0,
-      collectionDate: DateTime.parse(data['collectionDate'],
-      ),
-      expiryDate: DateTime.parse(data['expiryDate'],
-      ),
-    );
-  }
+  print('BLOOD UNIT FROM API');
+  print(data);
+
+  final bloodTypeValue =
+      data['bloodType'] ??
+      data['bloodGroup'];
+
+  final storageStatusValue =
+      data['storageStatus'];
+
+  print('bloodType value = $bloodTypeValue');
+  print('storageStatus value = $storageStatusValue');
+
+  return BloodUnitModel(
+    bloodUnitId:
+        data['bloodUnitId'] ??
+        data['id'] ??
+        '',
+
+    recordId:
+        data['recordId'] ??
+        '',
+
+    hospitalId:
+        data['hospitalId'],
+
+    bloodBankId:
+        data['bloodBankId'],
+
+    bloodType:
+        BloodType.values.firstWhere(
+      (bloodType) =>
+          bloodType.name ==
+          bloodTypeValue,
+      orElse: () =>
+          BloodType.oPositive,
+    ),
+
+    componentType:
+        data['componentType'] ??
+        'Whole Blood',
+
+    storageStatus:
+        StorageStatus.values.firstWhere(
+      (storageStatus) =>
+          storageStatus.name ==
+          storageStatusValue,
+      orElse: () =>
+          StorageStatus.available,
+    ),
+
+    quantity:
+        (data['quantity'] ?? 0) as int,
+
+    collectionDate:
+        DateTime.parse(
+      data['collectionDate'],
+    ),
+
+    expiryDate:
+        DateTime.parse(
+      data['expiryDate'],
+    ),
+  );
+}
 }

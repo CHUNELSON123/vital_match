@@ -274,6 +274,27 @@ const deleteDonationRecord =
         await docRef.delete();
     };
 
+    // GET DONATION RECORDS BY HOSPITAL
+
+const getDonationRecordsByHospital =
+    async (
+        hospitalId,
+    ) => {
+
+        const snapshot =
+            await donationRecordCollection
+                .where(
+                    'hospitalId',
+                    '==',
+                    hospitalId,
+                )
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
+    };
+
 
 module.exports = {
     createDonationRecord,
@@ -281,4 +302,5 @@ module.exports = {
     getAllDonationRecords,
     updateDonationRecord,
     deleteDonationRecord,
+    getDonationRecordsByHospital,
 };

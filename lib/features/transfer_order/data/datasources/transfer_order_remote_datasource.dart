@@ -26,4 +26,9 @@ abstract class TransferOrderRemoteDatasource {
   Future<void> deleteTransferOrder(
     String orderId,
   );
+
+  Future<List<TransferOrderModel>>
+    getTransferOrdersByHospital(
+  String hospitalId,
+);
 }

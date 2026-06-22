@@ -187,6 +187,33 @@ const deleteEmergencyAlert =
         }
     };
 
+// GET EMERGENCY ALERTS BY HOSPITAL
+
+const getEmergencyAlertsByHospital =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const alerts =
+                await emergencyAlertService
+                    .getEmergencyAlertsByHospital(
+                        req.params.hospitalId,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: alerts,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
 
 module.exports = {
     createEmergencyAlert,
@@ -194,4 +221,5 @@ module.exports = {
     getEmergencyAlert,
     updateEmergencyAlert,
     deleteEmergencyAlert,
+    getEmergencyAlertsByHospital,
 };

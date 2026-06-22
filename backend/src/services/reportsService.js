@@ -19,7 +19,6 @@ const getHospitalReports =
             .get();
 
     // DONATION RECORDS
-
     const donationRecordsSnapshot =
         await db
             .collection(
@@ -33,7 +32,6 @@ const getHospitalReports =
             .get();
 
     // TECHNICIANS
-
     const techniciansSnapshot =
         await db
             .collection(
@@ -46,13 +44,40 @@ const getHospitalReports =
             )
             .get();
 
+// AUDIT TRAILS
+const auditTrailSnapshot =
+    await db
+        .collection(
+            'audit_trails',
+        )
+        .where(
+            'hospitalId',
+            '==',
+            hospitalId,
+        )
+        .get();
+
 
 const donationTrendMap = {};
+
+const bloodDistributionMap = {};
 
 donationRecordsSnapshot.docs.forEach(
     (doc) => {
 
     const data = doc.data();
+
+    if (data.bloodGroup) {
+
+    bloodDistributionMap[
+        data.bloodGroup
+    ] =
+        (
+            bloodDistributionMap[
+                data.bloodGroup
+            ] || 0
+        ) + 1;
+}
 
     if (!data.donationDate) {
         return;
@@ -87,7 +112,8 @@ donationRecordsSnapshot.docs.forEach(
     totalTechnicians:
         techniciansSnapshot.size,
 
-    recentActivity: 0,
+   recentActivity:
+    auditTrailSnapshot.size,
 
     donationTrend:
         Object.entries(
@@ -99,7 +125,15 @@ donationRecordsSnapshot.docs.forEach(
             }),
         ),
 
-    bloodDistribution: [],
+   bloodDistribution:
+    Object.entries(
+        bloodDistributionMap,
+    ).map(
+        ([bloodType, total]) => ({
+            bloodType,
+            total,
+        }),
+    ),
 };
 };
 

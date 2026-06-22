@@ -43,8 +43,12 @@ router.get(
         .getAllEmergencyAlerts,
 );
 
-
-
+router.get(
+    '/hospital/:hospitalId',
+    verifyToken,
+    emergencyAlertController
+        .getEmergencyAlertsByHospital,
+);
 
 // GET EMERGENCY ALERT
 
