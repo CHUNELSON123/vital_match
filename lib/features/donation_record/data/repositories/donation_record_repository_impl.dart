@@ -153,4 +153,12 @@ Future<List<DonationRecord>>
     hospitalId,
   );
 }
+
+@override
+Future<List<DonationRecord>>
+    getPendingDonationRecords() async {
+
+  return await remoteDatasource
+      .getPendingDonationRecords();
+}
 }

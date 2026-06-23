@@ -73,7 +73,7 @@ final phoneNumberController =
 
             DropdownButtonFormField<
                 String>(
-                value: department,
+                initialValue: department,
 
               items: const [
 

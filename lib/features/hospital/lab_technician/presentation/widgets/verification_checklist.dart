@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../../../donation_record/domain/entities/donation_record.dart';
 
 class VerificationChecklist extends StatelessWidget {
-  const VerificationChecklist({super.key});
+
+  final DonationRecord donation;
+
+  const VerificationChecklist({
+    super.key,
+    required this.donation,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,7 @@ class VerificationChecklist extends StatelessWidget {
                     ),
                     SizedBox(width: 8),
                     Text(
-                      'VERIFICATION IN PROGRESS',
+                      donation.status.toUpperCase(),
                     ),
                   ],
                 ),
@@ -61,26 +68,30 @@ class VerificationChecklist extends StatelessWidget {
           const SizedBox(height: 24),
 
           _completedTile(
-            title: 'Health Screening',
+            title: 'Donation Record',
             description:
-                'General physical exam, pulse, BP and medical questionnaire reviewed.',
+                'Donation record has been created.',
           ),
 
           const SizedBox(height: 16),
 
           _completedTile(
-            title: 'Blood Collected',
+            title: 'Blood Group',
             description:
-                '450ml successfully collected and labeled.',
+                donation.bloodGroup,
           ),
 
           const SizedBox(height: 16),
 
-          _pendingTile(),
+          if (donation.status == 'pending')
+            _pendingTile(),
 
-          const SizedBox(height: 16),
-
-          _lockedTile(),
+          if (donation.status != 'pending')
+            _completedTile(
+              title: 'Verification',
+              description:
+                  donation.status,
+            ),
 
           const SizedBox(height: 30),
 
@@ -89,7 +100,13 @@ class VerificationChecklist extends StatelessWidget {
                 MainAxisAlignment.end,
             children: [
               OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+
+                  print(
+                    'REJECT ${donation.recordId}',
+                  );
+
+                },
                 style:
                     OutlinedButton.styleFrom(
                   foregroundColor:
@@ -105,7 +122,13 @@ class VerificationChecklist extends StatelessWidget {
               const SizedBox(width: 12),
 
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+
+                  print(
+                    'VERIFY ${donation.recordId}',
+                  );
+
+                },
                 style:
                     ElevatedButton.styleFrom(
                   backgroundColor:

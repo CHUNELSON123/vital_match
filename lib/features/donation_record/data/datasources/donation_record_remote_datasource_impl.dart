@@ -213,4 +213,46 @@ class DonationRecordRemoteDatasourceImpl
         )
         .toList();
   }
+
+@override
+Future<List<DonationRecordModel>>
+    getPendingDonationRecords() async {
+
+  final token =
+      await FirebaseAuth
+          .instance
+          .currentUser!
+          .getIdToken();
+
+  final response =
+      await http.get(
+    Uri.parse(
+      '${ApiConstants.baseUrl}/donation-records/pending/list',
+    ),
+    headers: {
+      'Authorization':
+          'Bearer $token',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(
+      'Failed to load pending donations',
+    );
+  }
+
+  final data =
+      jsonDecode(
+        response.body,
+      );
+
+  return (data['data'] as List)
+      .map(
+        (item) =>
+            DonationRecordModel.fromMap(
+          item,
+        ),
+      )
+      .toList();
+}
 }

@@ -131,7 +131,7 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  _StatCard({
+  const _StatCard({
     required this.title,
     required this.value,
     required this.icon,

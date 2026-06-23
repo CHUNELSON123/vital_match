@@ -50,6 +50,19 @@ router.get(
         .getDonationRecordsByHospital,
 );
 
+router.get(
+    '/status/:status',
+    verifyToken,
+    donationRecordController
+        .getDonationRecordsByStatus,
+);
+
+router.get(
+    '/pending/list',
+    verifyToken,
+    donationRecordController
+        .getPendingDonationRecords,
+);
 
 // GET DONATION RECORD
 router.get(

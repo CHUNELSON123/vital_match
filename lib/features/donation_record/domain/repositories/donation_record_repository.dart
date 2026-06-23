@@ -26,4 +26,7 @@ abstract class DonationRecordRepository {
     getDonationRecordsByHospital(
   String hospitalId,
 );
+
+Future<List<DonationRecord>>
+    getPendingDonationRecords();
 }

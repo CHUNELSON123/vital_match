@@ -15,6 +15,7 @@ import 'package:uuid/uuid.dart';
 import 'package:vital_match/features/blood_unit/domain/entities/blood_unit.dart';
 import '../../../../blood_unit/domain/usecases/create_blood_unit_uscase.dart';
 import 'package:vital_match/core/enums/storage_status.dart';
+import '../../../lab_technician/domain/usecases/get_dashboard_blood_units_usecase.dart';
 
 class DonationRecordingViewModel
     extends ChangeNotifier {
@@ -37,6 +38,9 @@ class DonationRecordingViewModel
   final CreateBloodUnitUsecase
     createBloodUnitUsecase;
 
+  final GetDashboardBloodUnitsUsecase
+    getDashboardBloodUnitsUsecase;
+
  DonationRecordingViewModel({
   required this.createDonationRecordUsecase,
   required this.getDonationRecordsUsecase,
@@ -44,12 +48,15 @@ class DonationRecordingViewModel
   required this.getAllUsersUsecase,
   required this.updateDonorProfileUsecase,
   required this.createBloodUnitUsecase,
+  required this.getDashboardBloodUnitsUsecase,
 });
 
   bool isLoading = false;
 
   List<DonationRecord>
       recentDonations = [];
+
+  List<BloodUnit> bloodUnits = [];
 
   List<DonorDropdownItem> donors = [];
 
@@ -132,6 +139,28 @@ async {
   }
 }
 
+Future<void> loadInventory() async {
+
+  print('LOADING INVENTORY');
+
+  bloodUnits =
+      await getDashboardBloodUnitsUsecase();
+
+  print(
+    'INVENTORY COUNT: ${bloodUnits.length}',
+  );
+
+  for (final unit in bloodUnits) {
+
+    print(
+      'INVENTORY UNIT -> '
+      '${unit.bloodType} : ${unit.quantity}',
+    );
+  }
+
+  notifyListeners();
+}
+
   Future<void> recordDonation(
   DonationRecord donationRecord,
 ) async {
@@ -181,9 +210,16 @@ async {
               donor.lastDonationDate,
         );
 
-        await updateDonorProfileUsecase(
-          updatedDonor,
-        );
+        print(
+  'UPDATING DONOR BLOOD TYPE: '
+  '${donor.bloodGroup} -> $updatedBloodType',
+);
+
+await updateDonorProfileUsecase(
+  updatedDonor,
+);
+
+print('DONOR UPDATE COMPLETED');
 
         selectedDonor = DonorDropdownItem(
           donor: updatedDonor,
@@ -230,7 +266,7 @@ await createBloodUnitUsecase(
 print('DONATION CREATED');
 
 await loadRecentDonations();
- 
+await loadInventory();
 
 selectedDonor = null;
 
@@ -306,6 +342,46 @@ final user = matches.first;
 
 DonorDropdownItem? selectedDonor;
 
+bool donorVerified = false;
+
+bool screeningCompleted = false;
+
+bool bagLabeled = false;
+
+bool temperatureRecorded = false;
+
+void refreshPreview() {
+  notifyListeners();
+}
+
+void toggleDonorVerified(
+  bool value,
+) {
+  donorVerified = value;
+  notifyListeners();
+}
+
+void toggleScreeningCompleted(
+  bool value,
+) {
+  screeningCompleted = value;
+  notifyListeners();
+}
+
+void toggleBagLabeled(
+  bool value,
+) {
+  bagLabeled = value;
+  notifyListeners();
+}
+
+void toggleTemperatureRecorded(
+  bool value,
+) {
+  temperatureRecorded = value;
+  notifyListeners();
+}
+
 void selectDonor(
   DonorDropdownItem? donor,
 ) {
@@ -364,6 +440,30 @@ String getDonorName(
   } catch (_) {
     return donorId;
   }
+}
+
+int getCurrentInventoryForBloodType(
+  BloodType bloodType,
+) {
+  print(
+  'LOOKING FOR: $bloodType',
+);
+
+for (final unit in bloodUnits) {
+  print(
+    'UNIT TYPE: ${unit.bloodType}',
+  );
+}
+  return bloodUnits
+      .where(
+        (unit) =>
+            unit.bloodType == bloodType,
+      )
+      .fold(
+        0,
+        (total, unit) =>
+            total + unit.quantity,
+      );
 }
 
 String _bloodTypeToString(

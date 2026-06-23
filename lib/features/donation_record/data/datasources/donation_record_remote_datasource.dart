@@ -27,4 +27,7 @@ abstract class DonationRecordRemoteDatasource {
     getDonationRecordsByHospital(
   String hospitalId,
 );
+
+Future<List<DonationRecordModel>>
+    getPendingDonationRecords();
 }

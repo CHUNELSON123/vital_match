@@ -63,6 +63,9 @@ import 'package:vital_match/features/donors/domain/repositories/donor_repository
 import 'package:vital_match/features/hospital/lab_technician/domain/usecases/get_lab_technician_usecase.dart';
 import 'package:vital_match/features/hospital/lab_technician/domain/usecases/get_lab_technician_by_user_id_usecase.dart';
 import '../../features/blood_unit/domain/usecases/create_blood_unit_uscase.dart';
+import 'package:vital_match/features/donation_record/domain/usecases/get_pending_donation_records_usecase.dart';
+import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/donation_verification_viewmodel.dart';
+import 'package:vital_match/features/donors/domain/usecases/get_donor_usecase.dart';
 
 class ServiceLocator {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -200,6 +203,12 @@ static final CreateDonationRecordUsecase
         CreateDonationRecordUsecase(
           donationRecordRepository,
         );
+
+static final GetPendingDonationRecordsUsecase
+    getPendingDonationRecordsUsecase =
+        GetPendingDonationRecordsUsecase(
+          donationRecordRepository,
+        );
         
 static final EmergencyAlertRemoteDatasource
     emergencyAlertRemoteDatasource =
@@ -253,6 +262,12 @@ static final GetAllUserUsecase
           appUserRepository,
         );
 
+static final GetDonorUsecase
+    getDonorUsecase =
+        GetDonorUsecase(
+          donorRepository,
+        );
+
 static final DonorRemoteDatasource
     donorRemoteDatasource =
         DonorRemoteDatasourceImpl();
@@ -276,6 +291,15 @@ static final UpdateDonorProfileUsecase
           repository: donorRepository,
         );
 
+static final DonationVerificationViewModel
+    donationVerificationViewModel =
+        DonationVerificationViewModel(
+          getPendingDonationRecordsUsecase:
+              getPendingDonationRecordsUsecase,
+          getDonorUsecase: 
+              getDonorUsecase,
+        );
+
 static final DonationRecordingViewModel
     donationRecordingViewModel =
         DonationRecordingViewModel(
@@ -291,6 +315,8 @@ static final DonationRecordingViewModel
               updateDonorProfileUsecase,
           createBloodUnitUsecase: 
               createBloodUnitUsecase,
+          getDashboardBloodUnitsUsecase: 
+              getDashboardBloodUnitsUsecase,
         );
   
 }

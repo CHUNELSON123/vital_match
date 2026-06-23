@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../../../donation_record/domain/entities/donation_record.dart';
 
 class VerificationDonorCard extends StatelessWidget {
+
+  final DonationRecord donation;
+
   const VerificationDonorCard({
     super.key,
+    required this.donation,
   });
 
   @override
@@ -29,8 +34,8 @@ class VerificationDonorCard extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              const Text(
-                'Elena Rodriguez',
+              Text(
+                donation.donorId,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -40,7 +45,7 @@ class VerificationDonorCard extends StatelessWidget {
               const SizedBox(height: 4),
 
               Text(
-                'ID: VML-88290',
+                'Record ID: ${donation.recordId}',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                 ),
@@ -68,7 +73,7 @@ class VerificationDonorCard extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'O Positive',
+                            donation.bloodGroup,
                             style: TextStyle(
                               color: Color(0xFFAF101A),
                               fontWeight:
@@ -129,18 +134,17 @@ class VerificationDonorCard extends StatelessWidget {
               const SizedBox(height: 20),
 
               _infoRow(
-                'Last Donation',
-                '14 Feb 2024',
-              ),
+                  'Donation Date',
+                  donation.donationDate.toString(),
+                ),
 
-              _infoRow(
-                'Weight',
-                '68 kg',
+             _infoRow(
+                'Units Collected',
+                donation.bloodUnitsCollected.toString(),
               ),
-
               _infoRow(
-                'Hemoglobin',
-                '13.5 g/dL',
+                'Points Awarded',
+                donation.pointsAwarded.toString(),
               ),
             ],
           ),

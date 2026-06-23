@@ -45,6 +45,14 @@ ServiceLocator
     .donationRecordingViewModel
     .loadCurrentTechnician();
 
+  print('BEFORE LOAD INVENTORY');
+
+ServiceLocator
+    .donationRecordingViewModel
+    .loadInventory();
+
+print('AFTER LOAD INVENTORY');
+
 print('AFTER LOAD TECHNICIAN');
   print('AFTER LOAD DONORS');
 

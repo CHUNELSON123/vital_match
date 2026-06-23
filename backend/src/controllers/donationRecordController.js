@@ -197,6 +197,54 @@ const getDonationRecordsByHospital =
         }
     };
 
+const getDonationRecordsByStatus =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const records =
+                await donationRecordService
+                    .getDonationRecordsByStatus(
+                        req.params.status,
+                    );
+
+            res.status(200).json({
+                success: true,
+                data: records,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
+const getPendingDonationRecords =
+    async (
+        req,
+        res,
+        next,
+    ) => {
+
+        try {
+
+            const records =
+                await donationRecordService
+                    .getPendingDonationRecords();
+
+            res.status(200).json({
+                success: true,
+                data: records,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    };
+
 module.exports = {
     createDonationRecord,
     getDonationRecord,
@@ -204,4 +252,6 @@ module.exports = {
     updateDonationRecord,
     deleteDonationRecord,
     getDonationRecordsByHospital,
+    getDonationRecordsByStatus,
+    getPendingDonationRecords,
 };

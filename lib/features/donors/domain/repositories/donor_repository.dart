@@ -13,4 +13,8 @@ abstract class DonorRepository {
   });
 
   Future<List<Donor>> getAllDonors();
+
+  Future<Donor> getDonor(
+  String donorId,
+);
 }

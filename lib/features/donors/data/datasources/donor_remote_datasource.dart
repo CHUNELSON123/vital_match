@@ -14,4 +14,8 @@ abstract class DonorRemoteDatasource {
 
   Future<List<DonorModel>>
     getAllDonors();
+
+  Future<DonorModel> getDonor(
+  String donorId,
+);
 }

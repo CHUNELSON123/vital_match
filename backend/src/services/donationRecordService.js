@@ -295,6 +295,42 @@ const getDonationRecordsByHospital =
         );
     };
 
+const getDonationRecordsByStatus =
+    async (
+        status,
+    ) => {
+
+        const snapshot =
+            await donationRecordCollection
+                .where(
+                    'status',
+                    '==',
+                    status,
+                )
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
+    };
+
+const getPendingDonationRecords =
+    async () => {
+
+        const snapshot =
+            await donationRecordCollection
+                .where(
+                    'status',
+                    '==',
+                    'pending',
+                )
+                .get();
+
+        return snapshot.docs.map(
+            (doc) => doc.data(),
+        );
+    };
+
 
 module.exports = {
     createDonationRecord,
@@ -303,4 +339,6 @@ module.exports = {
     updateDonationRecord,
     deleteDonationRecord,
     getDonationRecordsByHospital,
+    getDonationRecordsByStatus,
+    getPendingDonationRecords,
 };

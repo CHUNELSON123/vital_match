@@ -38,11 +38,17 @@ class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
 
   @override
   Future<void> updateDonorProfile(DonorModel donor) async {
+    print('UPDATING DONOR PROFILE');
+print('DONOR ID: ${donor.donorId}');
+print('BODY: ${jsonEncode(donor.toMap())}');
     final response = await http.put(
       Uri.parse('${ApiConstants.baseUrl}/donors/${donor.donorId}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(donor.toMap()),
     );
+
+    print('STATUS CODE: ${response.statusCode}');
+  print('RESPONSE: ${response.body}');
 
     if (response.statusCode != 200) {
       throw Exception('Failed to update donor profile');
@@ -126,5 +132,43 @@ Future<List<DonorModel>> getAllDonors() async {
         ),
       )
       .toList();
+}
+
+@override
+Future<DonorModel> getDonor(
+  String donorId,
+) async {
+
+  final token =
+      await FirebaseAuth
+          .instance
+          .currentUser!
+          .getIdToken();
+
+  final response =
+      await http.get(
+    Uri.parse(
+      '${ApiConstants.baseUrl}/donors/$donorId',
+    ),
+    headers: {
+      'Authorization':
+          'Bearer $token',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(
+      'Failed to load donor',
+    );
+  }
+
+  final data =
+      jsonDecode(
+        response.body,
+      );
+
+  return DonorModel.fromMap(
+    data['data'],
+  );
 }
 }

@@ -73,4 +73,14 @@ Future<List<Donor>>
   return await remoteDatasource
       .getAllDonors();
 }
+
+@override
+Future<Donor> getDonor(
+  String donorId,
+) async {
+  return await remoteDatasource
+      .getDonor(
+    donorId,
+  );
+}
 }

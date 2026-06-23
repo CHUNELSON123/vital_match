@@ -23,9 +23,29 @@ const createDonorProfile = async (donorData) => {
   };
 };
 
+const getDonor = async (
+    donorId,
+) => {
+
+    const doc =
+        await donorsCollection
+            .doc(donorId)
+            .get();
+
+    if (!doc.exists) {
+        throw new AppError(
+            'Donor not found',
+            404,
+        );
+    }
+
+    return {
+        donorId: doc.id,
+        ...doc.data(),
+    };
+};
 
 // GET DONOR PROFILE
-
 const getDonorProfile = async (donorId) => {
 
   const donorDoc = await donorsCollection
@@ -109,4 +129,5 @@ module.exports = {
   updateDonorProfile,
   updateDonorAvailability,
   getAllDonors,
+  getDonor,
 };

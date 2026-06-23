@@ -187,11 +187,14 @@ class DonationRecordingForm extends StatelessWidget {
                           child: Text('O-'),
                         ),
                       ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          viewModel.bloodTypeController.text = value;
-                        }
-                      },
+                     onChanged: (value) {
+                      if (value != null) {
+                        viewModel.bloodTypeController.text =
+                            value;
+
+                        viewModel.refreshPreview();
+                      }
+                    },
                     ),
                   ),
 
@@ -206,8 +209,13 @@ class DonationRecordingForm extends StatelessWidget {
                   child: TextFormField(
                     controller:
                         viewModel.unitsCollectedController,
+
                     keyboardType:
                         TextInputType.number,
+
+                    onChanged: (_) {
+                      viewModel.refreshPreview();
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Units Collected',
                       hintText: '1 unit',
@@ -282,6 +290,24 @@ class DonationRecordingForm extends StatelessWidget {
                 ),
                 onPressed: () async {
                   print('BUTTON PRESSED');
+
+                  if (!viewModel.donorVerified ||
+                      !viewModel.screeningCompleted ||
+                      !viewModel.bagLabeled ||
+                      !viewModel.temperatureRecorded) {
+
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Complete all compliance checks first',
+                        ),
+                      ),
+                    );
+
+                    return;
+                  }
 
                   final donor =
                       viewModel.selectedDonor;
@@ -370,7 +396,7 @@ class DonationRecordingForm extends StatelessWidget {
 
                     status:
                         DonationRecordStatus
-                            .verified,
+                            .pending,
                   );
 
                   await viewModel.recordDonation(

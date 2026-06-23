@@ -1,69 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/donation_recording_viewmodel.dart';
 
-class ComplianceChecklistCard extends StatelessWidget {
-  const ComplianceChecklistCard({super.key});
+class ComplianceChecklistCard
+    extends StatelessWidget {
+  const ComplianceChecklistCard({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final viewModel =
+        context.watch<
+            DonationRecordingViewModel>();
+
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+      shape:
+          RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(
+          16,
+        ),
       ),
-      child: const Padding(
-        padding: EdgeInsets.all(24),
+      child: Padding(
+        padding:
+            const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Compliance Checklist',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontWeight:
+                    FontWeight.w600,
               ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(
+              height: 20,
+            ),
 
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.check_box,
-                color: Colors.green,
-              ),
-              title: Text(
+            CheckboxListTile(
+              contentPadding:
+                  EdgeInsets.zero,
+              value:
+                  viewModel
+                      .donorVerified,
+              onChanged: (value) {
+                viewModel
+                    .toggleDonorVerified(
+                  value ?? false,
+                );
+              },
+              title: const Text(
                 'Donor identity verified via ID',
               ),
             ),
 
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.check_box,
-                color: Colors.green,
-              ),
-              title: Text(
+            CheckboxListTile(
+              contentPadding:
+                  EdgeInsets.zero,
+              value: viewModel
+                  .screeningCompleted,
+              onChanged: (value) {
+                viewModel
+                    .toggleScreeningCompleted(
+                  value ?? false,
+                );
+              },
+              title: const Text(
                 'Post-donation screening complete',
               ),
             ),
 
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.check_box,
-                color: Colors.green,
-              ),
-              title: Text(
+            CheckboxListTile(
+              contentPadding:
+                  EdgeInsets.zero,
+              value:
+                  viewModel.bagLabeled,
+              onChanged: (value) {
+                viewModel
+                    .toggleBagLabeled(
+                  value ?? false,
+                );
+              },
+              title: const Text(
                 'Bag sealed and labeled correctly',
               ),
             ),
 
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(
-                Icons.check_box_outline_blank,
-              ),
-              title: Text(
+            CheckboxListTile(
+              contentPadding:
+                  EdgeInsets.zero,
+              value: viewModel
+                  .temperatureRecorded,
+              onChanged: (value) {
+                viewModel
+                    .toggleTemperatureRecorded(
+                  value ?? false,
+                );
+              },
+              title: const Text(
                 'Temperature log recorded',
               ),
             ),

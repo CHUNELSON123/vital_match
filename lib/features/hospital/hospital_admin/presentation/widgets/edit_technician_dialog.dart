@@ -154,7 +154,7 @@ class _EditTechnicianDialogState
 
               DropdownButtonFormField<
                   String>(
-                value: department,
+                initialValue: department,
 
                 items: const [
 
@@ -209,7 +209,7 @@ class _EditTechnicianDialogState
 
               DropdownButtonFormField<
                   String>(
-                value: status,
+                initialValue: status,
 
                 items: const [
 
