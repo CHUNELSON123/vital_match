@@ -44,6 +44,7 @@ import 'package:vital_match/features/alerts/emergency_alert/data/datasources/eme
 import 'package:vital_match/features/alerts/emergency_alert/data/datasources/emergency_alert_remote_datasource_impl.dart';
 import 'package:vital_match/features/alerts/emergency_alert/data/repositories/emergency_alert_repository_impl.dart';
 import 'package:vital_match/features/alerts/emergency_alert/domain/repositories/emergency_alert_repository.dart';
+import 'package:vital_match/features/alerts/emergency_alert/domain/usecases/create_emergency_alert_usecase.dart';
 import 'package:vital_match/features/transfer_order/data/datasources/transfer_order_remote_datasource.dart';
 import 'package:vital_match/features/transfer_order/data/datasources/transfer_order_remote_datasource_impl.dart';
 import 'package:vital_match/features/transfer_order/data/repositories/transfer_order_repository_impl.dart';
@@ -54,6 +55,7 @@ import 'package:vital_match/features/hospital/lab_technician/domain/usecases/get
 import 'package:vital_match/features/hospital/lab_technician/domain/usecases/get_dashboard_transfer_orders_usecase.dart';
 import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/donation_recording_viewmodel.dart';
 import 'package:vital_match/features/donation_record/domain/usecases/create_donation_record_usecase.dart';
+import 'package:vital_match/features/donation_record/domain/usecases/update_donation_record_usecase.dart';
 import 'package:vital_match/features/users/domain/usecase/get_all_user_usecase.dart';
 import 'package:vital_match/features/donors/domain/usecases/get_all_donors_usecase.dart';
 import 'package:vital_match/features/donors/data/datasources/donor_remote_datasource.dart';
@@ -66,6 +68,7 @@ import '../../features/blood_unit/domain/usecases/create_blood_unit_uscase.dart'
 import 'package:vital_match/features/donation_record/domain/usecases/get_pending_donation_records_usecase.dart';
 import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/donation_verification_viewmodel.dart';
 import 'package:vital_match/features/donors/domain/usecases/get_donor_usecase.dart';
+import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/emergency_alert_viewmodel.dart';
 
 class ServiceLocator {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -209,6 +212,12 @@ static final GetPendingDonationRecordsUsecase
         GetPendingDonationRecordsUsecase(
           donationRecordRepository,
         );
+
+static final UpdateDonationRecordUsecase
+    updateDonationRecordUsecase =
+        UpdateDonationRecordUsecase(
+          donationRecordRepository,
+        );
         
 static final EmergencyAlertRemoteDatasource
     emergencyAlertRemoteDatasource =
@@ -218,6 +227,12 @@ static final EmergencyAlertRepository
     emergencyAlertRepository =
         EmergencyAlertRepositoryImpl(
           emergencyAlertRemoteDatasource,
+        );
+
+static final CreateEmergencyAlertUsecase
+    createEmergencyAlertUsecase =
+        CreateEmergencyAlertUsecase(
+          emergencyAlertRepository,
         );
 
 static final TransferOrderRemoteDatasource
@@ -262,12 +277,6 @@ static final GetAllUserUsecase
           appUserRepository,
         );
 
-static final GetDonorUsecase
-    getDonorUsecase =
-        GetDonorUsecase(
-          donorRepository,
-        );
-
 static final DonorRemoteDatasource
     donorRemoteDatasource =
         DonorRemoteDatasourceImpl();
@@ -277,6 +286,12 @@ static final DonorRepository
         DonorRepositoryImpl(
           remoteDatasource:
               donorRemoteDatasource,
+        );
+
+static final GetDonorUsecase
+    getDonorUsecase =
+        GetDonorUsecase(
+          donorRepository,
         );
 
   static final GetAllDonorsUsecase
@@ -296,8 +311,12 @@ static final DonationVerificationViewModel
         DonationVerificationViewModel(
           getPendingDonationRecordsUsecase:
               getPendingDonationRecordsUsecase,
-          getDonorUsecase: 
+          updateDonationRecordUsecase:
+              updateDonationRecordUsecase,
+          getDonorUsecase:
               getDonorUsecase,
+          getUserUsecase:
+              getUserByIdUsecase,
         );
 
 static final DonationRecordingViewModel
@@ -317,6 +336,13 @@ static final DonationRecordingViewModel
               createBloodUnitUsecase,
           getDashboardBloodUnitsUsecase: 
               getDashboardBloodUnitsUsecase,
+        );
+
+static final EmergencyAlertViewModel
+    emergencyAlertViewModel =
+        EmergencyAlertViewModel(
+          createEmergencyAlertUsecase:
+              createEmergencyAlertUsecase,
         );
   
 }

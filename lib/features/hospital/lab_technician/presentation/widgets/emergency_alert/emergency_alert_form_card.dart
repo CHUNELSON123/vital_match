@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vital_match/core/enums/blood_type.dart';
+import 'package:vital_match/core/extensions/blood_type_extension.dart';
 
-class EmergencyAlertFormCard extends StatefulWidget {
+import '../../viewmodels/emergency_alert_viewmodel.dart';
+
+class EmergencyAlertFormCard extends StatelessWidget {
   const EmergencyAlertFormCard({super.key});
 
   @override
-  State<EmergencyAlertFormCard> createState() =>
-      _EmergencyAlertFormCardState();
-}
-
-class _EmergencyAlertFormCardState
-    extends State<EmergencyAlertFormCard> {
-  String bloodType = 'O-';
-  String priority = 'Critical';
-
-  @override
   Widget build(BuildContext context) {
+    final viewModel =
+        context.watch<EmergencyAlertViewModel>();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -31,30 +29,31 @@ class _EmergencyAlertFormCardState
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: bloodType,
+                  child: DropdownButtonFormField<BloodType>(
+                    value: viewModel.selectedBloodType,
                     decoration: const InputDecoration(
                       labelText: 'Blood Type',
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'O-',
-                        child: Text('O-'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'O+',
-                        child: Text('O+'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'A+',
-                        child: Text('A+'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'A-',
-                        child: Text('A-'),
-                      ),
-                    ],
-                    onChanged: (_) {},
+                    items: BloodType.values
+                        .map(
+                          (bloodType) =>
+                              DropdownMenuItem(
+                            value: bloodType,
+                            child: Text(
+                              bloodType.displayName,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (bloodType) {
+                      if (bloodType == null) {
+                        return;
+                      }
+
+                      viewModel.changeBloodType(
+                        bloodType,
+                      );
+                    },
                   ),
                 ),
 
@@ -62,6 +61,12 @@ class _EmergencyAlertFormCardState
 
                 Expanded(
                   child: TextFormField(
+                    controller:
+                        viewModel.unitsNeededController,
+                    keyboardType:
+                        TextInputType.number,
+                    onChanged: (_) =>
+                        viewModel.refreshPreview(),
                     decoration: const InputDecoration(
                       labelText: 'Units Needed',
                     ),
@@ -84,29 +89,32 @@ class _EmergencyAlertFormCardState
               children: [
                 ChoiceChip(
                   label: const Text('Warning'),
-                  selected: priority == 'Warning',
+                  selected:
+                      viewModel.priority == 'Warning',
                   onSelected: (_) {
-                    setState(() {
-                      priority = 'Warning';
-                    });
+                    viewModel.changePriority(
+                      'Warning',
+                    );
                   },
                 ),
                 ChoiceChip(
                   label: const Text('High'),
-                  selected: priority == 'High',
+                  selected:
+                      viewModel.priority == 'High',
                   onSelected: (_) {
-                    setState(() {
-                      priority = 'High';
-                    });
+                    viewModel.changePriority(
+                      'High',
+                    );
                   },
                 ),
                 ChoiceChip(
                   label: const Text('Critical'),
-                  selected: priority == 'Critical',
+                  selected:
+                      viewModel.priority == 'Critical',
                   onSelected: (_) {
-                    setState(() {
-                      priority = 'Critical';
-                    });
+                    viewModel.changePriority(
+                      'Critical',
+                    );
                   },
                 ),
               ],
@@ -115,6 +123,23 @@ class _EmergencyAlertFormCardState
             const SizedBox(height: 20),
 
             TextFormField(
+              controller:
+                  viewModel.radiusController,
+              keyboardType: TextInputType.number,
+              onChanged: (_) =>
+                  viewModel.refreshPreview(),
+              decoration: const InputDecoration(
+                labelText: 'Coverage Radius (km)',
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            TextFormField(
+              controller:
+                  viewModel.descriptionController,
+              onChanged: (_) =>
+                  viewModel.refreshPreview(),
               maxLines: 4,
               decoration: const InputDecoration(
                 labelText: 'Description',
@@ -126,10 +151,36 @@ class _EmergencyAlertFormCardState
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: viewModel.isSending
+                    ? null
+                    : () async {
+                        final sent =
+                            await viewModel
+                                .sendEmergencyAlert();
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              sent
+                                  ? viewModel
+                                      .successMessage!
+                                  : viewModel
+                                          .errorMessage ??
+                                      'Failed to send emergency alert.',
+                            ),
+                          ),
+                        );
+                      },
                 icon: const Icon(Icons.campaign),
-                label: const Text(
-                  'Send Emergency Alert',
+                label: Text(
+                  viewModel.isSending
+                      ? 'Sending...'
+                      : 'Send Emergency Alert',
                 ),
               ),
             ),

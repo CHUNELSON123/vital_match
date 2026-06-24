@@ -30,7 +30,16 @@ class AppUserModel extends AppUser {
   factory AppUserModel.fromFirestore(
   DocumentSnapshot<Map<String, dynamic>> doc,
 ) {
-  final data = doc.data()!;
+  return AppUserModel.fromMap(
+    doc.data()!,
+    userId: doc.id,
+  );
+}
+
+factory AppUserModel.fromMap(
+  Map<String, dynamic> data, {
+  String? userId,
+}) {
 
   DateTime createdAt;
 
@@ -45,12 +54,8 @@ class AppUserModel extends AppUser {
         );
   }
 
-  print(
-  'USER ROLE FROM FIRESTORE: ${data['role']}',
-);
-
   return AppUserModel(
-    userId: doc.id,
+    userId: userId ?? data['userId'] ?? '',
     fullName: data['fullName'] ?? '',
     email: data['email'] ?? '',
     phoneNumber: data['phoneNumber'] ?? '',

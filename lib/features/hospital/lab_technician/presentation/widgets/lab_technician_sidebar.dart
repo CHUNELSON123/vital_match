@@ -4,6 +4,8 @@ import '../pages/donation_verification_page.dart';
 import '../pages/donation_recording_page.dart';
 import '../pages/emergency_alerts_page.dart';
  
+ 
+ 
 
 class LabTechnicianSidebar
     extends StatelessWidget {
@@ -63,7 +65,7 @@ class LabTechnicianSidebar
             const LabTechnicianDashboard(),
           ),
 
-          _navItem(
+         _navItem(
             context,
             1,
             Icons.verified,
@@ -185,11 +187,12 @@ class LabTechnicianSidebar
 
           if (selected) return;
 
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (_) => page,
             ),
+            (route) => false,
           );
         },
       ),

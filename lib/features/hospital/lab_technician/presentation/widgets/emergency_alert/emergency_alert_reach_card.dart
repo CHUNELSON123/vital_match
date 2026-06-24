@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 
 class EmergencyAlertReachCard
     extends StatelessWidget {
+  final String radiusKm;
+
   const EmergencyAlertReachCard({
     super.key,
+    required this.radiusKm,
   });
 
   @override
@@ -16,10 +19,17 @@ class EmergencyAlertReachCard
         title: const Text(
           'Estimated Donor Reach',
         ),
-        subtitle: const Text(
-          '1,248 Potential Donors',
+        subtitle: Text(
+          '${_estimatedReach()} Potential Donors',
         ),
       ),
     );
+  }
+
+  int _estimatedReach() {
+    final radius =
+        double.tryParse(radiusKm) ?? 0;
+
+    return (radius * 50).round();
   }
 }

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+
 import '../../../../donation_record/domain/entities/donation_record.dart';
+import '../../../../../core/enums/donation_record_status.dart';
 
 class VerificationChecklist extends StatelessWidget {
-
   final DonationRecord donation;
+  final bool isUpdating;
+  final ValueChanged<DonationRecordStatus> onStatusChanged;
 
   const VerificationChecklist({
     super.key,
     required this.donation,
+    required this.isUpdating,
+    required this.onStatusChanged,
   });
 
   @override
@@ -42,22 +47,20 @@ class VerificationChecklist extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
-                  borderRadius:
-                      BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 16,
                       height: 16,
-                      child:
-                          CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
-                      donation.status.toUpperCase(),
+                      donation.status.name.toUpperCase(),
                     ),
                   ],
                 ),
@@ -69,28 +72,25 @@ class VerificationChecklist extends StatelessWidget {
 
           _completedTile(
             title: 'Donation Record',
-            description:
-                'Donation record has been created.',
+            description: 'Donation record has been created.',
           ),
 
           const SizedBox(height: 16),
 
           _completedTile(
             title: 'Blood Group',
-            description:
-                donation.bloodGroup,
+            description: donation.bloodGroup.name,
           ),
 
           const SizedBox(height: 16),
 
-          if (donation.status == 'pending')
+          if (donation.status == DonationRecordStatus.pending)
             _pendingTile(),
 
-          if (donation.status != 'pending')
+          if (donation.status != DonationRecordStatus.pending)
             _completedTile(
               title: 'Verification',
-              description:
-                  donation.status,
+              description: donation.status.name,
             ),
 
           const SizedBox(height: 30),
@@ -100,19 +100,13 @@ class VerificationChecklist extends StatelessWidget {
                 MainAxisAlignment.end,
             children: [
               OutlinedButton(
-                onPressed: () {
-
-                  print(
-                    'REJECT ${donation.recordId}',
-                  );
-
-                },
-                style:
-                    OutlinedButton.styleFrom(
-                  foregroundColor:
-                      const Color(
-                    0xFFAF101A,
-                  ),
+                onPressed: isUpdating
+                    ? null
+                    : () => onStatusChanged(
+                          DonationRecordStatus.rejected,
+                        ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFAF101A),
                 ),
                 child: const Text(
                   'Reject Donation',
@@ -122,17 +116,13 @@ class VerificationChecklist extends StatelessWidget {
               const SizedBox(width: 12),
 
               ElevatedButton(
-                onPressed: () {
-
-                  print(
-                    'VERIFY ${donation.recordId}',
-                  );
-
-                },
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colors.green,
+                onPressed: isUpdating
+                    ? null
+                    : () => onStatusChanged(
+                          DonationRecordStatus.verified,
+                        ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
                 ),
                 child: const Text(
                   'Verify Donation',
@@ -153,16 +143,14 @@ class VerificationChecklist extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.green.shade50,
-        borderRadius:
-            BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment:
             CrossAxisAlignment.start,
         children: [
           const CircleAvatar(
-            backgroundColor:
-                Colors.green,
+            backgroundColor: Colors.green,
             child: Icon(
               Icons.check,
               color: Colors.white,
@@ -179,8 +167,7 @@ class VerificationChecklist extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
@@ -199,16 +186,14 @@ class VerificationChecklist extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius:
-            BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment:
             CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundColor:
-                Colors.red.shade100,
+            backgroundColor: Colors.red.shade100,
             child: const Icon(
               Icons.pending,
               color: Colors.red,
@@ -225,8 +210,7 @@ class VerificationChecklist extends StatelessWidget {
                 const Text(
                   'Lab Testing',
                   style: TextStyle(
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
@@ -241,8 +225,7 @@ class VerificationChecklist extends StatelessWidget {
 
                 LinearProgressIndicator(
                   value: .65,
-                  backgroundColor:
-                      Colors.grey.shade300,
+                  backgroundColor: Colors.grey.shade300,
                 ),
 
                 const SizedBox(height: 8),
@@ -250,8 +233,7 @@ class VerificationChecklist extends StatelessWidget {
                 Text(
                   'Processing at Central Lab - Est completion 45 mins',
                   style: TextStyle(
-                    color:
-                        Colors.grey.shade600,
+                    color: Colors.grey.shade600,
                   ),
                 ),
               ],
@@ -267,8 +249,7 @@ class VerificationChecklist extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius:
-            BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: const Row(
         children: [

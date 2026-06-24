@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:vital_match/core/enums/blood_type.dart';
+import 'package:vital_match/core/extensions/blood_type_extension.dart';
 
 class EmergencyAlertPreviewCard extends StatelessWidget {
-  const EmergencyAlertPreviewCard({super.key});
+  final BloodType bloodType;
+  final String unitsNeeded;
+  final String description;
+  final String hospitalName;
+
+  const EmergencyAlertPreviewCard({
+    super.key,
+    required this.bloodType,
+    required this.unitsNeeded,
+    required this.description,
+    required this.hospitalName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +34,7 @@ class EmergencyAlertPreviewCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'O- REQUIRED',
+                  '${bloodType.displayName} REQUIRED',
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge,
@@ -31,26 +44,32 @@ class EmergencyAlertPreviewCard extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            const Text(
-              'Critical shortage in Emergency Unit.',
+            Text(
+              description.trim().isEmpty
+                  ? 'Critical shortage in Emergency Unit.'
+                  : description,
             ),
 
             const SizedBox(height: 20),
 
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: ListTile(
-                    title: Text('12'),
-                    subtitle: Text('Units'),
+                    title: Text(
+                      unitsNeeded.trim().isEmpty
+                          ? '0'
+                          : unitsNeeded,
+                    ),
+                    subtitle: const Text('Units'),
                   ),
                 ),
                 Expanded(
                   child: ListTile(
                     title: Text(
-                      'Central Hospital',
+                      hospitalName,
                     ),
-                    subtitle: Text('Location'),
+                    subtitle: const Text('Location'),
                   ),
                 ),
               ],

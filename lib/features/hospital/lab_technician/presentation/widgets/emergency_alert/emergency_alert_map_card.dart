@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 
 class EmergencyAlertMapCard
     extends StatelessWidget {
+  final String radiusKm;
+
   const EmergencyAlertMapCard({
     super.key,
+    required this.radiusKm,
   });
 
   @override
@@ -15,18 +18,18 @@ class EmergencyAlertMapCard
         child: Column(
           mainAxisAlignment:
               MainAxisAlignment.center,
-          children: const [
-            Icon(
+          children: [
+            const Icon(
               Icons.location_on,
               size: 60,
               color: Colors.red,
             ),
-            SizedBox(height: 12),
-            Text(
+            const SizedBox(height: 12),
+            const Text(
               'Coverage Radius Preview',
             ),
             Text(
-              '25km Around Hospital',
+              '${radiusKm.trim().isEmpty ? '0' : radiusKm}km Around Hospital',
             ),
           ],
         ),

@@ -1,23 +1,40 @@
-import 'package:vital_match/features/donors/data/datasources/donor_remote_datasource.dart';
-import 'package:vital_match/features/donors/data/models/donor_model.dart';
 import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:vital_match/core/constants/api_constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vital_match/features/donors/data/datasources/donor_remote_datasource.dart';
+import 'package:vital_match/features/donors/data/models/donor_model.dart';
 
 class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
   DonorRemoteDatasourceImpl();
+
+  Future<Map<String, String>> _authHeaders({
+    bool includeContentType = false,
+  }) async {
+    final token =
+        await FirebaseAuth.instance.currentUser!.getIdToken();
+
+    return {
+      if (includeContentType) 'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
 
   @override
   Future<void> createDonorProfile(DonorModel donor) async {
     final response = await http.post(
       Uri.parse('${ApiConstants.baseUrl}/donors'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(
+        includeContentType: true,
+      ),
       body: jsonEncode(donor.toMap()),
     );
 
     if (response.statusCode != 201) {
-      throw Exception('Failed to create donor profile');
+      throw Exception(
+        'Failed to create donor profile: ${response.body}',
+      );
     }
   }
 
@@ -25,33 +42,38 @@ class DonorRemoteDatasourceImpl implements DonorRemoteDatasource {
   Future<DonorModel> getDonorProfile(String donorId) async {
     final response = await http.get(
       Uri.parse('${ApiConstants.baseUrl}/donors/$donorId'),
+      headers: await _authHeaders(),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Donor profile not found');
+      throw Exception(
+        'Donor profile not found: ${response.body}',
+      );
     }
 
     final data = jsonDecode(response.body);
 
-    return DonorModel.fromMap(data['data']);
+    return DonorModel.fromJson(
+      data['data'] as Map<String, dynamic>,
+    );
   }
 
   @override
   Future<void> updateDonorProfile(DonorModel donor) async {
-    print('UPDATING DONOR PROFILE');
-print('DONOR ID: ${donor.donorId}');
-print('BODY: ${jsonEncode(donor.toMap())}');
     final response = await http.put(
-      Uri.parse('${ApiConstants.baseUrl}/donors/${donor.donorId}'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse(
+        '${ApiConstants.baseUrl}/donors/${donor.donorId}',
+      ),
+      headers: await _authHeaders(
+        includeContentType: true,
+      ),
       body: jsonEncode(donor.toMap()),
     );
 
-    print('STATUS CODE: ${response.statusCode}');
-  print('RESPONSE: ${response.body}');
-
     if (response.statusCode != 200) {
-      throw Exception('Failed to update donor profile');
+      throw Exception(
+        'Failed to update donor profile: ${response.body}',
+      );
     }
   }
 
@@ -59,116 +81,65 @@ print('BODY: ${jsonEncode(donor.toMap())}');
   Future<void> updateAvailability({
     required String donorId,
     required bool isAvailable,
-
-    
   }) async {
-
-    final token =
-      await FirebaseAuth
-          .instance
-          .currentUser!
-          .getIdToken();
-
     final response = await http.patch(
       Uri.parse('${ApiConstants.baseUrl}/donors/$donorId'),
-      headers: {
-      'Authorization':
-          'Bearer $token',
-    },
-      body: jsonEncode({'isAvailable': isAvailable}),
+      headers: await _authHeaders(
+        includeContentType: true,
+      ),
+      body: jsonEncode({
+        'isAvailable': isAvailable,
+      }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to update donor availability');
+      throw Exception(
+        'Failed to update donor availability: ${response.body}',
+      );
     }
   }
 
-@override
-Future<List<DonorModel>> getAllDonors() async {
-
-  final token =
-      await FirebaseAuth
-          .instance
-          .currentUser!
-          .getIdToken();
-
-  print(
-    'TOKEN EXISTS: ${token != null}',
-  );
-
-  final response =
-      await http.get(
-    Uri.parse(
-      '${ApiConstants.baseUrl}/donors',
-    ),
-    headers: {
-      'Authorization':
-          'Bearer $token',
-    },
-  );
-
-  print(
-    'STATUS CODE: ${response.statusCode}',
-  );
-
-  print(
-    'BODY: ${response.body}',
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception(
-      'Failed to load donors',
+  @override
+  Future<List<DonorModel>> getAllDonors() async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/donors'),
+      headers: await _authHeaders(),
     );
-  }
 
-  final data =
-      jsonDecode(response.body);
-
-  return (data['data'] as List)
-      .map(
-        (item) =>
-            DonorModel.fromJson(
-          item,
-        ),
-      )
-      .toList();
-}
-
-@override
-Future<DonorModel> getDonor(
-  String donorId,
-) async {
-
-  final token =
-      await FirebaseAuth
-          .instance
-          .currentUser!
-          .getIdToken();
-
-  final response =
-      await http.get(
-    Uri.parse(
-      '${ApiConstants.baseUrl}/donors/$donorId',
-    ),
-    headers: {
-      'Authorization':
-          'Bearer $token',
-    },
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception(
-      'Failed to load donor',
-    );
-  }
-
-  final data =
-      jsonDecode(
-        response.body,
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load donors: ${response.body}',
       );
+    }
 
-  return DonorModel.fromMap(
-    data['data'],
-  );
-}
+    final data = jsonDecode(response.body);
+
+    return (data['data'] as List)
+        .map(
+          (item) => DonorModel.fromJson(
+            item as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  Future<DonorModel> getDonor(String donorId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/donors/$donorId'),
+      headers: await _authHeaders(),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to load donor: ${response.body}',
+      );
+    }
+
+    final data = jsonDecode(response.body);
+
+    return DonorModel.fromJson(
+      data['data'] as Map<String, dynamic>,
+    );
+  }
 }
