@@ -14,6 +14,7 @@ class DonationRecordModel
     required super.bloodUnitsCollected,
     required super.pointsAwarded,
     required super.bloodGroup,
+    required super.donorWeight,
     required super.status,
   });
 
@@ -31,6 +32,8 @@ class DonationRecordModel
           pointsAwarded,
       'bloodGroup':
           bloodGroup.name,
+      'donorWeight':
+          donorWeight,
       'status': status.name,
     };
   }
@@ -64,8 +67,13 @@ class DonationRecordModel
   (bloodType) =>
       bloodType.name ==
       data['bloodGroup'],
-  orElse: () => BloodType.oPositive,
+      orElse: () => BloodType.oPositive,
 ),
+      donorWeight:
+          (data['donorWeight'] ??
+                  data['weight'] ??
+                  0)
+              .toDouble(),
 
      status:
     DonationRecordStatus.values.firstWhere(

@@ -258,6 +258,62 @@ Widget build(BuildContext context) {
                         ),
                       ),
 
+                      const SizedBox(height: 20),
+
+                      const Text(
+                        'Emergency Alert Radius (km)',
+                        style: TextStyle(
+                          fontWeight:
+                              FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      TextFormField(
+                        controller:
+                            vm.geofenceRadiusController,
+                        keyboardType:
+                            TextInputType.number,
+                        validator: (value) {
+                          final radius = int.tryParse(
+                            value?.trim() ?? '',
+                          );
+
+                          if (radius == null) {
+                            return 'Alert radius is required';
+                          }
+
+                          if (radius <= 0 || radius > 100) {
+                            return 'Alert radius must be between 1 and 100 km';
+                          }
+
+                          return null;
+                        },
+                        decoration:
+                            InputDecoration(
+                          hintText:
+                              '10',
+
+                          filled: true,
+
+                          fillColor:
+                              const Color(
+                            0xFFF6F3F2,
+                          ),
+
+                          border:
+                              OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(
+                              12,
+                            ),
+                            borderSide:
+                                BorderSide.none,
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 32),
 
                       SizedBox(

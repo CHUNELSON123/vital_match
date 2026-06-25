@@ -238,16 +238,16 @@ final phoneNumberController =
               context,
                {
                 'fullName':
-                    fullNameController.text,
+                    fullNameController.text.trim(),
 
                 'email':
-                    userEmailController.text,
+                    userEmailController.text.trim(),
 
                 'phoneNumber':
-                    phoneNumberController.text,
+                    phoneNumberController.text.trim(),
 
                 'employeeId':
-                    employeeIdController.text,
+                    employeeIdController.text.trim(),
 
                 'department':
                     department,

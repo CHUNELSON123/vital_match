@@ -19,6 +19,8 @@ class DonationRecord {
 
   final BloodType bloodGroup;
 
+  final double donorWeight;
+
   final DonationRecordStatus status;
 
   const DonationRecord({
@@ -30,6 +32,7 @@ class DonationRecord {
     required this.bloodUnitsCollected,
     required this.pointsAwarded,
     required this.bloodGroup,
+    required this.donorWeight,
     required this.status,
   });
 }

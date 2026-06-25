@@ -5,78 +5,60 @@ import 'package:vital_match/features/hospital/domain/entities/hospital.dart';
 import 'package:geolocator/geolocator.dart';
 
 class CreateHospitalViewModel {
+  final createHospitalUsecase = ServiceLocator.createHospitalUsecase;
 
-    final createHospitalUsecase =
-      ServiceLocator.createHospitalUsecase;
+  final formKey = GlobalKey<FormState>();
 
-    
-    Future<void> createHospital() async {
+  final nameController = TextEditingController();
 
-    final uid =
-        FirebaseAuth
-            .instance
-            .currentUser!
-            .uid;
+  final addressController = TextEditingController();
 
-      LocationPermission permission =
-    await Geolocator.checkPermission();
+  final contactController = TextEditingController();
 
-if (permission ==
-    LocationPermission.denied) {
+  final geofenceRadiusController = TextEditingController(text: '10');
 
-  permission =
-      await Geolocator.requestPermission();
-}
+  Future<void> createHospital() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
 
-if (permission ==
-        LocationPermission.denied ||
-    permission ==
-        LocationPermission.deniedForever) {
+    LocationPermission permission = await Geolocator.checkPermission();
 
-  throw Exception(
-    'Location permission denied',
-  );
-}
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
 
-Position position =
-    await Geolocator.getCurrentPosition(
-  desiredAccuracy:
-      LocationAccuracy.high,
-);
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      throw Exception(
+        'Location permission denied',
+      );
+    }
 
-  final hospital = Hospital(
-  hospitalId: '',
-  ownerId: uid,
-  name: nameController.text.trim(),
-  address: addressController.text.trim(),
-  contactNumber:
-      contactController.text.trim(),
-  latitude: position.latitude,
-  longitude: position.longitude,
-  geofenceRadiusKm: 10,
-);
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
 
-  await createHospitalUsecase(
-    hospital,
-  );
-}
+    final hospital = Hospital(
+      hospitalId: '',
+      ownerId: uid,
+      name: nameController.text.trim(),
+      address: addressController.text.trim(),
+      contactNumber: contactController.text.trim(),
+      latitude: position.latitude,
+      longitude: position.longitude,
+      geofenceRadiusKm: int.parse(
+        geofenceRadiusController.text.trim(),
+      ),
+    );
 
-  final formKey =
-      GlobalKey<FormState>();
-
-  final nameController =
-      TextEditingController();
-
-  final addressController =
-      TextEditingController();
-
-  final contactController =
-      TextEditingController();
+    await createHospitalUsecase(
+      hospital,
+    );
+  }
 
   void dispose() {
-
     nameController.dispose();
     addressController.dispose();
     contactController.dispose();
+    geofenceRadiusController.dispose();
   }
 }

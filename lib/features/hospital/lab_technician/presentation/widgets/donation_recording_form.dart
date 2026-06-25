@@ -208,6 +208,27 @@ class DonationRecordingForm extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     controller:
+                        viewModel.donorWeightController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    onChanged: (_) {
+                      viewModel.refreshPreview();
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Donor Weight (kg)',
+                      hintText: '60',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: TextFormField(
+                    controller:
                         viewModel.unitsCollectedController,
 
                     keyboardType:
@@ -341,9 +362,58 @@ class DonationRecordingForm extends StatelessWidget {
                         return;
                       }
 
-                  final units = int.parse(
-                    viewModel.unitsCollectedController.text,
+                  final units = int.tryParse(
+                    viewModel.unitsCollectedController.text.trim(),
                   );
+
+                  if (units == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Units collected is required',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final donorWeight =
+                      double.tryParse(
+                    viewModel
+                        .donorWeightController
+                        .text
+                        .trim(),
+                  );
+
+                  if (donorWeight == null ||
+                      donorWeight < 50) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Donor weight must be at least 50 kg',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final donationDate =
+                      DateTime.tryParse(
+                    viewModel
+                        .collectionDateController
+                        .text,
+                  );
+
+                  if (donationDate == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Collection date is required',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
 
                   if (units < 1 || units > 2) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -367,22 +437,14 @@ class DonationRecordingForm extends StatelessWidget {
                    hospitalId:
                       technician.hospitalId,
 
-                   technicianId:
+                    technicianId:
                       technician.technicianId,
 
                     donationDate:
-                        DateTime.parse(
-                      viewModel
-                          .collectionDateController
-                          .text,
-                    ),
+                        donationDate,
 
                     bloodUnitsCollected:
-                        int.parse(
-                      viewModel
-                          .unitsCollectedController
-                          .text,
-                    ),
+                        units,
 
                     pointsAwarded: 10,
 
@@ -393,6 +455,9 @@ class DonationRecordingForm extends StatelessWidget {
                           .bloodTypeController
                           .text,
                     ),
+
+                    donorWeight:
+                        donorWeight,
 
                     status:
                         DonationRecordStatus

@@ -10,12 +10,55 @@ const {
 
 const hospitalCollection = 'hospitals';
 
+const normalizePhoneNumber = (value) =>
+    String(value || '')
+        .trim()
+        .replace(/\s+/g, '')
+        .replace(/^\+237/, '');
+
 
 // CREATE HOSPITAL
 
 const createHospital = async (data, ownerId,) => {
 console.log('CREATE HOSPITAL SERVICE HIT');
     validateCreateHospital(data);
+
+    const normalizedContactNumber =
+        normalizePhoneNumber(data.contactNumber);
+
+    const existingUserPhone = await db
+        .collection('users')
+        .where(
+            'phoneNumber',
+            '==',
+            normalizedContactNumber,
+        )
+        .limit(1)
+        .get();
+
+    if (!existingUserPhone.empty) {
+        throw new AppError(
+            'Phone number already exists',
+            400,
+        );
+    }
+
+    const existingHospitalPhone = await db
+        .collection(hospitalCollection)
+        .where(
+            'contactNumber',
+            '==',
+            normalizedContactNumber,
+        )
+        .limit(1)
+        .get();
+
+    if (!existingHospitalPhone.empty) {
+        throw new AppError(
+            'Contact number already exists',
+            400,
+        );
+    }
 
     const hospitalRef = db
         .collection(hospitalCollection)
@@ -26,7 +69,7 @@ console.log('CREATE HOSPITAL SERVICE HIT');
         ownerId: ownerId,
         name: data.name,
         address: data.address,
-        contactNumber: data.contactNumber,
+        contactNumber: normalizedContactNumber,
         latitude: data.latitude,
         longitude: data.longitude,
         geofenceRadiusKm: data.geofenceRadiusKm,
@@ -124,6 +167,30 @@ const updateHospital = async (
 ) => {
 
     validateUpdateHospital(data);
+
+    if (data.contactNumber !== undefined) {
+        const normalizedContactNumber =
+            normalizePhoneNumber(data.contactNumber);
+
+        const existingUserPhone = await db
+            .collection('users')
+            .where(
+                'phoneNumber',
+                '==',
+                normalizedContactNumber,
+            )
+            .limit(1)
+            .get();
+
+        if (!existingUserPhone.empty) {
+            throw new AppError(
+                'Phone number already exists',
+                400,
+            );
+        }
+
+        data.contactNumber = normalizedContactNumber;
+    }
 
     const hospitalRef = db
         .collection(hospitalCollection)

@@ -51,6 +51,9 @@ class DonationRecordRepositoryImpl
 
       bloodGroup:
           donationRecord.bloodGroup,
+
+      donorWeight:
+          donationRecord.donorWeight,
       
       status: donationRecord.status,
     );
@@ -119,6 +122,9 @@ class DonationRecordRepositoryImpl
 
       bloodGroup:
           donationRecord.bloodGroup,
+
+      donorWeight:
+          donationRecord.donorWeight,
 
       status: donationRecord.status,
     );

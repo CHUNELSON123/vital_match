@@ -82,6 +82,12 @@ const validateCreateDonationRecord = (
         );
     }
 
+    if (data.donorWeight === undefined) {
+        throw new AppError(
+            'Donor weight is required',
+            400,
+        );
+    }
 
     // BLOOD GROUP VALIDATION
 
@@ -138,6 +144,17 @@ const validateCreateDonationRecord = (
     ) {
         throw new AppError(
             'Points awarded cannot be negative',
+            400,
+        );
+    }
+
+    if (
+        typeof data.donorWeight !==
+            'number' ||
+        data.donorWeight < 50
+    ) {
+        throw new AppError(
+            'Donor weight must be at least 50 kg',
             400,
         );
     }
@@ -210,6 +227,20 @@ const validateUpdateDonationRecord = (
     ) {
         throw new AppError(
             'Points awarded cannot be negative',
+            400,
+        );
+    }
+
+    if (
+        data.donorWeight !== undefined &&
+        (
+            typeof data.donorWeight !==
+                'number' ||
+            data.donorWeight < 50
+        )
+    ) {
+        throw new AppError(
+            'Donor weight must be at least 50 kg',
             400,
         );
     }

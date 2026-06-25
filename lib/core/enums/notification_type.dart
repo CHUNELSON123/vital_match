@@ -4,5 +4,7 @@ enum NotificationType {
   rewardNotification,
   campaignAnnouncement,
   inventoryWarning,
+  donationStatus,
+  alertResponse,
   general,
 }

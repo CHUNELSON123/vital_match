@@ -2,6 +2,12 @@ const { admin, db } = require("../config/firebase");
 const AppError = require("../utils/appError");
 const donorService = require("./donorService");
  
+const normalizePhoneNumber = (value) =>
+    String(value || '')
+        .trim()
+        .replace(/\s+/g, '')
+        .replace(/^\+237/, '');
+
 
 const registerUser = async (userData) => {
 
@@ -19,7 +25,7 @@ const registerUser = async (userData) => {
     } = userData;
 
     const normalizedPhoneNumber =
-        String(phoneNumber || '').trim();
+        normalizePhoneNumber(phoneNumber);
 
     const existingPhoneUser = await db
         .collection("users")

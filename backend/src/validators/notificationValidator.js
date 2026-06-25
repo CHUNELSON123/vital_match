@@ -8,6 +8,8 @@ const validNotificationTypes = [
     'rewardNotification',
     'campaignAnnouncement',
     'inventoryWarning',
+    'donationStatus',
+    'alertResponse',
     'general',
 ];
 
@@ -37,7 +39,10 @@ const validateCreateNotification =
             );
         }
 
-        if (!alertId) {
+        if (
+            type === 'emergencyAlert' &&
+            !alertId
+        ) {
             throw new AppError(
                 'Alert ID is required',
                 400,

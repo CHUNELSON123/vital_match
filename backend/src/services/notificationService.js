@@ -47,18 +47,24 @@ const createNotification =
 
         // VALIDATE ALERT
 
-        const alertDoc =
-            await emergencyAlertCollection
-                .doc(
-                    notificationData
-                        .alertId,
-                )
-                .get();
+        if (notificationData.alertId) {
+            const alertDoc =
+                await emergencyAlertCollection
+                    .doc(
+                        notificationData
+                            .alertId,
+                    )
+                    .get();
 
-        if (!alertDoc.exists) {
-            throw new Error(
-                'Emergency alert not found',
-            );
+            if (
+                !alertDoc.exists &&
+                notificationData.type ===
+                    'emergencyAlert'
+            ) {
+                throw new Error(
+                    'Emergency alert not found',
+                );
+            }
         }
 
 
@@ -75,6 +81,10 @@ const createNotification =
 
             ...notificationData,
 
+            alertId:
+                notificationData.alertId ??
+                null,
+
             isRead:
                 notificationData
                     .isRead ??
@@ -88,7 +98,66 @@ const createNotification =
             notification,
         );
 
+        await sendPushNotification(
+            notification,
+        );
+
         return notification;
+    };
+
+const sendPushNotification =
+    async (notification) => {
+        const userDoc =
+            await userCollection
+                .doc(notification.userId)
+                .get();
+
+        if (!userDoc.exists) {
+            return;
+        }
+
+        const user = userDoc.data();
+        const token =
+            user.fcmToken ||
+            user.deviceToken;
+
+        if (!token) {
+            return;
+        }
+
+        try {
+            await require('../config/firebase')
+                .admin
+                .messaging()
+                .send({
+                    token,
+                    notification: {
+                        title:
+                            notification.title,
+                        body:
+                            notification.message,
+                    },
+                    data: {
+                        notificationId:
+                            notification.notificationId,
+                        type:
+                            notification.type,
+                        alertId:
+                            notification.alertId || '',
+                        deepLink:
+                            notification.deepLink || '',
+                        actions:
+                            JSON.stringify(
+                                notification.actions || [],
+                            ),
+                    },
+                });
+        } catch (error) {
+            console.error(
+                'Push notification failed:',
+                error.message,
+            );
+        }
     };
 
 

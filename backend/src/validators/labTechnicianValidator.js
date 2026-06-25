@@ -116,20 +116,26 @@ const validateUpdateLabTechnician =
 
         if (
             data.email != null &&
-            data.email.trim() === ''
+            (
+                data.email.trim() === '' ||
+                !emailRegex.test(data.email.trim())
+            )
         ) {
             throw new AppError(
-                'Email cannot be empty',
+                'Invalid email format',
                 400,
             );
         }
 
         if (
             data.phoneNumber != null &&
-            data.phoneNumber.trim() === ''
+            (
+                data.phoneNumber.trim() === '' ||
+                !phoneRegex.test(data.phoneNumber.trim())
+            )
         ) {
             throw new AppError(
-                'Phone Number cannot be empty',
+                'Invalid phone number',
                 400,
             );
         }

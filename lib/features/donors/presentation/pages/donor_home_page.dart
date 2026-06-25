@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vital_match/core/enums/alert_response_status.dart';
 import 'package:vital_match/core/extensions/blood_type_extension.dart';
 import 'package:vital_match/features/alerts/emergency_alert/domain/entities/emergency_alert.dart';
 import 'package:vital_match/features/donation_record/domain/entities/donation_record.dart';
@@ -427,6 +428,21 @@ class _AlertsView extends StatelessWidget {
                     alert: alert,
                     hospitalName: viewModel.hospitalName(alert.hospitalId),
                     distanceKm: viewModel.distanceToHospital(alert.hospitalId),
+                    hasResponded:
+                        viewModel.respondedAlertIds.contains(alert.alertId),
+                    onAccept: () => viewModel.respondToEmergencyAlert(
+                      alert,
+                      AlertResponseStatus.accepted,
+                    ),
+                    onDecline: () => viewModel.respondToEmergencyAlert(
+                      alert,
+                      AlertResponseStatus.rejected,
+                    ),
+                    onViewDetails: () {
+                      final state =
+                          context.findAncestorStateOfType<_DonorHomePageState>();
+                      state?._selectTab(2);
+                    },
                   ),
                 )
                 .toList(),
@@ -970,11 +986,19 @@ class _EmergencyAlertCard extends StatelessWidget {
   final EmergencyAlert alert;
   final String hospitalName;
   final double distanceKm;
+  final bool hasResponded;
+  final VoidCallback onAccept;
+  final VoidCallback onDecline;
+  final VoidCallback onViewDetails;
 
   const _EmergencyAlertCard({
     required this.alert,
     required this.hospitalName,
     required this.distanceKm,
+    required this.hasResponded,
+    required this.onAccept,
+    required this.onDecline,
+    required this.onViewDetails,
   });
 
   @override
@@ -1033,14 +1057,20 @@ class _EmergencyAlertCard extends StatelessWidget {
             runSpacing: 10,
             children: [
               FilledButton(
-                onPressed: () {},
+                onPressed: hasResponded ? null : onAccept,
                 style: FilledButton.styleFrom(
                   backgroundColor: _DonorColors.error,
                 ),
                 child: const Text('Accept'),
               ),
-              OutlinedButton(onPressed: () {}, child: const Text('Decline')),
-              TextButton(onPressed: () {}, child: const Text('View Details')),
+              OutlinedButton(
+                onPressed: hasResponded ? null : onDecline,
+                child: const Text('Decline'),
+              ),
+              TextButton(
+                onPressed: onViewDetails,
+                child: Text(hasResponded ? 'View All' : 'View Details'),
+              ),
             ],
           ),
         ],

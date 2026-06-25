@@ -6,6 +6,8 @@ import 'package:vital_match/features/donation_record/domain/usecases/update_dona
 import 'package:vital_match/features/donors/domain/entities/donor.dart';
 import 'package:vital_match/features/donors/domain/usecases/get_donor_usecase.dart';
 import 'package:vital_match/features/users/domain/usecase/get_user_by_id_usecase.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vital_match/core/enums/notification_type.dart';
 
 class DonationVerificationViewModel extends ChangeNotifier {
   final GetPendingDonationRecordsUsecase getPendingDonationRecordsUsecase;
@@ -95,11 +97,13 @@ class DonationVerificationViewModel extends ChangeNotifier {
       bloodUnitsCollected: donation.bloodUnitsCollected,
       pointsAwarded: donation.pointsAwarded,
       bloodGroup: donation.bloodGroup,
+      donorWeight: donation.donorWeight,
       status: status,
     );
 
     try {
       await updateDonationRecordUsecase(updatedDonation);
+      await _notifyDonor(updatedDonation, status);
 
       pendingDonations = pendingDonations
           .where(
@@ -121,5 +125,34 @@ class DonationVerificationViewModel extends ChangeNotifier {
       isUpdating = false;
       notifyListeners();
     }
+  }
+
+  Future<void> _notifyDonor(
+    DonationRecord donation,
+    DonationRecordStatus status,
+  ) async {
+    final title = status == DonationRecordStatus.verified
+        ? 'Donation verified'
+        : 'Donation rejected';
+    final message = status == DonationRecordStatus.verified
+        ? 'Your donation has been verified. Thank you for saving lives.'
+        : 'Your donation could not be verified. Please contact the hospital for details.';
+
+    final notificationRef = FirebaseFirestore.instance
+        .collection('notifications')
+        .doc();
+
+    await notificationRef.set({
+      'userId': donation.donorId,
+      'alertId': donation.recordId,
+      'type': NotificationType.general.name,
+      'title': title,
+      'message': message,
+      'isRead': false,
+      'sentAt': Timestamp.now(),
+      'channel': 'whatsappLink',
+      'deepLink': 'vitalmatch://donor/donations/${donation.recordId}',
+      'actions': ['open'],
+    });
   }
 }

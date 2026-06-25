@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:vital_match/core/enums/alert_response_status.dart';
 import 'package:vital_match/core/di/service_locator.dart';
 import 'package:vital_match/core/enums/alert_status.dart';
+import 'package:vital_match/core/enums/notification_type.dart';
 import 'package:vital_match/features/alerts/emergency_alert/domain/entities/emergency_alert.dart';
 import 'package:vital_match/features/donation_record/domain/entities/donation_record.dart';
 import 'package:vital_match/features/donors/domain/entities/donor.dart';
@@ -22,6 +25,7 @@ class DonorDashboardViewModel extends ChangeNotifier {
   List<EmergencyAlert> emergencyAlerts = [];
   List<Reward> rewards = [];
   final Map<String, Hospital> hospitalsById = {};
+  final Set<String> respondedAlertIds = {};
 
   Future<void> loadDashboard() async {
     isLoading = true;
@@ -71,6 +75,8 @@ class DonorDashboardViewModel extends ChangeNotifier {
             ..sort(
               (first, second) => second.createdAt.compareTo(first.createdAt),
             );
+
+      await _loadAlertResponses(uid);
     } catch (e) {
       errorMessage = 'Failed to load donor dashboard.';
       debugPrint('LOAD DONOR DASHBOARD FAILED: $e');
@@ -118,6 +124,80 @@ class DonorDashboardViewModel extends ChangeNotifier {
       isUpdatingAvailability = false;
       notifyListeners();
     }
+  }
+
+  Future<void> respondToEmergencyAlert(
+    EmergencyAlert alert,
+    AlertResponseStatus status,
+  ) async {
+    final currentDonor = donor;
+
+    if (currentDonor == null) {
+      return;
+    }
+
+    try {
+      final responseId = '${alert.alertId}_${currentDonor.donorId}';
+      final responseRef = FirebaseFirestore.instance
+          .collection('alert_responses')
+          .doc(responseId);
+
+      final existingResponse = await responseRef.get();
+
+      if (existingResponse.exists) {
+        respondedAlertIds.add(alert.alertId);
+        notifyListeners();
+        return;
+      }
+
+      await responseRef.set({
+        'responseId': responseId,
+        'alertId': alert.alertId,
+        'donorId': currentDonor.donorId,
+        'responseStatus': status.name,
+        'responseDate': DateTime.now().toIso8601String(),
+      });
+
+      final notificationRef = FirebaseFirestore.instance
+          .collection('notifications')
+          .doc();
+
+      await notificationRef.set({
+        'userId': alert.technicianId,
+        'alertId': alert.alertId,
+        'type': NotificationType.alertResponse.name,
+        'title': 'Emergency alert response',
+        'message':
+            '${currentUser?.fullName ?? 'A donor'} ${status.name} your emergency alert.',
+        'isRead': false,
+        'sentAt': Timestamp.now(),
+        'channel': 'push',
+        'deepLink': 'vitalmatch://lab/emergency-alerts/${alert.alertId}',
+        'actions': ['open'],
+      });
+
+      respondedAlertIds.add(alert.alertId);
+      notifyListeners();
+    } catch (e) {
+      errorMessage = 'Failed to respond to alert.';
+      debugPrint('RESPOND TO ALERT FAILED: $e');
+      notifyListeners();
+    }
+  }
+
+  Future<void> _loadAlertResponses(String donorId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('alert_responses')
+        .where('donorId', isEqualTo: donorId)
+        .get();
+
+    respondedAlertIds
+      ..clear()
+      ..addAll(
+        snapshot.docs
+            .map((doc) => doc.data()['alertId'] as String?)
+            .whereType<String>(),
+      );
   }
 
   int get totalDonations {

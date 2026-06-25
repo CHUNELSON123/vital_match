@@ -17,6 +17,10 @@ class _SplashPageState extends State<SplashPage> {
     Timer(
       const Duration(seconds: 5),
       () {
+        if (!mounted) {
+          return;
+        }
+
         Navigator.pushReplacementNamed(
           context,
           '/login',

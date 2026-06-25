@@ -18,6 +18,12 @@ const donorCollection =
         'donors',
     );
 
+const userCollection =
+    db.collection('users');
+
+const notificationService =
+    require('./notificationService');
+
 
 
 
@@ -113,6 +119,44 @@ const createAlertResponse =
         await alertResponseRef.set(
             alertResponse,
         );
+
+        const alertData =
+            alertDoc.data();
+        const donorData =
+            donorDoc.data();
+        const donorUserDoc =
+            await userCollection
+                .doc(
+                    donorData.userId ||
+                        alertResponseData.donorId,
+                )
+                .get();
+        const donorName =
+            donorUserDoc.exists
+                ? donorUserDoc.data().fullName
+                : 'A donor';
+
+        await notificationService
+            .createNotification({
+                userId:
+                    alertData.technicianId,
+                alertId:
+                    alertResponseData.alertId,
+                type:
+                    'alertResponse',
+                title:
+                    'Emergency alert response',
+                message:
+                    `${donorName} ${alertResponseData.responseStatus} your emergency alert.`,
+                isRead:
+                    false,
+                channel:
+                    'push',
+                deepLink:
+                    `vitalmatch://lab/emergency-alerts/${alertResponseData.alertId}`,
+                actions:
+                    ['open'],
+            });
 
         return alertResponse;
     };

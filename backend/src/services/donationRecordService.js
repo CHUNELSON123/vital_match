@@ -20,6 +20,9 @@ const userCollection =
 const bloodUnitCollection =
     db.collection('blood_units');
 
+const notificationService =
+    require('./notificationService');
+
 
 
 
@@ -247,7 +250,45 @@ const updateDonationRecord =
         const updatedDoc =
             await docRef.get();
 
-        return updatedDoc.data();
+        const updatedDonation =
+            updatedDoc.data();
+
+        if (
+            updateData.status === 'verified' ||
+            updateData.status === 'rejected'
+        ) {
+            const title =
+                updateData.status === 'verified'
+                    ? 'Donation verified'
+                    : 'Donation rejected';
+
+            const message =
+                updateData.status === 'verified'
+                    ? 'Your donation has been verified. Thank you for saving lives.'
+                    : 'Your donation could not be verified. Please contact the hospital for details.';
+
+            await notificationService
+                .createNotification({
+                    userId:
+                        updatedDonation.donorId,
+                    alertId:
+                        updatedDonation.recordId,
+                    type:
+                        'donationStatus',
+                    title,
+                    message,
+                    isRead:
+                        false,
+                    channel:
+                        'whatsappLink',
+                    deepLink:
+                        `vitalmatch://donor/donations/${updatedDonation.recordId}`,
+                    actions:
+                        ['open'],
+                });
+        }
+
+        return updatedDonation;
     };
 
 

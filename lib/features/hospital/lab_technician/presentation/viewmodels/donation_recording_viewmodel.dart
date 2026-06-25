@@ -65,6 +65,9 @@ class DonationRecordingViewModel
   final bloodTypeController =
     TextEditingController();
 
+  final donorWeightController =
+      TextEditingController();
+
   final unitsCollectedController =
     TextEditingController();
 
@@ -181,8 +184,15 @@ Future<void> loadInventory() async {
         bloodTypeController.text,
       );
 
+      final updatedWeight =
+          double.tryParse(
+            donorWeightController.text.trim(),
+          ) ??
+          donor.weight;
+
       if (updatedBloodType !=
-          donor.bloodGroup) {
+              donor.bloodGroup ||
+          updatedWeight != donor.weight) {
 
         final updatedDonor =
             Donor(
@@ -190,7 +200,7 @@ Future<void> loadInventory() async {
           userId: donor.userId,
           bloodGroup:
               updatedBloodType,
-          weight: donor.weight,
+          weight: updatedWeight,
           gpsLatitude:
               donor.gpsLatitude,
           gpsLongitude:
@@ -210,10 +220,7 @@ Future<void> loadInventory() async {
               donor.lastDonationDate,
         );
 
-        print(
-  'UPDATING DONOR BLOOD TYPE: '
-  '${donor.bloodGroup} -> $updatedBloodType',
-);
+        print('UPDATING DONOR DONATION DETAILS');
 
 await updateDonorProfileUsecase(
   updatedDonor,
@@ -271,6 +278,8 @@ await loadInventory();
 selectedDonor = null;
 
 bloodTypeController.clear();
+
+donorWeightController.clear();
 
 unitsCollectedController.clear();
 
@@ -392,6 +401,10 @@ void selectDonor(
         _bloodTypeToString(
       donor.donor.bloodGroup,
     );
+
+    donorWeightController.text =
+        donor.donor.weight.toStringAsFixed(1);
+
     print(
   'Selected blood type: ${bloodTypeController.text}',
 );
@@ -499,6 +512,7 @@ String _bloodTypeToString(
 @override
 void dispose() {
   bloodTypeController.dispose();
+  donorWeightController.dispose();
   unitsCollectedController.dispose();
   collectionDateController.dispose();
   notesController.dispose();

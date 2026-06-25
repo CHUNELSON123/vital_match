@@ -22,6 +22,12 @@ const auditTrailService =
         './auditTrailService',
     );
 
+const normalizePhoneNumber = (value) =>
+    String(value || '')
+        .trim()
+        .replace(/\s+/g, '')
+        .replace(/^\+237/, '');
+
 
 
 const createLabTechnician =
@@ -61,9 +67,9 @@ const createLabTechnician =
         }
 
         const normalizedPhoneNumber =
-            String(
-                technicianData.phoneNumber || '',
-            ).trim();
+            normalizePhoneNumber(
+                technicianData.phoneNumber,
+            );
 
         const existingPhoneUser =
             await userCollection
@@ -231,6 +237,27 @@ console.log(
             updateData.email !==
             undefined
         ) {
+            const existingEmailUser =
+                await userCollection
+                    .where(
+                        'email',
+                        '==',
+                        updateData.email,
+                    )
+                    .limit(1)
+                    .get();
+
+            if (
+                !existingEmailUser.empty &&
+                existingEmailUser.docs[0].id !==
+                    technician.userId
+            ) {
+                throw new AppError(
+                    'Email already exists',
+                    400,
+                );
+            }
+
             userUpdates.email =
                 updateData.email;
         }
@@ -239,8 +266,34 @@ console.log(
             updateData.phoneNumber !==
             undefined
         ) {
+            const normalizedPhoneNumber =
+                normalizePhoneNumber(
+                    updateData.phoneNumber,
+                );
+
+            const existingPhoneUser =
+                await userCollection
+                    .where(
+                        'phoneNumber',
+                        '==',
+                        normalizedPhoneNumber,
+                    )
+                    .limit(1)
+                    .get();
+
+            if (
+                !existingPhoneUser.empty &&
+                existingPhoneUser.docs[0].id !==
+                    technician.userId
+            ) {
+                throw new AppError(
+                    'Phone number already exists',
+                    400,
+                );
+            }
+
             userUpdates.phoneNumber =
-                updateData.phoneNumber;
+                normalizedPhoneNumber;
         }
 
         if (
