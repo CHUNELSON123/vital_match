@@ -16,19 +16,16 @@ class EmergencyAlertsPage extends StatefulWidget {
   const EmergencyAlertsPage({super.key});
 
   @override
-  State<EmergencyAlertsPage> createState() =>
-      _EmergencyAlertsPageState();
+  State<EmergencyAlertsPage> createState() => _EmergencyAlertsPageState();
 }
 
-class _EmergencyAlertsPageState
-    extends State<EmergencyAlertsPage> {
+class _EmergencyAlertsPageState extends State<EmergencyAlertsPage> {
   late final EmergencyAlertViewModel viewModel;
 
   @override
   void initState() {
     super.initState();
-    viewModel =
-        ServiceLocator.emergencyAlertViewModel;
+    viewModel = ServiceLocator.emergencyAlertViewModel;
     viewModel.loadCurrentTechnician();
   }
 
@@ -39,14 +36,10 @@ class _EmergencyAlertsPageState
       child: Consumer<EmergencyAlertViewModel>(
         builder: (context, viewModel, _) {
           return Scaffold(
-            backgroundColor: const Color(
-              0xFFFCF9F8,
-            ),
+            backgroundColor: const Color(0xFFFCF9F8),
             body: Row(
               children: [
-                const LabTechnicianSidebar(
-                  selectedIndex: 3,
-                ),
+                const LabTechnicianSidebar(selectedIndex: 3),
 
                 Expanded(
                   child: Column(
@@ -55,14 +48,9 @@ class _EmergencyAlertsPageState
 
                       Expanded(
                         child: SingleChildScrollView(
-                          padding:
-                              const EdgeInsets.all(
-                            24,
-                          ),
+                          padding: const EdgeInsets.all(24),
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Create Emergency Alert',
@@ -71,34 +59,23 @@ class _EmergencyAlertsPageState
                                 ).textTheme.headlineMedium,
                               ),
 
-                              const SizedBox(
-                                height: 8,
-                              ),
+                              const SizedBox(height: 8),
 
                               Text(
                                 'Deploy high-priority notifications to the donor network.',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
 
-                              const SizedBox(
-                                height: 24,
-                              ),
+                              const SizedBox(height: 24),
 
-                              if (viewModel.errorMessage !=
-                                  null)
+                              if (viewModel.errorMessage != null)
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.only(
-                                    bottom: 16,
-                                  ),
+                                  padding: const EdgeInsets.only(bottom: 16),
                                   child: Text(
                                     viewModel.errorMessage!,
                                     style: const TextStyle(
                                       color: Colors.red,
-                                      fontWeight:
-                                          FontWeight.w600,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
@@ -106,75 +83,56 @@ class _EmergencyAlertsPageState
                               if (viewModel.isLoading)
                                 const Center(
                                   child: Padding(
-                                    padding:
-                                        EdgeInsets.all(32),
-                                    child:
-                                        CircularProgressIndicator(),
+                                    padding: EdgeInsets.all(32),
+                                    child: CircularProgressIndicator(),
                                   ),
                                 )
                               else
                                 Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment
-                                          .start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Expanded(
                                       flex: 7,
-                                      child:
-                                          EmergencyAlertFormCard(),
+                                      child: EmergencyAlertFormCard(),
                                     ),
 
-                                    const SizedBox(
-                                      width: 24,
-                                    ),
+                                    const SizedBox(width: 24),
 
                                     Expanded(
                                       flex: 5,
                                       child: Column(
                                         children: [
                                           EmergencyAlertPreviewCard(
-                                            bloodType: viewModel
-                                                .selectedBloodType,
-                                            unitsNeeded:
-                                                viewModel
-                                                    .unitsNeededController
-                                                    .text,
-                                            description:
-                                                viewModel
-                                                    .descriptionController
-                                                    .text,
+                                            bloodType:
+                                                viewModel.selectedBloodType,
+                                            unitsNeeded: viewModel
+                                                .unitsNeededController
+                                                .text,
+                                            description: viewModel
+                                                .descriptionController
+                                                .text,
                                             hospitalName:
                                                 viewModel
-                                                        .currentTechnician
-                                                        ?.hospitalId ??
-                                                    'Hospital',
+                                                    .currentTechnician
+                                                    ?.hospitalId ??
+                                                'Hospital',
                                           ),
 
-                                          const SizedBox(
-                                            height: 16,
-                                          ),
+                                          const SizedBox(height: 16),
 
                                           EmergencyAlertReachCard(
-                                            radiusKm:
-                                                viewModel
-                                                    .radiusController
-                                                    .text,
+                                            estimatedDonorReach:
+                                                viewModel.estimatedDonorReach,
                                           ),
 
-                                          const SizedBox(
-                                            height: 16,
-                                          ),
+                                          const SizedBox(height: 16),
 
                                           EmergencyAlertMapCard(
                                             radiusKm:
-                                                viewModel
-                                                    .radiusController
-                                                    .text,
+                                                viewModel.radiusController.text,
                                           ),
 
-                                          const SizedBox(
-                                            height: 16,
-                                          ),
+                                          const SizedBox(height: 16),
 
                                           const EmergencyAlertProtocolCard(),
                                         ],

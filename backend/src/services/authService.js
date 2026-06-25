@@ -18,6 +18,26 @@ const registerUser = async (userData) => {
         longitude,
     } = userData;
 
+    const normalizedPhoneNumber =
+        String(phoneNumber || '').trim();
+
+    const existingPhoneUser = await db
+        .collection("users")
+        .where(
+            "phoneNumber",
+            "==",
+            normalizedPhoneNumber,
+        )
+        .limit(1)
+        .get();
+
+    if (!existingPhoneUser.empty) {
+        throw new AppError(
+            "Phone number already exists",
+            400,
+        );
+    }
+
     //Create firebase auth user
     const userRecord = await admin.auth().createUser({
         email,
@@ -34,7 +54,7 @@ const registerUser = async (userData) => {
         userId: uid,
         fullName,
         email,
-        phoneNumber,
+        phoneNumber: normalizedPhoneNumber,
         role,
         createdAt,
     };

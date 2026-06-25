@@ -113,6 +113,18 @@ Widget build(BuildContext context) {
                       TextFormField(
                         controller:
                             vm.nameController,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Hospital name is required';
+                          }
+
+                          if (value.trim().length < 3) {
+                            return 'Hospital name must be at least 3 characters';
+                          }
+
+                          return null;
+                        },
 
                         decoration:
                             InputDecoration(
@@ -153,6 +165,18 @@ Widget build(BuildContext context) {
                       TextFormField(
                         controller:
                             vm.addressController,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Address is required';
+                          }
+
+                          if (value.trim().length < 3) {
+                            return 'Address must be at least 3 characters';
+                          }
+
+                          return null;
+                        },
 
                         decoration:
                             InputDecoration(
@@ -193,6 +217,22 @@ Widget build(BuildContext context) {
                       TextFormField(
                         controller:
                             vm.contactController,
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          final phone = value?.trim() ?? '';
+
+                          if (phone.isEmpty) {
+                            return 'Contact number is required';
+                          }
+
+                          final phoneRegex = RegExp(r'^(\+237\s?)?6\d{8}$');
+
+                          if (!phoneRegex.hasMatch(phone)) {
+                            return 'Enter a valid Cameroon phone number';
+                          }
+
+                          return null;
+                        },
 
                         decoration:
                             InputDecoration(
@@ -226,6 +266,10 @@ Widget build(BuildContext context) {
 
                         child: ElevatedButton(
                           onPressed: () async {
+                            if (!vm.formKey.currentState!.validate()) {
+                              return;
+                            }
+
                             try {
 
                               await vm.createHospital();

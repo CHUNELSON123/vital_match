@@ -1,7 +1,11 @@
 const AppError =
     require('../utils/appError');
 
+const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const phoneRegex =
+    /^(\+237\s?)?6[0-9]{8}$/;
 
 
 // CREATE LAB TECHNICIAN VALIDATOR
@@ -16,6 +20,13 @@ const validateCreateLabTechnician = (
         );
     }
 
+    if (data.fullName.trim().length < 3) {
+        throw new AppError(
+            'Full name must be at least 3 characters',
+            400,
+        );
+    }
+
     if (!data.email) {
         throw new AppError(
             'Email is required',
@@ -23,9 +34,23 @@ const validateCreateLabTechnician = (
         );
     }
 
+    if (!emailRegex.test(data.email.trim())) {
+        throw new AppError(
+            'Invalid email format',
+            400,
+        );
+    }
+
     if (!data.phoneNumber) {
         throw new AppError(
             'Phone number is required',
+            400,
+        );
+    }
+
+    if (!phoneRegex.test(data.phoneNumber.trim())) {
+        throw new AppError(
+            'Invalid phone number',
             400,
         );
     }

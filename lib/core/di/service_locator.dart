@@ -7,7 +7,9 @@ import 'package:vital_match/features/auth/domain/repositories/auth_repository.da
 import 'package:vital_match/features/auth/domain/usecases/register_usecase.dart';
 import 'package:vital_match/features/auth/domain/usecases/login_usecase.dart';
 import 'package:vital_match/features/donors/domain/usecases/update_donor_profile_usecase.dart';
+import 'package:vital_match/features/donors/domain/usecases/update_donor_availability_usecase.dart';
 import 'package:vital_match/features/hospital/domain/usecases/get_hospital_by_owner_id_usecase.dart';
+import 'package:vital_match/features/hospital/domain/usecases/get_hospital_usecase.dart';
 import 'package:vital_match/features/hospital/data/datasources/hospital_remote_datasource.dart';
 import 'package:vital_match/features/hospital/data/datasources/hospital_remote_datasource_impl.dart';
 import 'package:vital_match/features/hospital/data/repositories/hospital_repository_impl.dart';
@@ -45,6 +47,7 @@ import 'package:vital_match/features/alerts/emergency_alert/data/datasources/eme
 import 'package:vital_match/features/alerts/emergency_alert/data/repositories/emergency_alert_repository_impl.dart';
 import 'package:vital_match/features/alerts/emergency_alert/domain/repositories/emergency_alert_repository.dart';
 import 'package:vital_match/features/alerts/emergency_alert/domain/usecases/create_emergency_alert_usecase.dart';
+import 'package:vital_match/features/alerts/emergency_alert/domain/usecases/get_all_emergency_alert_usecase.dart';
 import 'package:vital_match/features/transfer_order/data/datasources/transfer_order_remote_datasource.dart';
 import 'package:vital_match/features/transfer_order/data/datasources/transfer_order_remote_datasource_impl.dart';
 import 'package:vital_match/features/transfer_order/data/repositories/transfer_order_repository_impl.dart';
@@ -56,6 +59,7 @@ import 'package:vital_match/features/hospital/lab_technician/domain/usecases/get
 import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/donation_recording_viewmodel.dart';
 import 'package:vital_match/features/donation_record/domain/usecases/create_donation_record_usecase.dart';
 import 'package:vital_match/features/donation_record/domain/usecases/update_donation_record_usecase.dart';
+import 'package:vital_match/features/donation_record/domain/usecases/get_all_donation_record_usecase.dart';
 import 'package:vital_match/features/users/domain/usecase/get_all_user_usecase.dart';
 import 'package:vital_match/features/donors/domain/usecases/get_all_donors_usecase.dart';
 import 'package:vital_match/features/donors/data/datasources/donor_remote_datasource.dart';
@@ -69,6 +73,11 @@ import 'package:vital_match/features/donation_record/domain/usecases/get_pending
 import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/donation_verification_viewmodel.dart';
 import 'package:vital_match/features/donors/domain/usecases/get_donor_usecase.dart';
 import 'package:vital_match/features/hospital/lab_technician/presentation/viewmodels/emergency_alert_viewmodel.dart';
+import 'package:vital_match/features/reward/data/datasources/reward_remote_datasource.dart';
+import 'package:vital_match/features/reward/data/datasources/reward_remote_datasource_impl.dart';
+import 'package:vital_match/features/reward/data/repositories/reward_repository_impl.dart';
+import 'package:vital_match/features/reward/domain/repositories/reward_repository.dart';
+import 'package:vital_match/features/reward/domain/usecases/get_rewards_by_donor_usecase.dart';
 
 class ServiceLocator {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -103,6 +112,10 @@ class ServiceLocator {
   static final CreateHospitalUsecase createHospitalUsecase =
       CreateHospitalUsecase(hospitalRepository);
 
+  static final GetHospitalUsecase getHospitalUsecase = GetHospitalUsecase(
+    hospitalRepository,
+  );
+
   static final AuditTrailRemoteDatasource auditTrailRemoteDatasource =
       AuditTrailRemoteDatasourceImpl();
 
@@ -112,24 +125,17 @@ class ServiceLocator {
   static final GetAuditTrailsByHospitalUsecase getAuditTrailsByHospitalUsecase =
       GetAuditTrailsByHospitalUsecase(auditTrailRepository);
 
-  static final LabTechnicianRemoteDatasource
-    labTechnicianRemoteDatasource =
-        LabTechnicianRemoteDatasourceImpl();
+  static final LabTechnicianRemoteDatasource labTechnicianRemoteDatasource =
+      LabTechnicianRemoteDatasourceImpl();
 
   static final LabTechnicianRepository labTechnicianRepository =
       LabTechnicianRepositoryImpl(labTechnicianRemoteDatasource);
 
-  static final GetLabTechnicianUsecase
-    getLabTechnicianUsecase =
-        GetLabTechnicianUsecase(
-          labTechnicianRepository,
-        );
+  static final GetLabTechnicianUsecase getLabTechnicianUsecase =
+      GetLabTechnicianUsecase(labTechnicianRepository);
 
-  static final GetLabTechnicianByUserIdUsecase
-    getLabTechnicianByUserIdUsecase =
-        GetLabTechnicianByUserIdUsecase(
-          labTechnicianRepository,
-        );
+  static final GetLabTechnicianByUserIdUsecase getLabTechnicianByUserIdUsecase =
+      GetLabTechnicianByUserIdUsecase(labTechnicianRepository);
 
   static final GetLabTechniciansByHospitalUsecase
   getLabTechniciansByHospitalUsecase = GetLabTechniciansByHospitalUsecase(
@@ -139,210 +145,150 @@ class ServiceLocator {
   static final CreateLabTechnicianUsecase createLabTechnicianUsecase =
       CreateLabTechnicianUsecase(labTechnicianRepository);
 
-  static final DeleteLabTechnicianUsecase
-    deleteLabTechnicianUsecase =
-        DeleteLabTechnicianUsecase(
-          labTechnicianRepository,
-        );
+  static final DeleteLabTechnicianUsecase deleteLabTechnicianUsecase =
+      DeleteLabTechnicianUsecase(labTechnicianRepository);
 
-  static final AppUserRemoteDatasource
-    appUserRemoteDatasource =
-        AppUserRemoteDatasourceImpl(
-          firestore: firestore,
-        );
+  static final AppUserRemoteDatasource appUserRemoteDatasource =
+      AppUserRemoteDatasourceImpl(firestore: firestore);
 
-  static final AppUserRepository
-    appUserRepository =
-        AppUserRepositoryImpl(
-          appUserRemoteDatasource,
-        );
+  static final AppUserRepository appUserRepository = AppUserRepositoryImpl(
+    appUserRemoteDatasource,
+  );
 
-   static final CreateUserUsecase
-    createUserUsecase =
-        CreateUserUsecase(
-          appUserRepository,
-        );
+  static final CreateUserUsecase createUserUsecase = CreateUserUsecase(
+    appUserRepository,
+  );
 
-  static final GetUserByIdUsecase
-    getUserByIdUsecase =
-        GetUserByIdUsecase(
-          appUserRepository,
-        );
+  static final GetUserByIdUsecase getUserByIdUsecase = GetUserByIdUsecase(
+    appUserRepository,
+  );
 
-static final UpdateLabTechnicianUsecase
-    updateLabTechnicianUsecase =
-        UpdateLabTechnicianUsecase(
-          labTechnicianRepository,
-        );
+  static final UpdateLabTechnicianUsecase updateLabTechnicianUsecase =
+      UpdateLabTechnicianUsecase(labTechnicianRepository);
 
-static final BloodUnitRemoteDatasource
-    bloodUnitRemoteDatasource =
-        BloodUnitRemoteDatasourceImpl();
+  static final BloodUnitRemoteDatasource bloodUnitRemoteDatasource =
+      BloodUnitRemoteDatasourceImpl();
 
-static final BloodUnitRepository
-    bloodUnitRepository =
-        BloodUnitRepositoryImpl(
-          bloodUnitRemoteDatasource,
-        );
+  static final BloodUnitRepository bloodUnitRepository =
+      BloodUnitRepositoryImpl(bloodUnitRemoteDatasource);
 
-static final CreateBloodUnitUsecase
-    createBloodUnitUsecase =
-        CreateBloodUnitUsecase(
-          bloodUnitRepository,
-        );
+  static final CreateBloodUnitUsecase createBloodUnitUsecase =
+      CreateBloodUnitUsecase(bloodUnitRepository);
 
-static final DonationRecordRemoteDatasource
-    donationRecordRemoteDatasource =
-        DonationRecordRemoteDatasourceImpl();
+  static final DonationRecordRemoteDatasource donationRecordRemoteDatasource =
+      DonationRecordRemoteDatasourceImpl();
 
-static final DonationRecordRepository
-    donationRecordRepository =
-        DonationRecordRepositoryImpl(
-          donationRecordRemoteDatasource,
-        );
+  static final DonationRecordRepository donationRecordRepository =
+      DonationRecordRepositoryImpl(donationRecordRemoteDatasource);
 
-static final CreateDonationRecordUsecase
-    createDonationRecordUsecase =
-        CreateDonationRecordUsecase(
-          donationRecordRepository,
-        );
+  static final CreateDonationRecordUsecase createDonationRecordUsecase =
+      CreateDonationRecordUsecase(donationRecordRepository);
 
-static final GetPendingDonationRecordsUsecase
-    getPendingDonationRecordsUsecase =
-        GetPendingDonationRecordsUsecase(
-          donationRecordRepository,
-        );
+  static final GetAllDonationRecordsUsecase getAllDonationRecordsUsecase =
+      GetAllDonationRecordsUsecase(donationRecordRepository);
 
-static final UpdateDonationRecordUsecase
-    updateDonationRecordUsecase =
-        UpdateDonationRecordUsecase(
-          donationRecordRepository,
-        );
-        
-static final EmergencyAlertRemoteDatasource
-    emergencyAlertRemoteDatasource =
-        EmergencyAlertRemoteDatasourceImpl();
+  static final GetPendingDonationRecordsUsecase
+  getPendingDonationRecordsUsecase = GetPendingDonationRecordsUsecase(
+    donationRecordRepository,
+  );
 
-static final EmergencyAlertRepository
-    emergencyAlertRepository =
-        EmergencyAlertRepositoryImpl(
-          emergencyAlertRemoteDatasource,
-        );
+  static final UpdateDonationRecordUsecase updateDonationRecordUsecase =
+      UpdateDonationRecordUsecase(donationRecordRepository);
 
-static final CreateEmergencyAlertUsecase
-    createEmergencyAlertUsecase =
-        CreateEmergencyAlertUsecase(
-          emergencyAlertRepository,
-        );
+  static final EmergencyAlertRemoteDatasource emergencyAlertRemoteDatasource =
+      EmergencyAlertRemoteDatasourceImpl();
 
-static final TransferOrderRemoteDatasource
-    transferOrderRemoteDatasource =
-        TransferOrderRemoteDatasourceImpl(
-          firestore,
-        );
+  static final EmergencyAlertRepository emergencyAlertRepository =
+      EmergencyAlertRepositoryImpl(emergencyAlertRemoteDatasource);
 
-static final TransferOrderRepository
-    transferOrderRepository =
-        TransferOrderRepositoryImpl(
-          transferOrderRemoteDatasource,
-        );
+  static final CreateEmergencyAlertUsecase createEmergencyAlertUsecase =
+      CreateEmergencyAlertUsecase(emergencyAlertRepository);
 
-static final GetDashboardBloodUnitsUsecase
-    getDashboardBloodUnitsUsecase =
-        GetDashboardBloodUnitsUsecase(
-          bloodUnitRepository,
-        );
+  static final GetAllEmergencyAlertsUsecase getAllEmergencyAlertsUsecase =
+      GetAllEmergencyAlertsUsecase(emergencyAlertRepository);
 
-static final GetDashboardDonationRecordsUsecase
-    getDashboardDonationRecordsUsecase =
-        GetDashboardDonationRecordsUsecase(
-          donationRecordRepository,
-        );
+  static final TransferOrderRemoteDatasource transferOrderRemoteDatasource =
+      TransferOrderRemoteDatasourceImpl(firestore);
 
-static final GetDashboardEmergencyAlertsUsecase
-    getDashboardEmergencyAlertsUsecase =
-        GetDashboardEmergencyAlertsUsecase(
-          emergencyAlertRepository,
-        );
+  static final TransferOrderRepository transferOrderRepository =
+      TransferOrderRepositoryImpl(transferOrderRemoteDatasource);
 
-static final GetDashboardTransferOrdersUsecase
-    getDashboardTransferOrdersUsecase =
-        GetDashboardTransferOrdersUsecase(
-          transferOrderRepository,
-        );
+  static final GetDashboardBloodUnitsUsecase getDashboardBloodUnitsUsecase =
+      GetDashboardBloodUnitsUsecase(bloodUnitRepository);
 
-static final GetAllUserUsecase
-    getAllUsersUsecase =
-        GetAllUserUsecase(
-          appUserRepository,
-        );
+  static final GetDashboardDonationRecordsUsecase
+  getDashboardDonationRecordsUsecase = GetDashboardDonationRecordsUsecase(
+    donationRecordRepository,
+  );
 
-static final DonorRemoteDatasource
-    donorRemoteDatasource =
-        DonorRemoteDatasourceImpl();
+  static final GetDashboardEmergencyAlertsUsecase
+  getDashboardEmergencyAlertsUsecase = GetDashboardEmergencyAlertsUsecase(
+    emergencyAlertRepository,
+  );
 
-static final DonorRepository
-    donorRepository =
-        DonorRepositoryImpl(
-          remoteDatasource:
-              donorRemoteDatasource,
-        );
+  static final GetDashboardTransferOrdersUsecase
+  getDashboardTransferOrdersUsecase = GetDashboardTransferOrdersUsecase(
+    transferOrderRepository,
+  );
 
-static final GetDonorUsecase
-    getDonorUsecase =
-        GetDonorUsecase(
-          donorRepository,
-        );
+  static final GetAllUserUsecase getAllUsersUsecase = GetAllUserUsecase(
+    appUserRepository,
+  );
 
-  static final GetAllDonorsUsecase
-    getAllDonorsUsecase =
-        GetAllDonorsUsecase(
-          donorRepository,
-        );
+  static final DonorRemoteDatasource donorRemoteDatasource =
+      DonorRemoteDatasourceImpl();
 
-static final UpdateDonorProfileUsecase
-    updateDonorProfileUsecase =
-        UpdateDonorProfileUsecase(
-          repository: donorRepository,
-        );
+  static final DonorRepository donorRepository = DonorRepositoryImpl(
+    remoteDatasource: donorRemoteDatasource,
+  );
 
-static final DonationVerificationViewModel
-    donationVerificationViewModel =
-        DonationVerificationViewModel(
-          getPendingDonationRecordsUsecase:
-              getPendingDonationRecordsUsecase,
-          updateDonationRecordUsecase:
-              updateDonationRecordUsecase,
-          getDonorUsecase:
-              getDonorUsecase,
-          getUserUsecase:
-              getUserByIdUsecase,
-        );
+  static final GetDonorUsecase getDonorUsecase = GetDonorUsecase(
+    donorRepository,
+  );
 
-static final DonationRecordingViewModel
-    donationRecordingViewModel =
-        DonationRecordingViewModel(
-          createDonationRecordUsecase:
-              createDonationRecordUsecase,
-          getDonationRecordsUsecase:
-              getDashboardDonationRecordsUsecase,
-          getAllDonorsUsecase:
-              getAllDonorsUsecase,
-          getAllUsersUsecase:
-              getAllUsersUsecase,
-          updateDonorProfileUsecase: 
-              updateDonorProfileUsecase,
-          createBloodUnitUsecase: 
-              createBloodUnitUsecase,
-          getDashboardBloodUnitsUsecase: 
-              getDashboardBloodUnitsUsecase,
-        );
+  static final GetAllDonorsUsecase getAllDonorsUsecase = GetAllDonorsUsecase(
+    donorRepository,
+  );
 
-static final EmergencyAlertViewModel
-    emergencyAlertViewModel =
-        EmergencyAlertViewModel(
-          createEmergencyAlertUsecase:
-              createEmergencyAlertUsecase,
-        );
-  
+  static final UpdateDonorProfileUsecase updateDonorProfileUsecase =
+      UpdateDonorProfileUsecase(repository: donorRepository);
+
+  static final UpdateDonorAvailabilityUsecase updateDonorAvailabilityUsecase =
+      UpdateDonorAvailabilityUsecase(repository: donorRepository);
+
+  static final RewardRemoteDatasource rewardRemoteDatasource =
+      RewardRemoteDatasourceImpl(firestore);
+
+  static final RewardRepository rewardRepository = RewardRepositoryImpl(
+    rewardRemoteDatasource,
+  );
+
+  static final GetRewardsByDonorUsecase getRewardsByDonorUsecase =
+      GetRewardsByDonorUsecase(rewardRepository);
+
+  static final DonationVerificationViewModel donationVerificationViewModel =
+      DonationVerificationViewModel(
+        getPendingDonationRecordsUsecase: getPendingDonationRecordsUsecase,
+        updateDonationRecordUsecase: updateDonationRecordUsecase,
+        getDonorUsecase: getDonorUsecase,
+        getUserUsecase: getUserByIdUsecase,
+      );
+
+  static final DonationRecordingViewModel donationRecordingViewModel =
+      DonationRecordingViewModel(
+        createDonationRecordUsecase: createDonationRecordUsecase,
+        getDonationRecordsUsecase: getDashboardDonationRecordsUsecase,
+        getAllDonorsUsecase: getAllDonorsUsecase,
+        getAllUsersUsecase: getAllUsersUsecase,
+        updateDonorProfileUsecase: updateDonorProfileUsecase,
+        createBloodUnitUsecase: createBloodUnitUsecase,
+        getDashboardBloodUnitsUsecase: getDashboardBloodUnitsUsecase,
+      );
+
+  static final EmergencyAlertViewModel emergencyAlertViewModel =
+      EmergencyAlertViewModel(
+        createEmergencyAlertUsecase: createEmergencyAlertUsecase,
+        getAllDonorsUsecase: getAllDonorsUsecase,
+        getHospitalUsecase: getHospitalUsecase,
+      );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vital_match/features/auth/presentation/pages/onboarding_page_1.dart';
+import 'package:vital_match/features/auth/presentation/pages/login_page.dart';
 import 'package:vital_match/features/auth/presentation/pages/splash_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -24,6 +25,7 @@ class VitalMatchApp extends StatelessWidget {
 
       routes: {
         '/onboarding': (context) => const OnboardingPage1(),
+        '/login': (context) => const LoginPage(),
       },
       
       home: SplashPage(),

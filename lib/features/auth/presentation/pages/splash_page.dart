@@ -19,7 +19,7 @@ class _SplashPageState extends State<SplashPage> {
       () {
         Navigator.pushReplacementNamed(
           context,
-          '/onboarding',
+          '/login',
         );
       },
     );

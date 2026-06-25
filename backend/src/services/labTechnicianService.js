@@ -60,6 +60,28 @@ const createLabTechnician =
             );
         }
 
+        const normalizedPhoneNumber =
+            String(
+                technicianData.phoneNumber || '',
+            ).trim();
+
+        const existingPhoneUser =
+            await userCollection
+                .where(
+                    'phoneNumber',
+                    '==',
+                    normalizedPhoneNumber,
+                )
+                .limit(1)
+                .get();
+
+        if (!existingPhoneUser.empty) {
+            throw new AppError(
+                'Phone number already exists',
+                400,
+            );
+        }
+
     const generatedPassword =
     Math.floor(
         100000 +
@@ -89,7 +111,7 @@ const firebaseUser =
             email:
                 technicianData.email,
             phoneNumber:
-                technicianData.phoneNumber,
+                normalizedPhoneNumber,
             role:
                 'labTechnician',
             createdAt:
