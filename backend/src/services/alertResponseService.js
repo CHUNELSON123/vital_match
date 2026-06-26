@@ -135,6 +135,15 @@ const createAlertResponse =
             donorUserDoc.exists
                 ? donorUserDoc.data().fullName
                 : 'A donor';
+        const donorPhoneNumber =
+            donorUserDoc.exists
+                ? donorUserDoc.data().phoneNumber
+                : null;
+        const message =
+            alertResponseData.responseStatus ===
+            'accepted'
+                ? `${donorName} accepted your emergency alert. Phone: ${donorPhoneNumber || 'Not available'}.`
+                : `${donorName} rejected your emergency alert.`;
 
         await notificationService
             .createNotification({
@@ -147,7 +156,7 @@ const createAlertResponse =
                 title:
                     'Emergency alert response',
                 message:
-                    `${donorName} ${alertResponseData.responseStatus} your emergency alert.`,
+                    message,
                 isRead:
                     false,
                 channel:

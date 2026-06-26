@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vital_match/core/utils/pdf_exporter.dart';
 
 class AuditHeader extends StatelessWidget {
 
@@ -54,19 +55,19 @@ class AuditHeader extends StatelessWidget {
             const SizedBox(width: 12),
 
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: _exportAuditReport,
               icon: const Icon(
                 Icons.download,
               ),
               label: const Text(
-                'Export CSV',
+                'Export PDF',
               ),
             ),
 
             const SizedBox(width: 12),
 
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: _exportAuditReport,
               icon: const Icon(
                 Icons.print,
               ),
@@ -76,6 +77,17 @@ class AuditHeader extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  void _exportAuditReport() {
+    PdfExporter.openReport(
+      title: 'Audit Trail Report',
+      lines: const [
+        'Vital Match audit trail report.',
+        'Open the Audit Trail page to view the current filtered audit logs.',
+        'Critical alerts include emergency, failed, deleted and critical actions.',
       ],
     );
   }

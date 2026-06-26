@@ -5,6 +5,9 @@ const { db } =
 const bloodUnitCollection =
     db.collection('blood_units');
 
+const auditTrailService =
+    require('./auditTrailService');
+
 
 
 // CREATE BLOOD UNIT
@@ -74,6 +77,12 @@ const createBloodUnit = async (
     const bloodUnit = {
         bloodUnitId: docRef.id,
         ...bloodUnitData,
+        bloodType:
+            bloodUnitData.bloodType ||
+            bloodUnitData.bloodGroup,
+        bloodGroup:
+            bloodUnitData.bloodGroup ||
+            bloodUnitData.bloodType,
         createdAt:
             new Date().toISOString(),
     };
@@ -129,14 +138,67 @@ const updateBloodUnit = async (
         );
     }
 
+    const existingBloodUnit =
+        doc.data();
+
+    const normalizedUpdate = {
+        ...updateData,
+    };
+
+    if (
+        updateData.bloodType ||
+        updateData.bloodGroup
+    ) {
+        normalizedUpdate.bloodType =
+            updateData.bloodType ||
+            updateData.bloodGroup;
+        normalizedUpdate.bloodGroup =
+            updateData.bloodGroup ||
+            updateData.bloodType;
+    }
+
     await docRef.update(
-        updateData,
+        normalizedUpdate,
     );
 
     const updatedDoc =
         await docRef.get();
 
-    return updatedDoc.data();
+    const updatedBloodUnit =
+        updatedDoc.data();
+
+    if (
+        updateData.updatedBy &&
+        updateData.quantity !== undefined &&
+        existingBloodUnit.quantity !==
+            updateData.quantity
+    ) {
+        const unitsUsed =
+            Math.max(
+                0,
+                existingBloodUnit.quantity -
+                    updateData.quantity,
+            );
+
+        await auditTrailService
+            .createAuditTrail({
+                userId:
+                    updateData.updatedBy,
+                hospitalId:
+                    updatedBloodUnit.hospitalId ||
+                    existingBloodUnit.hospitalId,
+                action:
+                    unitsUsed > 0
+                        ? `Blood Unit Used (${unitsUsed} unit${unitsUsed === 1 ? '' : 's'})`
+                        : 'Blood Unit Updated',
+                targetEntity:
+                    bloodUnitId,
+                timestamp:
+                    new Date().toISOString(),
+            });
+    }
+
+    return updatedBloodUnit;
 };
 
 

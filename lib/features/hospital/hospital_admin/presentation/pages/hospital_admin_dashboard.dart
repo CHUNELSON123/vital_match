@@ -122,7 +122,17 @@ class _HospitalAdminDashboardState extends State<HospitalAdminDashboard> {
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
-                                const DashboardHeaderSection(),
+                                DashboardHeaderSection(
+                                  reportLines: [
+                                    'Hospital: ${hospital!.name}',
+                                    'Address: ${hospital!.address}',
+                                    'Contact: ${hospital!.contactNumber}',
+                                    'Technicians: $technicianCount',
+                                    'Audit logs: $auditCount',
+                                    'Geofence radius: ${hospital!.geofenceRadiusKm} km',
+                                    'Recent activities: ${recentActivities.length}',
+                                  ],
+                                ),
 
                                 DashboardStatsGrid(
                                   hospital: hospital!,

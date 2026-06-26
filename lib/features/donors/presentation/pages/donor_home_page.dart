@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vital_match/core/enums/alert_response_status.dart';
@@ -17,17 +21,131 @@ class DonorHomePage extends StatefulWidget {
 class _DonorHomePageState extends State<DonorHomePage> {
   final DonorDashboardViewModel viewModel = DonorDashboardViewModel();
   int selectedIndex = 0;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
+      notificationSubscription;
+  final Set<String> shownNotificationIds = {};
 
   @override
   void initState() {
     super.initState();
     viewModel.loadDashboard();
+    _listenForEmergencyAlertPopups();
   }
 
   @override
   void dispose() {
+    notificationSubscription?.cancel();
     viewModel.dispose();
     super.dispose();
+  }
+
+  void _listenForEmergencyAlertPopups() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid == null) {
+      return;
+    }
+
+    notificationSubscription = FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: uid)
+        .where('type', isEqualTo: 'emergencyAlert')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      for (final change in snapshot.docChanges) {
+        final doc = change.doc;
+
+        if (shownNotificationIds.contains(doc.id)) {
+          continue;
+        }
+
+        shownNotificationIds.add(doc.id);
+        _showEmergencyAlertPopup(doc);
+      }
+    });
+  }
+
+  Future<void> _showEmergencyAlertPopup(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) async {
+    if (!mounted) {
+      return;
+    }
+
+    final data = doc.data() ?? {};
+    final alertId = data['alertId']?.toString() ?? '';
+
+    EmergencyAlert? alert;
+
+    for (final item in viewModel.emergencyAlerts) {
+      if (item.alertId == alertId) {
+        alert = item;
+        break;
+      }
+    }
+
+    if (alert == null) {
+      await viewModel.loadDashboard();
+
+      for (final item in viewModel.emergencyAlerts) {
+        if (item.alertId == alertId) {
+          alert = item;
+          break;
+        }
+      }
+    }
+
+    final selectedAlert = alert;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(data['title']?.toString() ?? 'Emergency alert'),
+          content: Text(data['message']?.toString() ?? ''),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _selectTab(2);
+              },
+              child: const Text('View All'),
+            ),
+            TextButton(
+              onPressed: selectedAlert == null
+                  ? null
+                  : () async {
+                      final alertToRespond = selectedAlert;
+
+                      Navigator.pop(context);
+                      await viewModel.respondToEmergencyAlert(
+                        alertToRespond,
+                        AlertResponseStatus.rejected,
+                      );
+                    },
+              child: const Text('Deny'),
+            ),
+            FilledButton(
+              onPressed: selectedAlert == null
+                  ? null
+                  : () async {
+                      final alertToRespond = selectedAlert;
+
+                      Navigator.pop(context);
+                      await viewModel.respondToEmergencyAlert(
+                        alertToRespond,
+                        AlertResponseStatus.accepted,
+                      );
+                    },
+              child: const Text('Accept'),
+            ),
+          ],
+        );
+      },
+    );
+
+    await doc.reference.update({'isRead': true});
   }
 
   @override
@@ -58,6 +176,7 @@ class _DonorHomePageState extends State<DonorHomePage> {
                               : _DonorContent(
                                   selectedIndex: selectedIndex,
                                   viewModel: viewModel,
+                                  onSelected: _selectTab,
                                 ),
                         ),
                       ],
@@ -94,6 +213,11 @@ class _DonorHomePageState extends State<DonorHomePage> {
                         label: 'Rewards',
                       ),
                       NavigationDestination(
+                        icon: Icon(Icons.health_and_safety_outlined),
+                        selectedIcon: Icon(Icons.health_and_safety),
+                        label: 'Tips',
+                      ),
+                      NavigationDestination(
                         icon: Icon(Icons.person_outline),
                         selectedIcon: Icon(Icons.person),
                         label: 'Profile',
@@ -116,16 +240,25 @@ class _DonorHomePageState extends State<DonorHomePage> {
 class _DonorContent extends StatelessWidget {
   final int selectedIndex;
   final DonorDashboardViewModel viewModel;
+  final ValueChanged<int> onSelected;
 
-  const _DonorContent({required this.selectedIndex, required this.viewModel});
+  const _DonorContent({
+    required this.selectedIndex,
+    required this.viewModel,
+    required this.onSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
     final page = switch (selectedIndex) {
-      0 => _DashboardView(viewModel: viewModel),
+      0 => _DashboardView(
+          viewModel: viewModel,
+          onSelected: onSelected,
+        ),
       1 => _HistoryView(viewModel: viewModel),
       2 => _AlertsView(viewModel: viewModel),
       3 => _RewardsView(viewModel: viewModel),
+      4 => const _HealthTipsView(),
       _ => _ProfileView(viewModel: viewModel),
     };
 
@@ -158,8 +291,12 @@ class _DonorContent extends StatelessWidget {
 
 class _DashboardView extends StatelessWidget {
   final DonorDashboardViewModel viewModel;
+  final ValueChanged<int> onSelected;
 
-  const _DashboardView({required this.viewModel});
+  const _DashboardView({
+    required this.viewModel,
+    required this.onSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +356,7 @@ class _DashboardView extends StatelessWidget {
                   label: 'Eligibility',
                   value: viewModel.daysUntilEligible == 0
                       ? 'Eligible now'
-                      : 'Eligible in ${viewModel.daysUntilEligible} days',
+                      : viewModel.eligibilityLabel,
                   icon: Icons.event_available,
                   progress: viewModel.eligibilityProgress,
                 ),
@@ -252,27 +389,34 @@ class _DashboardView extends StatelessWidget {
               crossAxisCount: columns,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
+              childAspectRatio:
+                  constraints.maxWidth < 420 ? 1.05 : 1.2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              children: const [
+              children: [
                 _QuickActionCard(
                   icon: Icons.event_available,
                   label: 'Update Availability',
+                  onTap: () => viewModel.toggleAvailability(
+                    !(viewModel.donor?.isAvailable ?? false),
+                  ),
                 ),
                 _QuickActionCard(
                   icon: Icons.emergency,
                   label: 'Emergency Alerts',
                   accentColor: _DonorColors.error,
+                  onTap: () => onSelected(2),
                 ),
                 _QuickActionCard(
                   icon: Icons.history,
                   label: 'Donation History',
+                  onTap: () => onSelected(1),
                 ),
                 _QuickActionCard(
                   icon: Icons.health_and_safety,
                   label: 'Health Tips',
                   accentColor: _DonorColors.tertiary,
+                  onTap: () => onSelected(4),
                 ),
               ],
             );
@@ -299,6 +443,91 @@ class _DashboardView extends StatelessWidget {
                 )
                 .toList(),
           ),
+      ],
+    );
+  }
+}
+
+class _HealthTipsView extends StatelessWidget {
+  const _HealthTipsView();
+
+  @override
+  Widget build(BuildContext context) {
+    const tips = [
+      (
+        icon: Icons.water_drop,
+        title: 'Hydrate before donation',
+        body:
+            'Drink enough water the day before and the morning of your donation.',
+      ),
+      (
+        icon: Icons.restaurant,
+        title: 'Eat iron-rich food',
+        body:
+            'Beans, spinach, eggs, fish, and lean meat can help keep your blood healthy.',
+      ),
+      (
+        icon: Icons.bedtime,
+        title: 'Rest well',
+        body:
+            'Sleep properly before donating and avoid heavy exercise immediately after.',
+      ),
+      (
+        icon: Icons.local_drink,
+        title: 'Avoid alcohol',
+        body:
+            'Avoid alcohol before donating and keep taking fluids after donation.',
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Health Tips', style: _DonorText.pageTitle),
+        const SizedBox(height: 8),
+        const Text(
+          'Simple habits that help you donate safely.',
+          style: TextStyle(color: _DonorColors.mutedText),
+        ),
+        const SizedBox(height: 20),
+        ...tips.map(
+          (tip) => _BaseCard(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  backgroundColor: _DonorColors.tertiary.withValues(
+                    alpha: 0.12,
+                  ),
+                  child: Icon(tip.icon, color: _DonorColors.tertiary),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tip.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        tip.body,
+                        style: const TextStyle(
+                          color: _DonorColors.mutedText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -543,6 +772,7 @@ class _ProfileView extends StatelessWidget {
           email: user?.email ?? 'No email',
           phone: user?.phoneNumber ?? 'No phone number',
           bloodType: donor?.bloodGroup.displayName ?? '--',
+          weight: donor?.weight.toStringAsFixed(1) ?? '--',
         ),
         const SizedBox(height: 28),
         const Text('General Settings', style: _DonorText.sectionTitle),
@@ -643,6 +873,7 @@ class _DonorNavigationRail extends StatelessWidget {
       (Icons.history, 'History'),
       (Icons.emergency, 'Alerts'),
       (Icons.military_tech, 'Rewards'),
+      (Icons.health_and_safety, 'Tips'),
       (Icons.person, 'Profile'),
     ];
 
@@ -812,31 +1043,37 @@ class _QuickActionCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color accentColor;
+  final VoidCallback onTap;
 
   const _QuickActionCard({
     required this.icon,
     required this.label,
+    required this.onTap,
     this.accentColor = _DonorColors.primary,
   });
 
   @override
   Widget build(BuildContext context) {
-    return _BaseCard(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: accentColor.withValues(alpha: 0.12),
-            child: Icon(icon, color: accentColor),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: _BaseCard(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: accentColor.withValues(alpha: 0.12),
+              child: Icon(icon, color: accentColor),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1310,12 +1547,14 @@ class _ProfileHeaderCard extends StatelessWidget {
   final String email;
   final String phone;
   final String bloodType;
+  final String weight;
 
   const _ProfileHeaderCard({
     required this.name,
     required this.email,
     required this.phone,
     required this.bloodType,
+    required this.weight,
   });
 
   @override
@@ -1367,7 +1606,17 @@ class _ProfileHeaderCard extends StatelessWidget {
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
-          _BloodBadge(label: bloodType, color: _DonorColors.secondary),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _BloodBadge(label: bloodType, color: _DonorColors.secondary),
+              _BloodBadge(
+                label: 'Weight: $weight kg',
+                color: const Color(0xFF0EA5E9),
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
           _ContactRow(icon: Icons.mail, label: 'Email', value: email),
           const SizedBox(height: 12),

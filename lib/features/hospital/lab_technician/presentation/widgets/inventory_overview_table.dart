@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:vital_match/features/blood_unit/domain/entities/blood_unit.dart';
 import 'package:vital_match/core/extensions/blood_type_extension.dart';
+import 'package:vital_match/core/utils/pdf_exporter.dart';
 import '../viewmodels/dashboard_viewmodel.dart';
 
 class InventoryOverviewTable
@@ -49,6 +50,31 @@ class InventoryOverviewTable
     ).toList();
   }
 
+  BloodUnit? _findUsableUnit(
+    List<BloodUnit> bloodUnits,
+    String displayName,
+  ) {
+    final matchingUnits = bloodUnits
+        .where(
+          (unit) =>
+              unit.bloodType.displayName ==
+                  displayName &&
+              unit.quantity > 0,
+        )
+        .toList()
+      ..sort(
+        (a, b) => a.expiryDate.compareTo(
+          b.expiryDate,
+        ),
+      );
+
+    if (matchingUnits.isEmpty) {
+      return null;
+    }
+
+    return matchingUnits.first;
+  }
+
   @override
   Widget build(
     BuildContext context,
@@ -80,12 +106,12 @@ class InventoryOverviewTable
             CrossAxisAlignment
                 .start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment:
                 MainAxisAlignment
                     .spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Inventory Overview',
                 style: TextStyle(
                   fontSize: 20,
@@ -93,14 +119,23 @@ class InventoryOverviewTable
                       FontWeight.bold,
                 ),
               ),
-              Text(
-                'Export Report',
-                style: TextStyle(
-                  color: Color(
-                    0xFF005FAF,
-                  ),
-                  fontWeight:
-                      FontWeight.w600,
+              TextButton.icon(
+                onPressed: () {
+                  PdfExporter.openReport(
+                    title: 'Inventory Report',
+                    lines: inventory
+                        .map(
+                          (item) =>
+                              '${item['group']}: ${item['units']} unit(s), status ${item['status']}',
+                        )
+                        .toList(),
+                  );
+                },
+                icon: const Icon(
+                  Icons.picture_as_pdf,
+                ),
+                label: const Text(
+                  'Export Report',
                 ),
               ),
             ],
@@ -132,10 +167,21 @@ class InventoryOverviewTable
                   'Status',
                 ),
               ),
+              DataColumn(
+                label: Text(
+                  'Action',
+                ),
+              ),
             ],
             rows:
                 inventory.map(
               (item) {
+                final usableUnit =
+                    _findUsableUnit(
+                  dashboard.bloodUnits,
+                  item['group']!,
+                );
+
                 return DataRow(
                   cells: [
                     DataCell(
@@ -189,6 +235,22 @@ class InventoryOverviewTable
                             'status']!,
                       ),
                     ),
+                    DataCell(
+                      TextButton.icon(
+                        onPressed: usableUnit == null
+                            ? null
+                            : () => _showUseBloodDialog(
+                                  context,
+                                  dashboard,
+                                  usableUnit,
+                                ),
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          size: 18,
+                        ),
+                        label: const Text('Use'),
+                      ),
+                    ),
                   ],
                 );
               },
@@ -197,6 +259,99 @@ class InventoryOverviewTable
         ],
       ),
     );
+  }
+
+  Future<void> _showUseBloodDialog(
+    BuildContext context,
+    DashboardViewModel dashboard,
+    BloodUnit unit,
+  ) async {
+    final controller =
+        TextEditingController(text: '1');
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Use ${unit.bloodType.displayName} Blood',
+          ),
+          content: TextField(
+            controller: controller,
+            keyboardType:
+                TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Units used',
+              helperText:
+                  '${unit.quantity} unit(s) available',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final used = int.tryParse(
+                  controller.text.trim(),
+                );
+
+                if (used == null) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Enter a valid number',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
+                try {
+                  await dashboard.useBloodUnit(
+                    unit: unit,
+                    unitsUsed: used,
+                  );
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Blood inventory updated',
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        e.toString(),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
   }
 
   Widget _statusChip(

@@ -7,6 +7,8 @@ import 'package:vital_match/features/alerts/emergency_alert/domain/entities/emer
 import '../../domain/usecases/get_dashboard_blood_units_usecase.dart';
 import '../../domain/usecases/get_dashboard_donation_records_usecase.dart';
 import '../../domain/usecases/get_dashboard_emergency_alerts_usecase.dart';
+import '../../../../blood_unit/domain/usecases/update_blood_unit_usecase.dart';
+import 'package:vital_match/core/enums/storage_status.dart';
  
 
 class DashboardActivity {
@@ -38,11 +40,15 @@ class DashboardViewModel
   final GetDashboardEmergencyAlertsUsecase
       getDashboardEmergencyAlertsUsecase;
 
+  final UpdateBloodUnitUsecase
+      updateBloodUnitUsecase;
+
  
   DashboardViewModel({
     required this.getDashboardBloodUnitsUsecase,
     required this.getDashboardDonationRecordsUsecase,
     required this.getDashboardEmergencyAlertsUsecase,
+    required this.updateBloodUnitUsecase,
  
   });
 
@@ -167,6 +173,40 @@ print(
   int get totalEmergencyAlerts {
 
     return emergencyAlerts.length;
+  }
+
+  Future<void> useBloodUnit({
+    required BloodUnit unit,
+    required int unitsUsed,
+  }) async {
+    if (unitsUsed <= 0) {
+      throw Exception('Units used must be greater than 0');
+    }
+
+    if (unitsUsed > unit.quantity) {
+      throw Exception('Units used cannot exceed available units');
+    }
+
+    final remainingQuantity =
+        unit.quantity - unitsUsed;
+
+    final updatedUnit = BloodUnit(
+      bloodUnitId: unit.bloodUnitId,
+      recordId: unit.recordId,
+      hospitalId: unit.hospitalId,
+      bloodBankId: unit.bloodBankId,
+      bloodType: unit.bloodType,
+      componentType: unit.componentType,
+      quantity: remainingQuantity,
+      collectionDate: unit.collectionDate,
+      expiryDate: unit.expiryDate,
+      storageStatus: remainingQuantity == 0
+          ? StorageStatus.discarded
+          : unit.storageStatus,
+    );
+
+    await updateBloodUnitUsecase(updatedUnit);
+    await loadDashboard();
   }
 
 

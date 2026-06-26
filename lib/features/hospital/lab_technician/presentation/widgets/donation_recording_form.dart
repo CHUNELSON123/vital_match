@@ -337,6 +337,31 @@ class DonationRecordingForm extends StatelessWidget {
                     return;
                   }
 
+                  final lastDonationDate =
+                      donor.donor.lastDonationDate;
+
+                  if (lastDonationDate != null) {
+                    final nextEligibleDate =
+                        DateTime(
+                      lastDonationDate.year,
+                      lastDonationDate.month + 3,
+                      lastDonationDate.day,
+                    );
+
+                    if (DateTime.now()
+                        .isBefore(nextEligibleDate)) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Donor cannot donate again until ${nextEligibleDate.toLocal().toString().split(' ').first}',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+
                   final currentUser =
                       FirebaseAuth
                           .instance

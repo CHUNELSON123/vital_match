@@ -23,6 +23,9 @@ const bloodUnitCollection =
 const notificationService =
     require('./notificationService');
 
+const auditTrailService =
+    require('./auditTrailService');
+
 
 
 
@@ -46,6 +49,29 @@ const createDonationRecord = async (
         throw new Error(
             'Donor not found',
         );
+    }
+
+    const donorData = donorDoc.data();
+    const lastDonationDateValue =
+        donorData.lastDonationDate;
+
+    if (lastDonationDateValue) {
+        const lastDonationDate =
+            lastDonationDateValue.toDate
+                ? lastDonationDateValue.toDate()
+                : new Date(lastDonationDateValue);
+        const nextEligibleDate =
+            new Date(lastDonationDate);
+
+        nextEligibleDate.setMonth(
+            nextEligibleDate.getMonth() + 3,
+        );
+
+        if (new Date() < nextEligibleDate) {
+            throw new Error(
+                `Donor cannot donate again until ${nextEligibleDate.toISOString()}`,
+            );
+        }
     }
 
 
@@ -171,6 +197,27 @@ const createDonationRecord = async (
         bloodUnit,
     );
 
+    await donorCollection
+        .doc(donationRecordData.donorId)
+        .update({
+            lastDonationDate:
+                donationRecordData.donationDate,
+        });
+
+    await auditTrailService
+        .createAuditTrail({
+            userId:
+                donationRecordData.technicianId,
+            hospitalId:
+                donationRecordData.hospitalId,
+            action:
+                'Donation Recorded',
+            targetEntity:
+                donationRecordRef.id,
+            timestamp:
+                new Date().toISOString(),
+        });
+
 
 
     return {
@@ -257,6 +304,22 @@ const updateDonationRecord =
             updateData.status === 'verified' ||
             updateData.status === 'rejected'
         ) {
+            await auditTrailService
+                .createAuditTrail({
+                    userId:
+                        updatedDonation.technicianId,
+                    hospitalId:
+                        updatedDonation.hospitalId,
+                    action:
+                        updateData.status === 'verified'
+                            ? 'Donation Verified'
+                            : 'Donation Rejected',
+                    targetEntity:
+                        updatedDonation.recordId,
+                    timestamp:
+                        new Date().toISOString(),
+                });
+
             const title =
                 updateData.status === 'verified'
                     ? 'Donation verified'

@@ -74,8 +74,10 @@ class BloodDistributionChart
 
             return _BloodTypeRow(
               type:
-                  blood['bloodType']
-                      .toString(),
+                  _formatBloodType(
+                blood['bloodType']
+                    .toString(),
+              ),
 
               percentage:
                   blood['total']
@@ -92,6 +94,37 @@ class BloodDistributionChart
 
       ),
     );
+  }
+}
+
+String _formatBloodType(String value) {
+  switch (value) {
+    case 'aPositive':
+    case 'A+':
+      return 'A+';
+    case 'aNegative':
+    case 'A-':
+      return 'A-';
+    case 'bPositive':
+    case 'B+':
+      return 'B+';
+    case 'bNegative':
+    case 'B-':
+      return 'B-';
+    case 'abPositive':
+    case 'AB+':
+      return 'AB+';
+    case 'abNegative':
+    case 'AB-':
+      return 'AB-';
+    case 'oPositive':
+    case 'O+':
+      return 'O+';
+    case 'oNegative':
+    case 'O-':
+      return 'O-';
+    default:
+      return value;
   }
 }
 

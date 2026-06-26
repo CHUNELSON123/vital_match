@@ -23,6 +23,7 @@ class BloodUnitModel extends BloodUnit {
       'hospitalId': hospitalId,
       'bloodBankId': bloodBankId,
       'bloodType': bloodType.name, 
+      'bloodGroup': bloodType.name,
       'componentType': componentType,
       'storageStatus': storageStatus.name, 
       'quantity': quantity,

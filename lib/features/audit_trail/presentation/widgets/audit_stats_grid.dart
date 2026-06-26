@@ -17,11 +17,9 @@ class AuditStatsGrid extends StatelessWidget {
     final criticalEvents =
         auditTrails.where(
       (audit) =>
-          audit.action
-              .toLowerCase()
-              .contains(
-                'delete',
-              ),
+          _isCriticalAction(
+        audit.action,
+      ),
     ).length;
 
     final uniqueUsers =
@@ -210,4 +208,15 @@ class _CardWrapper
       child: child,
     );
   }
+}
+
+bool _isCriticalAction(String action) {
+  final normalizedAction =
+      action.toLowerCase();
+
+  return normalizedAction.contains('delete') ||
+      normalizedAction.contains('failed') ||
+      normalizedAction.contains('critical') ||
+      normalizedAction.contains('emergency') ||
+      normalizedAction.contains('alert');
 }

@@ -38,6 +38,10 @@ class LabTechnicianDashboard
           getDashboardEmergencyAlertsUsecase:
               ServiceLocator
                   .getDashboardEmergencyAlertsUsecase,
+
+          updateBloodUnitUsecase:
+              ServiceLocator
+                  .updateBloodUnitUsecase,
         );
 
         vm.loadDashboard();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vital_match/core/utils/pdf_exporter.dart';
 
 class ReportsHeader extends StatelessWidget {
   const ReportsHeader({super.key});
@@ -34,15 +35,15 @@ class ReportsHeader extends StatelessWidget {
                 runSpacing: 12,
                 children: [
                   OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: _exportReport,
                     icon: const Icon(Icons.picture_as_pdf),
                     label: const Text('Export PDF'),
                   ),
 
                   ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.table_chart),
-                    label: const Text('Export Excel'),
+                    onPressed: _exportReport,
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('Export Report'),
                   ),
                 ],
               ),
@@ -81,21 +82,32 @@ class ReportsHeader extends StatelessWidget {
               spacing: 12,
               children: [
                 OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: _exportReport,
                   icon: const Icon(Icons.picture_as_pdf),
                   label: const Text('Export PDF'),
                 ),
 
                 ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.table_chart),
-                  label: const Text('Export Excel'),
+                  onPressed: _exportReport,
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('Export Report'),
                 ),
               ],
             ),
           ],
         );
       },
+    );
+  }
+
+  void _exportReport() {
+    PdfExporter.openReport(
+      title: 'Analytics & Reports',
+      lines: const [
+        'Vital Match Hospital Administration Report',
+        'This PDF export contains the current analytics report view.',
+        'Use the dashboard cards, donation trend and blood distribution sections for the live values displayed in the app.',
+      ],
     );
   }
 }

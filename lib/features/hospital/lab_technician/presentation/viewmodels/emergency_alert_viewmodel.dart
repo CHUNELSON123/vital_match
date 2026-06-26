@@ -88,17 +88,22 @@ class EmergencyAlertViewModel extends ChangeNotifier {
   }
 
   int get estimatedDonorReach {
+    return matchingDonors.length;
+  }
+
+  List<Donor> get matchingDonors {
     final hospital = currentHospital;
     final radiusKm = double.tryParse(radiusController.text.trim());
 
     if (hospital == null || radiusKm == null || radiusKm <= 0) {
-      return 0;
+      return [];
     }
 
     return donors
         .where(
           (donor) =>
               donor.isAvailable &&
+              donor.bloodGroup == selectedBloodType &&
               _distanceInKm(
                     hospital.latitude,
                     hospital.longitude,
@@ -107,7 +112,7 @@ class EmergencyAlertViewModel extends ChangeNotifier {
                   ) <=
                   radiusKm,
         )
-        .length;
+        .toList();
   }
 
   double _distanceInKm(

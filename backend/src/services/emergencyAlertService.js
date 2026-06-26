@@ -27,6 +27,9 @@ const donorCollection =
 const notificationService =
     require('./notificationService');
 
+const auditTrailService =
+    require('./auditTrailService');
+
 const distanceInKm = (
     startLatitude,
     startLongitude,
@@ -170,6 +173,22 @@ const createEmergencyAlert =
         await emergencyAlertRef.set(
             emergencyAlert,
         );
+
+        await auditTrailService
+            .createAuditTrail({
+                userId:
+                    emergencyAlertData
+                        .technicianId,
+                hospitalId:
+                    emergencyAlertData
+                        .hospitalId,
+                action:
+                    'Emergency Alert Created',
+                targetEntity:
+                    emergencyAlertRef.id,
+                timestamp:
+                    new Date().toISOString(),
+            });
 
         await notifyMatchingDonors(
             emergencyAlert,

@@ -112,9 +112,7 @@ class _EmergencyAlertsPageState extends State<EmergencyAlertsPage> {
                                                 .descriptionController
                                                 .text,
                                             hospitalName:
-                                                viewModel
-                                                    .currentTechnician
-                                                    ?.hospitalId ??
+                                                viewModel.currentHospital?.name ??
                                                 'Hospital',
                                           ),
 
@@ -130,6 +128,10 @@ class _EmergencyAlertsPageState extends State<EmergencyAlertsPage> {
                                           EmergencyAlertMapCard(
                                             radiusKm:
                                                 viewModel.radiusController.text,
+                                            hospital:
+                                                viewModel.currentHospital,
+                                            matchingDonors:
+                                                viewModel.matchingDonors,
                                           ),
 
                                           const SizedBox(height: 16),

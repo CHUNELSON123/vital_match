@@ -37,7 +37,11 @@ const validateCreateBloodUnit = (
         );
     }
 
-    if (!data.bloodType) {
+    const bloodType =
+        data.bloodType ||
+        data.bloodGroup;
+
+    if (!bloodType) {
         throw new AppError(
             'Blood type is required',
             400,
@@ -86,7 +90,7 @@ const validateCreateBloodUnit = (
 
     if (
         !validBloodTypes.includes(
-            data.bloodType,
+            bloodType,
         )
     ) {
         throw new AppError(
@@ -175,10 +179,14 @@ const validateUpdateBloodUnit = (
     data,
 ) => {
 
+    const bloodType =
+        data.bloodType ||
+        data.bloodGroup;
+
     if (
-        data.bloodType &&
+        bloodType &&
         !validBloodTypes.includes(
-            data.bloodType,
+            bloodType,
         )
     ) {
         throw new AppError(
@@ -206,11 +214,11 @@ const validateUpdateBloodUnit = (
         (
             typeof data.quantity !==
                 'number' ||
-            data.quantity <= 0
+            data.quantity < 0
         )
     ) {
         throw new AppError(
-            'Quantity must be greater than 0',
+            'Quantity cannot be less than 0',
             400,
         );
     }

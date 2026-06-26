@@ -70,7 +70,11 @@ class DonorDashboardViewModel extends ChangeNotifier {
 
       emergencyAlerts =
           activeAlerts
-              .where((alert) => _distanceToAlert(alert) <= alert.radiusKm)
+              .where(
+                (alert) =>
+                    alert.bloodGroup == donor?.bloodGroup &&
+                    _distanceToAlert(alert) <= alert.radiusKm,
+              )
               .toList()
             ..sort(
               (first, second) => second.createdAt.compareTo(first.createdAt),
@@ -167,8 +171,9 @@ class DonorDashboardViewModel extends ChangeNotifier {
         'alertId': alert.alertId,
         'type': NotificationType.alertResponse.name,
         'title': 'Emergency alert response',
-        'message':
-            '${currentUser?.fullName ?? 'A donor'} ${status.name} your emergency alert.',
+        'message': status == AlertResponseStatus.accepted
+            ? '${currentUser?.fullName ?? 'A donor'} accepted your emergency alert. Phone: ${currentUser?.phoneNumber ?? 'Not available'}.'
+            : '${currentUser?.fullName ?? 'A donor'} rejected your emergency alert.',
         'isRead': false,
         'sentAt': Timestamp.now(),
         'channel': 'push',
@@ -225,29 +230,73 @@ class DonorDashboardViewModel extends ChangeNotifier {
   }
 
   int get daysUntilEligible {
-    final lastDonationDate = donor?.lastDonationDate;
+    final lastDonationDate = latestDonationDate;
 
     if (lastDonationDate == null) {
       return 0;
     }
 
-    final nextEligibleDate = lastDonationDate.add(const Duration(days: 56));
+    final nextEligibleDate = DateTime(
+      lastDonationDate.year,
+      lastDonationDate.month + 3,
+      lastDonationDate.day,
+    );
 
     final remainingDays = nextEligibleDate.difference(DateTime.now()).inDays;
 
     return remainingDays < 0 ? 0 : remainingDays;
   }
 
+  String get eligibilityLabel {
+    final days = daysUntilEligible;
+
+    if (days == 0) {
+      return 'Eligible now';
+    }
+
+    final months = days ~/ 30;
+    final remainingDays = days % 30;
+
+    if (months == 0) {
+      return 'Eligible in $remainingDays days';
+    }
+
+    if (remainingDays == 0) {
+      return 'Eligible in $months month(s)';
+    }
+
+    return 'Eligible in $months month(s), $remainingDays day(s)';
+  }
+
+  DateTime? get latestDonationDate {
+    if (donationRecords.isNotEmpty) {
+      return donationRecords.first.donationDate;
+    }
+
+    return donor?.lastDonationDate;
+  }
+
   double get eligibilityProgress {
-    final lastDonationDate = donor?.lastDonationDate;
+    final lastDonationDate = latestDonationDate;
 
     if (lastDonationDate == null) {
       return 1;
     }
 
-    final elapsedDays = DateTime.now().difference(lastDonationDate).inDays;
+    final nextEligibleDate = DateTime(
+      lastDonationDate.year,
+      lastDonationDate.month + 3,
+      lastDonationDate.day,
+    );
 
-    return (elapsedDays / 56).clamp(0, 1);
+    final elapsedDays = DateTime.now().difference(lastDonationDate).inDays;
+    final totalDays = nextEligibleDate.difference(lastDonationDate).inDays;
+
+    if (totalDays <= 0) {
+      return 1;
+    }
+
+    return (elapsedDays / totalDays).clamp(0, 1);
   }
 
   String hospitalName(String hospitalId) {

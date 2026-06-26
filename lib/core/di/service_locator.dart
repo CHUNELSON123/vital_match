@@ -38,6 +38,7 @@ import 'package:vital_match/features/blood_unit/data/datasources/blood_unit_remo
 import 'package:vital_match/features/blood_unit/data/datasources/blood_unit_remote_datasource_impl.dart';
 import 'package:vital_match/features/blood_unit/data/repositories/blood_unit_repository_impl.dart';
 import 'package:vital_match/features/blood_unit/domain/repositories/blood_unit_repository.dart';
+import 'package:vital_match/features/blood_unit/domain/usecases/update_blood_unit_usecase.dart';
 import 'package:vital_match/features/donation_record/data/datasources/donation_record_remote_datasource.dart';
 import 'package:vital_match/features/donation_record/data/datasources/donation_record_remote_datasource_impl.dart';
 import 'package:vital_match/features/donation_record/data/repositories/donation_record_repository_impl.dart';
@@ -174,6 +175,9 @@ class ServiceLocator {
 
   static final CreateBloodUnitUsecase createBloodUnitUsecase =
       CreateBloodUnitUsecase(bloodUnitRepository);
+
+  static final UpdateBloodUnitUsecase updateBloodUnitUsecase =
+      UpdateBloodUnitUsecase(bloodUnitRepository);
 
   static final DonationRecordRemoteDatasource donationRecordRemoteDatasource =
       DonationRecordRemoteDatasourceImpl();

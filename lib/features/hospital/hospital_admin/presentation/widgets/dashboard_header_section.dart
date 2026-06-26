@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:vital_match/core/utils/pdf_exporter.dart';
 
 class DashboardHeaderSection extends StatelessWidget {
+  final List<String> reportLines;
+
   const DashboardHeaderSection({
     super.key,
+    this.reportLines = const [],
   });
 
   @override
@@ -50,7 +54,16 @@ class DashboardHeaderSection extends StatelessWidget {
             children: [
 
               OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  PdfExporter.openReport(
+                    title: 'Hospital Admin Dashboard Report',
+                    lines: reportLines.isEmpty
+                        ? [
+                            'No dashboard data available.',
+                          ]
+                        : reportLines,
+                  );
+                },
 
                 icon: const Icon(
                   Icons.download,

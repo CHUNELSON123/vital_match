@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../pages/donation_recording_page.dart';
+import '../pages/donation_verification_page.dart';
+import '../pages/emergency_alerts_page.dart';
 
 class QuickActionsGrid
     extends StatelessWidget {
@@ -27,6 +30,8 @@ class QuickActionsGrid
               'Verify Donation',
           icon:
               Icons.verified,
+          page:
+              DonationVerificationPage(),
         ),
 
         _ActionTile(
@@ -34,6 +39,8 @@ class QuickActionsGrid
               'Record Donation',
           icon:
               Icons.edit_note,
+          page:
+              DonationRecordingPage(),
         ),
 
         _ActionTile(
@@ -41,6 +48,8 @@ class QuickActionsGrid
               'Create Alert',
           icon:
               Icons.warning,
+          page:
+              EmergencyAlertsPage(),
         ),
 
         _ActionTile(
@@ -48,6 +57,8 @@ class QuickActionsGrid
               'Request Transfer',
           icon:
               Icons.swap_horiz,
+          message:
+              'Transfer request screen is not available yet.',
         ),
       ],
     );
@@ -58,41 +69,71 @@ class _ActionTile
     extends StatelessWidget {
   final String title;
   final IconData icon;
+  final Widget? page;
+  final String? message;
 
   const _ActionTile({
     required this.title,
     required this.icon,
+    this.page,
+    this.message,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding:
-          const EdgeInsets.all(
+    return InkWell(
+      onTap: () {
+        if (page == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message ?? 'This action is not available yet.',
+              ),
+            ),
+          );
+          return;
+        }
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => page!,
+          ),
+          (route) => false,
+        );
+      },
+      borderRadius:
+          BorderRadius.circular(
         16,
       ),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(
+      child: Container(
+        padding:
+            const EdgeInsets.all(
           16,
         ),
-      ),
 
-      child: Row(
-        children: [
-          Icon(icon),
+        decoration: BoxDecoration(
+          color: Colors.white,
 
-          const SizedBox(
-            width: 12,
+          borderRadius:
+              BorderRadius.circular(
+            16,
           ),
+        ),
 
-          Text(
-            title,
-          ),
-        ],
+        child: Row(
+          children: [
+            Icon(icon),
+
+            const SizedBox(
+              width: 12,
+            ),
+
+            Text(
+              title,
+            ),
+          ],
+        ),
       ),
     );
   }

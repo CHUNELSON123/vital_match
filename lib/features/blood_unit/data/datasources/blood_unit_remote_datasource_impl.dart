@@ -119,7 +119,8 @@ class BloodUnitRemoteDatasourceImpl
     .where(
       (item) =>
           item is Map<String, dynamic> &&
-          item.containsKey('bloodType'),
+          (item.containsKey('bloodType') ||
+              item.containsKey('bloodGroup')),
     )
     .map(
       (item) =>
@@ -139,6 +140,14 @@ class BloodUnitRemoteDatasourceImpl
             .currentUser!
             .getIdToken();
 
+    final updatePayload =
+        bloodUnit.toMap()
+          ..['updatedBy'] =
+              FirebaseAuth
+                  .instance
+                  .currentUser!
+                  .uid;
+
     final response =
         await http.put(
       Uri.parse(
@@ -150,9 +159,7 @@ class BloodUnitRemoteDatasourceImpl
         'Authorization':
             'Bearer $token',
       },
-      body: jsonEncode(
-        bloodUnit.toMap(),
-      ),
+      body: jsonEncode(updatePayload),
     );
 
     if (response.statusCode != 200) {
