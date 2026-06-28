@@ -165,6 +165,8 @@ class EmergencyAlertFormCard extends StatelessWidget {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(
                           SnackBar(
+                            backgroundColor:
+                                sent ? Colors.green : Colors.red,
                             content: Text(
                               sent
                                   ? viewModel

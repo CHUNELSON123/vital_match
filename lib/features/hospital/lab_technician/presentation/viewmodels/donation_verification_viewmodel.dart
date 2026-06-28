@@ -30,6 +30,7 @@ class DonationVerificationViewModel extends ChangeNotifier {
   bool isLoading = false;
   bool isUpdating = false;
   List<DonationRecord> pendingDonations = [];
+  final Map<String, String> donorNamesByRecordId = {};
 
   DonationRecord? selectedDonation;
   Donor? donor;
@@ -54,6 +55,13 @@ class DonationVerificationViewModel extends ChangeNotifier {
               )
               .toList();
 
+      donorNamesByRecordId.clear();
+
+      for (final donation in pendingDonations) {
+        donorNamesByRecordId[donation.recordId] =
+            await _resolveDonorName(donation);
+      }
+
       if (pendingDonations.isNotEmpty) {
         selectedDonation = pendingDonations.first;
         await loadDonor();
@@ -77,17 +85,50 @@ class DonationVerificationViewModel extends ChangeNotifier {
       donor = await getDonorUsecase(selectedDonation!.donorId);
 
       if (donor != null) {
-        final user = await getUserUsecase(donor!.userId);
-        donorName = user?.fullName ?? 'Unknown Donor';
+        donorName =
+            await _resolveDonorName(selectedDonation!);
       } else {
-        donorName = 'Unknown Donor';
+        donorName =
+            await _getUserName(selectedDonation!.donorId);
       }
     } catch (e) {
       debugPrint('Error loading donor/user: $e');
-      donorName = 'Unknown Donor';
+      donorName =
+          await _getUserName(selectedDonation!.donorId);
     }
 
     notifyListeners();
+  }
+
+  Future<String> _resolveDonorName(
+    DonationRecord donation,
+  ) async {
+    try {
+      final donorProfile =
+          await getDonorUsecase(donation.donorId);
+      final userId =
+          donorProfile.userId.isNotEmpty
+              ? donorProfile.userId
+              : donation.donorId;
+
+      return _getUserName(userId);
+    } catch (_) {
+      return _getUserName(donation.donorId);
+    }
+  }
+
+  Future<String> _getUserName(String userId) async {
+    try {
+      final user = await getUserUsecase(userId);
+      final fullName =
+          user?.fullName.trim() ?? '';
+
+      return fullName.isEmpty
+          ? 'Unknown Donor'
+          : fullName;
+    } catch (_) {
+      return 'Unknown Donor';
+    }
   }
 
   Future<void> selectDonation(DonationRecord donation) async {
@@ -98,7 +139,7 @@ class DonationVerificationViewModel extends ChangeNotifier {
     await loadDonor();
   }
 
-  Future<void> updateDonationStatus(
+  Future<bool> updateDonationStatus(
     DonationRecord donation,
     DonationRecordStatus status,
   ) async {
@@ -143,8 +184,11 @@ class DonationVerificationViewModel extends ChangeNotifier {
       if (selectedDonation != null) {
         await loadDonor();
       }
+
+      return true;
     } catch (e) {
       debugPrint('Error updating donation status: $e');
+      return false;
     } finally {
       isUpdating = false;
       notifyListeners();
@@ -183,13 +227,15 @@ class DonationVerificationViewModel extends ChangeNotifier {
       donorId: currentDonor.donorId,
       userId: currentDonor.userId,
       bloodGroup: donation.bloodGroup,
-      weight: donation.donorWeight,
+      weight: donation.donorWeight >= 50
+          ? donation.donorWeight
+          : currentDonor.weight,
       gpsLatitude: currentDonor.gpsLatitude,
       gpsLongitude: currentDonor.gpsLongitude,
       age: currentDonor.age,
       pointsBalance: currentDonor.pointsBalance,
       isAvailable: currentDonor.isAvailable,
-      isVerified: currentDonor.isVerified,
+      isVerified: true,
       dateOfBirth: currentDonor.dateOfBirth,
       createdAt: currentDonor.createdAt,
       lastDonationDate: donation.donationDate,

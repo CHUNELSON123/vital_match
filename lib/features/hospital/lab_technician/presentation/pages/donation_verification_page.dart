@@ -139,7 +139,11 @@ class _DonationVerificationPageState extends State<DonationVerificationPage> {
                                                 donor: isSelected
                                                     ? viewModel.donor
                                                     : null,
-                                                donorName: isSelected ? viewModel.donorName : null,
+                                                donorName: isSelected
+                                                    ? viewModel.donorName
+                                                    : viewModel
+                                                        .donorNamesByRecordId[
+                                                            donation.recordId],
                                               ),
                                             ),
 
@@ -150,12 +154,35 @@ class _DonationVerificationPageState extends State<DonationVerificationPage> {
                                                 donation: donation,
                                                 isUpdating:
                                                     viewModel.isUpdating,
-                                                onStatusChanged: (status) =>
-                                                    viewModel
-                                                        .updateDonationStatus(
-                                                  donation,
-                                                  status,
-                                                ),
+                                                onStatusChanged: (status) async {
+                                                  final success =
+                                                      await viewModel
+                                                          .updateDonationStatus(
+                                                    donation,
+                                                    status,
+                                                  );
+
+                                                  if (!context.mounted) {
+                                                    return;
+                                                  }
+
+                                                  final action =
+                                                      status.name;
+
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      backgroundColor: success
+                                                          ? Colors.green
+                                                          : Colors.red,
+                                                      content: Text(
+                                                        success
+                                                            ? 'Donation $action successfully.'
+                                                            : 'Failed to $action donation. Please try again.',
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                           ],

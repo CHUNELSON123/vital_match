@@ -188,7 +188,7 @@ Future<void> loadInventory() async {
   notifyListeners();
 }
 
-  Future<void> recordDonation(
+  Future<bool> recordDonation(
   DonationRecord donationRecord,
 ) async {
 
@@ -252,6 +252,16 @@ notesController.clear();
 print(
   'RECENT DONATIONS RELOADED',
 );
+
+return true;
+
+  } catch (e, stack) {
+
+    print('DONATION CREATION FAILED');
+    print(e);
+    print(stack);
+
+    return false;
 
   } finally {
 

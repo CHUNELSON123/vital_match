@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vital_match/core/enums/blood_type.dart';
 import '../../domain/entities/donation_record.dart';
 import 'package:vital_match/core/enums/donation_record_status.dart';
@@ -55,7 +56,7 @@ class DonationRecordModel
           data['hospitalId'] ?? '',
       technicianId:
           data['technicianId'] ?? '',
-      donationDate: DateTime.parse(
+      donationDate: _parseDate(
         data['donationDate'],
       ),
       bloodUnitsCollected:
@@ -83,5 +84,24 @@ class DonationRecordModel
   orElse: () => DonationRecordStatus.verified,
 ),  
     );
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value is DateTime) {
+      return value;
+    }
+
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is Map<String, dynamic>) {
+      final seconds = value['_seconds'] ?? value['seconds'] ?? 0;
+      return DateTime.fromMillisecondsSinceEpoch(
+        seconds * 1000,
+      );
+    }
+
+    return DateTime.parse(value.toString());
   }
 }

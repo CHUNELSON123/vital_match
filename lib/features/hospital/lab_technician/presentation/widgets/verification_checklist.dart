@@ -5,7 +5,8 @@ import '../../../../../core/enums/donation_record_status.dart';
 class VerificationChecklist extends StatelessWidget {
   final DonationRecord donation;
   final bool isUpdating;
-  final ValueChanged<DonationRecordStatus> onStatusChanged;
+  final Future<void> Function(DonationRecordStatus)
+      onStatusChanged;
 
   const VerificationChecklist({
     super.key,
@@ -101,9 +102,9 @@ class VerificationChecklist extends StatelessWidget {
               OutlinedButton(
                 onPressed: isUpdating
                     ? null
-                    : () => onStatusChanged(
-                          DonationRecordStatus.rejected,
-                        ),
+                    : () async => onStatusChanged(
+                      DonationRecordStatus.rejected,
+                    ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFFAF101A),
                 ),
@@ -117,9 +118,9 @@ class VerificationChecklist extends StatelessWidget {
               ElevatedButton(
                 onPressed: isUpdating
                     ? null
-                    : () => onStatusChanged(
-                          DonationRecordStatus.verified,
-                        ),
+                    : () async => onStatusChanged(
+                      DonationRecordStatus.verified,
+                    ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),

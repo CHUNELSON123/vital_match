@@ -22,9 +22,7 @@ class DonorModel extends Donor {
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
-      'bloodGroup': _bloodTypeToString(
-        bloodGroup,
-      ),
+      'bloodGroup': bloodGroup.name,
       'weight': weight,
       'gpsLatitude': gpsLatitude,
       'gpsLongitude': gpsLongitude,
@@ -32,10 +30,10 @@ class DonorModel extends Donor {
       'pointsBalance': pointsBalance,
       'isAvailable': isAvailable,
       'isVerified': isVerified,
-      'dateOfBirth': Timestamp.fromDate(dateOfBirth),
-      'createdAt': Timestamp.fromDate(createdAt),
+      'dateOfBirth': dateOfBirth.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
       'lastDonationDate': lastDonationDate != null
-          ? Timestamp.fromDate(lastDonationDate!)
+          ? lastDonationDate!.toIso8601String()
           : null,
     };
   }
@@ -72,27 +70,35 @@ class DonorModel extends Donor {
 
   static BloodType _parseBloodType(String? value) {
     switch (value) {
+      case 'aPositive':
       case 'A+':
         return BloodType.aPositive;
 
+      case 'aNegative':
       case 'A-':
         return BloodType.aNegative;
 
+      case 'bPositive':
       case 'B+':
         return BloodType.bPositive;
 
+      case 'bNegative':
       case 'B-':
         return BloodType.bNegative;
 
+      case 'abPositive':
       case 'AB+':
         return BloodType.abPositive;
 
+      case 'abNegative':
       case 'AB-':
         return BloodType.abNegative;
 
+      case 'oPositive':
       case 'O+':
         return BloodType.oPositive;
 
+      case 'oNegative':
       case 'O-':
         return BloodType.oNegative;
 
@@ -182,6 +188,10 @@ class DonorModel extends Donor {
           );
         }
       }
+    }
+
+    if (value is Timestamp) {
+      return value.toDate();
     }
 
     if (value is Map<String, dynamic>) {

@@ -489,8 +489,26 @@ class DonationRecordingForm extends StatelessWidget {
                             .pending,
                   );
 
-                  await viewModel.recordDonation(
+                  final saved =
+                      await viewModel.recordDonation(
                     donationRecord,
+                  );
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      backgroundColor:
+                          saved ? Colors.green : Colors.red,
+                      content: Text(
+                        saved
+                            ? 'Donation recorded successfully. It is now pending verification.'
+                            : 'Failed to record donation. Please check the details and try again.',
+                      ),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.save),

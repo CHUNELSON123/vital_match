@@ -144,6 +144,13 @@ class DonationRecordRemoteDatasourceImpl
             .currentUser!
             .getIdToken();
 
+    final updatePayload =
+        donationRecord.toMap();
+
+    if ((updatePayload['donorWeight'] ?? 0) < 50) {
+      updatePayload.remove('donorWeight');
+    }
+
     final response =
         await http.put(
       Uri.parse(
@@ -155,12 +162,13 @@ class DonationRecordRemoteDatasourceImpl
         'Authorization':
             'Bearer $token',
       },
-      body: jsonEncode(
-        donationRecord.toMap(),
-      ),
+      body: jsonEncode(updatePayload),
     );
 
     if (response.statusCode != 200) {
+      print('UPDATE DONATION RECORD FAILED');
+      print('STATUS CODE: ${response.statusCode}');
+      print('BODY: ${response.body}');
       throw Exception(
         'Failed to update donation record',
       );

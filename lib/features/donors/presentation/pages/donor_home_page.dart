@@ -773,6 +773,7 @@ class _ProfileView extends StatelessWidget {
           phone: user?.phoneNumber ?? 'No phone number',
           bloodType: donor?.bloodGroup.displayName ?? '--',
           weight: donor?.weight.toStringAsFixed(1) ?? '--',
+          isVerified: donor?.isVerified ?? false,
         ),
         const SizedBox(height: 28),
         const Text('General Settings', style: _DonorText.sectionTitle),
@@ -1548,6 +1549,7 @@ class _ProfileHeaderCard extends StatelessWidget {
   final String phone;
   final String bloodType;
   final String weight;
+  final bool isVerified;
 
   const _ProfileHeaderCard({
     required this.name,
@@ -1555,6 +1557,7 @@ class _ProfileHeaderCard extends StatelessWidget {
     required this.phone,
     required this.bloodType,
     required this.weight,
+    required this.isVerified,
   });
 
   @override
@@ -1616,6 +1619,17 @@ class _ProfileHeaderCard extends StatelessWidget {
                 color: const Color(0xFF0EA5E9),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isVerified ? 'Verified' : 'Not verified',
+            style: TextStyle(
+              color: isVerified
+                  ? _DonorColors.tertiary
+                  : _DonorColors.mutedText,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+            ),
           ),
           const SizedBox(height: 24),
           _ContactRow(icon: Icons.mail, label: 'Email', value: email),
