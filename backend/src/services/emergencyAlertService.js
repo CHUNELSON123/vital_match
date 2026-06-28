@@ -86,6 +86,45 @@ const normalizeBloodGroup = (value) => {
     return groups[value] || value;
 };
 
+const isDonorEligible = (donor) => {
+    if (!donor.lastDonationDate) {
+        return true;
+    }
+
+    const lastDonationDate =
+        donor.lastDonationDate.toDate
+            ? donor.lastDonationDate.toDate()
+            : new Date(donor.lastDonationDate);
+
+    if (Number.isNaN(lastDonationDate.getTime())) {
+        return true;
+    }
+
+    const nextEligibleDate =
+        new Date(lastDonationDate);
+
+    nextEligibleDate.setMonth(
+        nextEligibleDate.getMonth() + 3,
+    );
+
+    return new Date() >= nextEligibleDate;
+};
+
+const displayBloodGroup = (value) => {
+    const groups = {
+        aPositive: 'A+',
+        aNegative: 'A-',
+        bPositive: 'B+',
+        bNegative: 'B-',
+        abPositive: 'AB+',
+        abNegative: 'AB-',
+        oPositive: 'O+',
+        oNegative: 'O-',
+    };
+
+    return groups[value] || value;
+};
+
 
 
 
@@ -217,6 +256,10 @@ const notifyMatchingDonors =
                         return false;
                     }
 
+                    if (!isDonorEligible(donor)) {
+                        return false;
+                    }
+
                     if (
                         donor.bloodGroup &&
                         normalizeBloodGroup(
@@ -257,7 +300,7 @@ const notifyMatchingDonors =
                         title:
                             'Emergency blood request',
                         message:
-                            `${hospital.name} urgently needs ${emergencyAlert.unitsNeeded} unit(s) of ${emergencyAlert.bloodGroup}.`,
+                            `${hospital.name} urgently needs ${emergencyAlert.unitsNeeded} unit(s) of ${displayBloodGroup(emergencyAlert.bloodGroup)}.`,
                         isRead:
                             false,
                         channel:

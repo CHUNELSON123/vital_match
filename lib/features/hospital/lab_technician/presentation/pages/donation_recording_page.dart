@@ -26,28 +26,32 @@ class _DonationRecordingPageState extends State<DonationRecordingPage> {
     super.initState();
 
     print('DONATION PAGE INIT');
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
 
     try {
 
   print('BEFORE LOAD DONORS');
 
-  ServiceLocator
+  await ServiceLocator
       .donationRecordingViewModel
       .loadDonors();
 
-  ServiceLocator
-      .donationRecordingViewModel
-      .loadRecentDonations();
-
   print('BEFORE LOAD TECHNICIAN');
 
-ServiceLocator
+await ServiceLocator
     .donationRecordingViewModel
     .loadCurrentTechnician();
 
+  await ServiceLocator
+      .donationRecordingViewModel
+      .loadRecentDonations();
+
   print('BEFORE LOAD INVENTORY');
 
-ServiceLocator
+await ServiceLocator
     .donationRecordingViewModel
     .loadInventory();
 

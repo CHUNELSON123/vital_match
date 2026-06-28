@@ -106,7 +106,8 @@ Future<bool> _enableLocation() async {
   bool serviceEnabled;
   LocationPermission permission;
 
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  try {
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
 print('Location service enabled: $serviceEnabled');
 
@@ -115,7 +116,9 @@ permission = await Geolocator.checkPermission();
 print('Permission: $permission');
 
   if (!serviceEnabled) {
-    await Geolocator.openLocationSettings();
+    if (!kIsWeb) {
+      await Geolocator.openLocationSettings();
+    }
     return false;
   }
 
@@ -167,6 +170,21 @@ print('Permission: $permission');
 }
 
   return true;
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            kIsWeb
+                ? 'Location is blocked by the browser. Use HTTPS or localhost to allow location access.'
+                : 'Unable to access location. Please enable location permission and try again.',
+          ),
+        ),
+      );
+    }
+
+    return false;
+  }
 
   
 }

@@ -24,6 +24,21 @@ const userCollection =
 const notificationService =
     require('./notificationService');
 
+const displayBloodGroup = (value) => {
+    const groups = {
+        aPositive: 'A+',
+        aNegative: 'A-',
+        bPositive: 'B+',
+        bNegative: 'B-',
+        abPositive: 'AB+',
+        abNegative: 'AB-',
+        oPositive: 'O+',
+        oNegative: 'O-',
+    };
+
+    return groups[value] || value;
+};
+
 
 
 
@@ -139,11 +154,16 @@ const createAlertResponse =
             donorUserDoc.exists
                 ? donorUserDoc.data().phoneNumber
                 : null;
+        const bloodGroup =
+            displayBloodGroup(
+                donorData.bloodGroup ||
+                    alertData.bloodGroup,
+            );
         const message =
             alertResponseData.responseStatus ===
             'accepted'
-                ? `${donorName} accepted your emergency alert. Phone: ${donorPhoneNumber || 'Not available'}.`
-                : `${donorName} rejected your emergency alert.`;
+                ? `${donorName} (${bloodGroup}) accepted your emergency alert. Phone: ${donorPhoneNumber || 'Not available'}.`
+                : `${donorName} (${bloodGroup}) rejected your emergency alert.`;
 
         await notificationService
             .createNotification({

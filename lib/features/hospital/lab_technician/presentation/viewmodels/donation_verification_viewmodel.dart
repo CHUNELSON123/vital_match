@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vital_match/core/di/service_locator.dart';
 import 'package:vital_match/core/enums/donation_record_status.dart';
 import 'package:vital_match/features/donation_record/domain/entities/donation_record.dart';
 import 'package:vital_match/features/donation_record/domain/usecases/get_pending_donation_records_usecase.dart';
 import 'package:vital_match/features/donation_record/domain/usecases/update_donation_record_usecase.dart';
 import 'package:vital_match/features/donors/domain/entities/donor.dart';
 import 'package:vital_match/features/donors/domain/usecases/get_donor_usecase.dart';
+import 'package:vital_match/features/donors/domain/usecases/update_donor_profile_usecase.dart';
 import 'package:vital_match/features/users/domain/usecase/get_user_by_id_usecase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vital_match/core/enums/notification_type.dart';
@@ -13,12 +16,14 @@ class DonationVerificationViewModel extends ChangeNotifier {
   final GetPendingDonationRecordsUsecase getPendingDonationRecordsUsecase;
   final UpdateDonationRecordUsecase updateDonationRecordUsecase;
   final GetDonorUsecase getDonorUsecase;
+  final UpdateDonorProfileUsecase updateDonorProfileUsecase;
   final GetUserByIdUsecase getUserUsecase;
 
   DonationVerificationViewModel({
     required this.getPendingDonationRecordsUsecase,
     required this.updateDonationRecordUsecase,
     required this.getDonorUsecase,
+    required this.updateDonorProfileUsecase,
     required this.getUserUsecase,
   });
 
@@ -36,6 +41,18 @@ class DonationVerificationViewModel extends ChangeNotifier {
 
     try {
       pendingDonations = await getPendingDonationRecordsUsecase();
+
+      final hospitalId =
+          await _currentTechnicianHospitalId();
+
+      pendingDonations = hospitalId == null
+          ? []
+          : pendingDonations
+              .where(
+                (donation) =>
+                    donation.hospitalId == hospitalId,
+              )
+              .toList();
 
       if (pendingDonations.isNotEmpty) {
         selectedDonation = pendingDonations.first;
@@ -103,6 +120,13 @@ class DonationVerificationViewModel extends ChangeNotifier {
 
     try {
       await updateDonationRecordUsecase(updatedDonation);
+
+      if (status == DonationRecordStatus.verified) {
+        await _applyVerifiedDonationToDonorProfile(
+          updatedDonation,
+        );
+      }
+
       await _notifyDonor(updatedDonation, status);
 
       pendingDonations = pendingDonations
@@ -125,6 +149,55 @@ class DonationVerificationViewModel extends ChangeNotifier {
       isUpdating = false;
       notifyListeners();
     }
+  }
+
+  Future<String?> _currentTechnicianHospitalId() async {
+    final uid =
+        FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid == null) {
+      return null;
+    }
+
+    final technician = await ServiceLocator
+        .getLabTechnicianByUserIdUsecase(
+      uid,
+    );
+
+    return technician?.hospitalId;
+  }
+
+  Future<void> _applyVerifiedDonationToDonorProfile(
+    DonationRecord donation,
+  ) async {
+    final currentDonor =
+        await getDonorUsecase(
+      donation.donorId,
+    );
+
+    if (currentDonor == null) {
+      return;
+    }
+
+    final updatedDonor = Donor(
+      donorId: currentDonor.donorId,
+      userId: currentDonor.userId,
+      bloodGroup: donation.bloodGroup,
+      weight: donation.donorWeight,
+      gpsLatitude: currentDonor.gpsLatitude,
+      gpsLongitude: currentDonor.gpsLongitude,
+      age: currentDonor.age,
+      pointsBalance: currentDonor.pointsBalance,
+      isAvailable: currentDonor.isAvailable,
+      isVerified: currentDonor.isVerified,
+      dateOfBirth: currentDonor.dateOfBirth,
+      createdAt: currentDonor.createdAt,
+      lastDonationDate: donation.donationDate,
+    );
+
+    await updateDonorProfileUsecase(
+      updatedDonor,
+    );
   }
 
   Future<void> _notifyDonor(

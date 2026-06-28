@@ -275,6 +275,7 @@ class ServiceLocator {
         getPendingDonationRecordsUsecase: getPendingDonationRecordsUsecase,
         updateDonationRecordUsecase: updateDonationRecordUsecase,
         getDonorUsecase: getDonorUsecase,
+        updateDonorProfileUsecase: updateDonorProfileUsecase,
         getUserUsecase: getUserByIdUsecase,
       );
 

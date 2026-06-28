@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vital_match/core/extensions/blood_type_extension.dart';
+import 'package:vital_match/core/di/service_locator.dart';
 import 'package:vital_match/features/blood_unit/domain/entities/blood_unit.dart';
 import 'package:vital_match/features/donation_record/domain/entities/donation_record.dart';
 import 'package:vital_match/features/alerts/emergency_alert/domain/entities/emergency_alert.dart';
@@ -71,9 +73,30 @@ class DashboardViewModel
   notifyListeners();
 
   try {
+    final uid =
+        FirebaseAuth.instance.currentUser?.uid;
+
+    final technician = uid == null
+        ? null
+        : await ServiceLocator
+            .getLabTechnicianByUserIdUsecase(
+            uid,
+          );
+
+    final hospitalId =
+        technician?.hospitalId;
 
     bloodUnits =
         await getDashboardBloodUnitsUsecase();
+
+    bloodUnits = hospitalId == null
+        ? []
+        : bloodUnits
+            .where(
+              (unit) =>
+                  unit.hospitalId == hospitalId,
+            )
+            .toList();
 
     print(
   'DASHBOARD BLOOD UNITS: ${bloodUnits.length}',
@@ -81,6 +104,15 @@ class DashboardViewModel
 
     donationRecords =
         await getDashboardDonationRecordsUsecase();
+
+    donationRecords = hospitalId == null
+        ? []
+        : donationRecords
+            .where(
+              (record) =>
+                  record.hospitalId == hospitalId,
+            )
+            .toList();
     
     print(
   'DASHBOARD DONATION RECORDS: ${donationRecords.length}',
@@ -89,8 +121,14 @@ class DashboardViewModel
     emergencyAlerts =
         await getDashboardEmergencyAlertsUsecase();
 
-   donationRecords =
-    await getDashboardDonationRecordsUsecase();
+    emergencyAlerts = hospitalId == null
+        ? []
+        : emergencyAlerts
+            .where(
+              (alert) =>
+                  alert.hospitalId == hospitalId,
+            )
+            .toList();
 
 print(
   'DASHBOARD DONATION COUNT: ${donationRecords.length}',

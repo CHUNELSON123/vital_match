@@ -114,6 +114,18 @@ async {
     recentDonations =
         await getDonationRecordsUsecase();
 
+    final hospitalId =
+        currentTechnician?.hospitalId;
+
+    recentDonations = hospitalId == null
+        ? []
+        : recentDonations
+            .where(
+              (record) =>
+                  record.hospitalId == hospitalId,
+            )
+            .toList();
+
     print(
       'DONATIONS LOADED: ${recentDonations.length}',
     );
@@ -149,6 +161,18 @@ Future<void> loadInventory() async {
   bloodUnits =
       await getDashboardBloodUnitsUsecase();
 
+  final hospitalId =
+      currentTechnician?.hospitalId;
+
+  bloodUnits = hospitalId == null
+      ? []
+      : bloodUnits
+          .where(
+            (unit) =>
+                unit.hospitalId == hospitalId,
+          )
+          .toList();
+
   print(
     'INVENTORY COUNT: ${bloodUnits.length}',
   );
@@ -173,68 +197,6 @@ Future<void> loadInventory() async {
   notifyListeners();
 
   try {
-
-    if (selectedDonor != null) {
-
-      final donor =
-          selectedDonor!.donor;
-
-      final updatedBloodType =
-          stringToBloodType(
-        bloodTypeController.text,
-      );
-
-      final updatedWeight =
-          double.tryParse(
-            donorWeightController.text.trim(),
-          ) ??
-          donor.weight;
-
-      if (updatedBloodType !=
-              donor.bloodGroup ||
-          updatedWeight != donor.weight) {
-
-        final updatedDonor =
-            Donor(
-          donorId: donor.donorId,
-          userId: donor.userId,
-          bloodGroup:
-              updatedBloodType,
-          weight: updatedWeight,
-          gpsLatitude:
-              donor.gpsLatitude,
-          gpsLongitude:
-              donor.gpsLongitude,
-          age: donor.age,
-          pointsBalance:
-              donor.pointsBalance,
-          isAvailable:
-              donor.isAvailable,
-          isVerified:
-              donor.isVerified,
-          dateOfBirth:
-              donor.dateOfBirth,
-          createdAt:
-              donor.createdAt,
-          lastDonationDate:
-              donor.lastDonationDate,
-        );
-
-        print('UPDATING DONOR DONATION DETAILS');
-
-await updateDonorProfileUsecase(
-  updatedDonor,
-);
-
-print('DONOR UPDATE COMPLETED');
-
-        selectedDonor = DonorDropdownItem(
-          donor: updatedDonor,
-          fullName: selectedDonor!.fullName,
-          phoneNumber: selectedDonor!.phoneNumber,
-        );
-      }
-    }
 
     print('CREATING DONATION');
 

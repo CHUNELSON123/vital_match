@@ -103,6 +103,7 @@ class EmergencyAlertViewModel extends ChangeNotifier {
         .where(
           (donor) =>
               donor.isAvailable &&
+              _isEligibleForEmergencyAlert(donor) &&
               donor.bloodGroup == selectedBloodType &&
               _distanceInKm(
                     hospital.latitude,
@@ -113,6 +114,22 @@ class EmergencyAlertViewModel extends ChangeNotifier {
                   radiusKm,
         )
         .toList();
+  }
+
+  bool _isEligibleForEmergencyAlert(Donor donor) {
+    final lastDonationDate = donor.lastDonationDate;
+
+    if (lastDonationDate == null) {
+      return true;
+    }
+
+    final nextEligibleDate = DateTime(
+      lastDonationDate.year,
+      lastDonationDate.month + 3,
+      lastDonationDate.day,
+    );
+
+    return !DateTime.now().isBefore(nextEligibleDate);
   }
 
   double _distanceInKm(

@@ -62,22 +62,36 @@ const donationTrendMap = {};
 
 const bloodDistributionMap = {};
 
+let totalBloodUnits = 0;
+
+bloodUnitsSnapshot.docs.forEach(
+    (doc) => {
+        const data = doc.data();
+        const quantity =
+            Number(data.quantity || 0);
+        const bloodType =
+            data.bloodType ||
+            data.bloodGroup;
+
+        totalBloodUnits += quantity;
+
+        if (bloodType) {
+            bloodDistributionMap[
+                bloodType
+            ] =
+                (
+                    bloodDistributionMap[
+                        bloodType
+                    ] || 0
+                ) + quantity;
+        }
+    },
+);
+
 donationRecordsSnapshot.docs.forEach(
     (doc) => {
 
     const data = doc.data();
-
-    if (data.bloodGroup) {
-
-    bloodDistributionMap[
-        data.bloodGroup
-    ] =
-        (
-            bloodDistributionMap[
-                data.bloodGroup
-            ] || 0
-        ) + 1;
-}
 
     if (!data.donationDate) {
         return;
@@ -104,7 +118,7 @@ donationRecordsSnapshot.docs.forEach(
    return {
 
     totalBloodUnits:
-        bloodUnitsSnapshot.size,
+        totalBloodUnits,
 
     totalDonationRecords:
         donationRecordsSnapshot.size,
