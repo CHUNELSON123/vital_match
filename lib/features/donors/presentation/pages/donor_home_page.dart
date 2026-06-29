@@ -565,7 +565,7 @@ class _HistoryView extends StatelessWidget {
                 _ImpactCard(
                   icon: Icons.water_drop,
                   label: 'Units Donated',
-                  value: '${viewModel.litersDonated.toStringAsFixed(1)}L',
+                  value: '${viewModel.unitsDonated} units',
                 ),
                 _ImpactCard(
                   icon: Icons.military_tech,
@@ -1194,7 +1194,7 @@ class _DonationRecordTile extends StatelessWidget {
                   _SmallInfo(
                     label: 'Units',
                     value:
-                        '${(record.bloodUnitsCollected * 0.45).toStringAsFixed(2)}L',
+                        '${record.bloodUnitsCollected} units',
                   ),
                   const SizedBox(width: 24),
                   _SmallInfo(

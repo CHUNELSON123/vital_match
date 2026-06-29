@@ -209,10 +209,10 @@ class DonorDashboardViewModel extends ChangeNotifier {
     return donationRecords.length;
   }
 
-  double get litersDonated {
-    return donationRecords.fold<double>(
+  int get unitsDonated {
+    return donationRecords.fold<int>(
       0,
-      (total, record) => total + record.bloodUnitsCollected * 0.45,
+      (total, record) => total + record.bloodUnitsCollected,
     );
   }
 
