@@ -62,7 +62,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       email: email,
       password: password,
     );
+    
+    print("API URL = ${ApiConstants.baseUrl}");
 
+   
     final user = credential.user!;
 
     final response = await http.get(
