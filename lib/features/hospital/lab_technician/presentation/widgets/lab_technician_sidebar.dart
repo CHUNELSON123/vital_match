@@ -65,20 +65,21 @@ class LabTechnicianSidebar
             const LabTechnicianDashboard(),
           ),
 
-         _navItem(
-            context,
-            1,
-            Icons.verified,
-            'Donation Verification',
-            const DonationVerificationPage(),
-          ),
-
           _navItem(
             context,
             2,
             Icons.edit_note,
             'Donation Recording',
             const DonationRecordingPage(),
+          ),
+
+
+         _navItem(
+            context,
+            1,
+            Icons.verified,
+            'Donation Verification',
+            const DonationVerificationPage(),
           ),
 
           _navItem(

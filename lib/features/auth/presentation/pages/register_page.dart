@@ -245,7 +245,7 @@ print('Permission: $permission');
 
               CustomTextField(
                 label: 'Full Name',
-                hintText: 'BEH CHU NELSON',
+                hintText: 'Full Name',
                 controller: vm.fullNameController,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -260,7 +260,7 @@ print('Permission: $permission');
 
               CustomTextField(
                 label: 'Email Address',
-                hintText: 'chu@example.com',
+                hintText: 'name@example.com',
                 controller: vm.emailController,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
@@ -280,7 +280,7 @@ print('Permission: $permission');
 
               CustomTextField(
                 label: 'Phone Number',
-                hintText: '+237 671007313',
+                hintText: '+237 670000000',
                 controller: vm.phoneController,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
@@ -296,7 +296,7 @@ print('Permission: $permission');
 
                CustomTextField(
                   label: 'Password',
-                  hintText: '*********',
+                  hintText: '••••••••••',
                   obscureText: _obscurePassword,
 
                   suffixIcon: IconButton(
